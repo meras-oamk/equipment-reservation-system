@@ -1,0 +1,8 @@
+.logo{
+    height: 60px;
+    width: 60px;
+}
+.btn.btn-primary{
+    background-color: #F6931D !important;
+    border: none !important;
+}

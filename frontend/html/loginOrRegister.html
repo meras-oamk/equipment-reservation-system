@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register or Login</title>
+    <link rel="stylesheet" href="../css/loginOrRegister.css">
+</head>
+<body>
+
+<div class="container">
+
+    <!-- Login Card -->
+    <div class="card">
+        <img src="../Assets/logo.png" alt="Logo" class="logo">
+
+        <h1>Reservation System</h1>
+        <p class="subtitle">Reserve technical equipment easily</p>
+
+        <div class="form-box">
+    <!-- Tabs --> 
+    <div class="tabs">
+        <button id="loginTab" class="tab active">Login</button>
+        <button id="registerTab" class="tab">Register</button>
+    </div>
+
+    <!-- Login Form -->
+    <form id="loginForm">
+        <label>Email</label>
+        <input type="email" placeholder="user@example.com">
+
+        <label>Password</label>
+
+<div class="password-container">
+    <input type="password" id="loginPassword" placeholder="Enter your password">
+<i class="fa-solid fa-eye" id="loginEye"></i>
+</div>
+        <button type="submit" class="primary-btn">Login</button>
+
+        <p class="switch-text">
+            Don't have an account?
+            <a href="#" id="showRegister">Register</a>
+        </p>
+    </form>
+
+    <!-- Register Form -->
+    <form id="registerForm" style="display:none;">
+        <label>Full Name</label>
+        <input type="text" placeholder="John Doe">
+
+        <label>Email</label>
+        <input type="email" placeholder="user@example.com">
+
+        <label>Password</label>
+        <input type="password" id="registerPassword" placeholder="Enter your password">
+        <i class="fa-solid fa-eye" id="registerEye"></i>
+
+        <button type="submit" class="primary-btn">Register</button>
+
+        <p class="switch-text">
+            Already have an account?
+            <a href="#" id="showLogin">Login</a>
+        </p>
+    </form>
+</div>
+<script src="../js/loginOrRegister.js"></script>
+</body>
+</html>

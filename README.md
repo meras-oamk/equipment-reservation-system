@@ -50,3 +50,66 @@ It allows students, staff, and admins to:
 The database consists of five core tables and supporting enums.
 
 <img width="1200" height="984" alt="ER-diagram" src="https://github.com/user-attachments/assets/5b60803f-610a-4e65-b333-fde12f62c93d" />
+
+## Project Structure
+
+equipment-reservation-system/
+│
+├── backend/                         # Node.js + Express API server
+│   ├── helpers/                     # Shared utility modules
+│   │   ├── auth.js                  # JWT authentication middleware
+│   │   ├── db.js                    # PostgreSQL connection pool
+│   │   ├── hash.js                  # Password hashing (bcrypt)
+│   │   └── role.js                  # Role-based access guard middleware
+│   │
+│   ├── routes/                      # Express route handlers
+│   │   ├── equipment.js             # Equipment types & units CRUD
+│   │   ├── log.js                   # Equipment audit log endpoints
+│   │   ├── overdue_job.js           # Scheduled job — marks overdue reservations
+│   │   ├── reservations.js          # Reservation lifecycle endpoints
+│   │   └── users.js                 # User management endpoints
+│   │
+│   ├── index.js                     # Express app entry point & route mounting
+│   ├── package.json                 # Backend dependencies & scripts
+│   └── package-lock.json            # Locked dependency tree
+│
+├── database/                        # Database layer
+│   └── meras.sql                    # Full PostgreSQL schema (tables, enums, constraints)
+│
+├── documents/                       # Project documentation assets
+│   └── ER-diagram.png               # Entity Relationship Diagram
+│
+├── frontend/                        # Plain HTML / CSS / JS client
+│   ├── assets/                      # Static assets
+│   │   └── logo.png                 # ResEquip brand logo
+│   │
+│   ├── css/                         # Stylesheets
+│   │   └── style.css                # Global styles
+│   │
+│   ├── html/                        # Page templates
+│   │   ├── admin/                   # Admin-only pages (dashboard, manage equipment, users)
+│   │   ├── user/                    # Student & staff pages (catalog, my reservations)
+│   │   ├── index.html                # Landing page
+│   │   └── loginOrRegister.html     # Login / register page
+│   │
+│   └── js/                          # Client-side JavaScript
+│       ├── admin/                   # Admin page scripts
+│       ├── user/                    # User page scripts
+│       ├── auth.js                  # Token storage & auth state management
+│       └── loginOrRegister.js       # Login / register form logic
+│   
+├── .gitignore                       # Git ignored files (node_modules, .env, etc.)
+└── README.md                        # Project documentation (this file)
+
+## Pages
+
+| Admin | User |
+|---|---|
+| Landing Page | Landing Page |
+| Login | Login / Signup |
+| Reservations | Dashboard (list of categories with equipments) |
+| Equipment Management | Reservation |
+| Add Equipment | Reserved Confirmation |
+| Configuration | My Reservation |
+| Manage Users | Reservation Details |
+

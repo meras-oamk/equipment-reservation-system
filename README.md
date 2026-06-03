@@ -1,4 +1,4 @@
-<img width="500" height="500" alt="Logo" src="https://github.com/user-attachments/assets/1aa57900-ae05-4757-8e4a-fa224b825bc7" />
+<img width="100" height="100" alt="Logo" src="https://github.com/user-attachments/assets/1aa57900-ae05-4757-8e4a-fa224b825bc7" />
 
 
 ## Project Description

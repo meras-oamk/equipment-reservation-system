@@ -110,9 +110,18 @@ equipment-reservation-system/
 |---|---|
 | Landing Page | Landing Page |
 | Login | Login / Signup |
-| Reservations | Dashboard (list of categories with equipments) |
-| Equipment Management | Reservation |
-| Add Equipment | Reserved Confirmation |
+| Dashboard | Equipment List |
+| Reservations | Equipment Details |
+| Equipment Management | Reserved Confirmation |
+| Add Equipment | Reservation Details |
 | Configuration | My Reservation |
-| Manage Users | Reservation Details |
+| Add Categories | Scanning QR Code |
+| Manage Users | Reservation Actions (Pickup) |
+| Logs | Reservation Actions (Return) |
+| Booking Policies | My Account |
+| Change Password | Change Password |
 
+## Course
+TVT Kesäprojektit/Summer projects 2026 
+Oulu University of Applied Sciences (Oamk)
+Sprint period: 13.5 – 2.7.2026

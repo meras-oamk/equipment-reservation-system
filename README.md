@@ -1,7 +1,7 @@
 # EquipReserve
 
 ## Project Description
-ResEquip is a modular reservation and asset tracking system designed for institutions that manage shared technical equipment — VR headsets, AR glasses, motion trackers, robotics, lab devices, and more.
+EquipReserve is a modular reservation and asset tracking system designed for institutions that manage shared technical equipment — VR headsets, AR glasses, motion trackers, robotics, lab devices, and more.
 
 It allows students, staff, and admins to:
 - Browse available equipment and make time-based reservations
@@ -11,7 +11,7 @@ It allows students, staff, and admins to:
 - Manage equipment condition, status, and audit logs through an admin dashboard
 
 ## Live Demo
-
+*****************************
 
 ## Team
 - Janne Kumpuoja (Supervisor)
@@ -45,3 +45,8 @@ It allows students, staff, and admins to:
 | **Condition tracking** | Record equipment condition at check-out and return |
 | **Audit logging** | Every action on every unit is recorded with before/after state |
 | **Booking policies** | Status transitions enforced by reservation lifecycle rules |
+
+## Database Schema
+The database consists of five core tables and supporting enums.
+
+<img width="1200" height="984" alt="ER-diagram" src="https://github.com/user-attachments/assets/5b60803f-610a-4e65-b333-fde12f62c93d" />

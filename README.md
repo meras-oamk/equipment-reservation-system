@@ -14,11 +14,11 @@ It allows students, staff, and admins to:
 
 
 ## Team
-Janne Kumpuoja (Supervisor)
-Diem Tran (Student)
-Thi Dinh (Student)
-Upeksha Eshani (Student)
-Ruvindra Nimshani (Student)
+- Janne Kumpuoja (Supervisor)
+- Diem Tran (Student)
+- Thi Dinh (Student)
+- Upeksha Eshani (Student)
+- Ruvindra Nimshani (Student)
 
 ## Tech Stack
 

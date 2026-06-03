@@ -1,0 +1,143 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family: Georgia, serif;
+}
+
+body{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:#f2f2f2;
+    padding:30px;
+}
+
+.container{
+    display:flex;
+    gap:80px;
+    flex-wrap:wrap;
+    justify-content:center;
+}
+
+.card{
+    width:340px;
+    background:#ebe6dd;
+    border:3px solid #cfcfcf;
+    border-radius:35px;
+    padding:30px 25px;
+    text-align:center;
+}
+
+.logo{
+    width:70px;
+    margin-bottom:15px;
+}
+
+.card h1{
+    font-size:18px;
+    color:#222;
+    margin-bottom:8px;
+}
+
+.subtitle{
+    color:#8a8a8a;
+    margin-bottom:30px;
+}
+
+.form-box{
+    background:#f7f4f4;
+    border:2px solid #d4d4d4;
+    border-radius:10px;
+    padding:22px;
+}
+
+.tabs{
+    display:flex;
+    gap:15px;
+    justify-content:center;
+    margin-bottom:20px;
+}
+
+.tab{
+    border:none;
+    padding:10px 24px;
+    background:#e5e5e5;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+.tab.active{
+    background:#f49a1a;
+    color:#fff;
+}
+form{
+    text-align:left;
+}
+
+label{
+    display:block;
+    font-size:14px;
+    margin-bottom:8px;
+    color:#222;
+    font-weight:600;
+}
+.password-container{
+    position: relative;
+    width: 100%;
+}
+
+.password-container input{
+    width: 100%;
+    padding-right: 40px;
+}
+
+.password-container i{
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #777;
+}
+input{
+    width:100%;
+    height:40px;
+    border:2px solid #d6d6d6;
+    border-radius:8px;
+    padding:0 12px;
+    margin-bottom:18px;
+    background:#f1f1f1;
+    font-size:14px;
+}
+.switch-text{
+    text-align:center;
+    font-size:14px;
+    margin:18px 0;
+}
+
+.switch-text a{
+    text-decoration:none;
+    color:#f49a1a;
+    font-weight:600;
+}
+.primary-btn{
+    width:100%;
+    border:none;
+    height:42px;
+    background:#f49a1a;
+    color:white;
+    border-radius:6px;
+    font-size:18px;
+    cursor:pointer;
+    margin-top:5px;
+}
+
+@media (max-width: 900px){
+    .container{
+        flex-direction:column;
+        align-items:center;
+        gap:30px;
+    }
+}

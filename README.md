@@ -27,7 +27,7 @@ It allows students, staff, and admins to:
 | **Frontend** | HTML, CSS, JavaScript |
 | **Backend** | Node.js + Express.js |
 | **Database** | PostgreSQL |
-| **Authentication** | ********|
+| **Authentication** | bscrypt, hashpassword, email verification |
 | **QR Scanning** | QR code generation + browser-based scan |
 | **Email** | ********* |
 

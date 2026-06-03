@@ -53,6 +53,7 @@ The database consists of five core tables and supporting enums.
 
 ## Project Structure
 
+```
 equipment-reservation-system/
 │
 ├── backend/                         # Node.js + Express API server
@@ -100,6 +101,7 @@ equipment-reservation-system/
 │   
 ├── .gitignore                       # Git ignored files (node_modules, .env, etc.)
 └── README.md                        # Project documentation (this file)
+```
 
 ## Pages
 

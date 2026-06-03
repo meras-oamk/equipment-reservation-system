@@ -122,6 +122,8 @@ equipment-reservation-system/
 | Change Password | Change Password |
 
 ## Course
+```
 TVT Kesäprojektit/Summer projects 2026 
 Oulu University of Applied Sciences (Oamk)
 Sprint period: 13.5 – 2.7.2026
+```

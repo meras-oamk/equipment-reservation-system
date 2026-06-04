@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
-const db = require('../../database/db')
+const { db } = require('../../database/db')
 const sendEmail = require('./email')
 require('dotenv').config()
 
@@ -9,7 +9,6 @@ const authHelper = {
         const trimEmail = email.toLowerCase().trim()
 
         const checkEmail = trimEmail.includes('oamk.fi')
-
 
         if (checkEmail) {
             const checkUser = await db.query(
@@ -26,11 +25,11 @@ const authHelper = {
             const hashedPassword = await bcrypt.hash(password, 10)
     
             const temporaryRegister = await db.query(`
-                INSERT INTO pending_verifications (email, fullname, password, verification_code, expires_at, role)
-                VALUES ($1, $2, $3, $4, $5, $6)
+                INSERT INTO pending_verifications (email, fullname, password, verification_code, expires_at)
+                VALUES ($1, $2, $3, $4, $5)
                 ON CONFLICT (email) DO UPDATE
-                SET fullname = $2, password = $3, verification_code = $4, expires_at = $5, role = $6;
-            `, [email, fullname, hashedPassword, verificationCode, expiresAt, assignedRole]
+                SET fullname = $2, password = $3, verification_code = $4, expires_at = $5;
+            `, [email, fullname, hashedPassword, verificationCode, expiresAt]
             )
     
             // Email content
@@ -77,23 +76,28 @@ const authHelper = {
         }
 
         const registerUser = await db.query(`
-           INSERT INTO users (fullname, email, password, role)
+           INSERT INTO users (full_name, email, password_hash, role)
            VALUES ($1, $2, $3, $4)
-           RETURNING id, fullname, email, role; 
+           RETURNING id, full_name, email, role; 
         `, [pendingUser.fullname, pendingUser.email, pendingUser.password, assignedRole]
         )
 
         const newUser = registerUser.rows[0]
 
-        await db.query('DELETE FROM pending_verifications WHERE email = $1;', [trimEmail])
+        await db.query(
+            'DELETE FROM pending_verifications WHERE email = $1;',
+            [trimEmail]
+        )
 
         const token = jwt.sign(
             { userId: newUser.id, role: newUser.fullname },
             process.env.JWT_SECRET,
-            { expiresIn: '2h' }
+            { expiresIn: '1h' }
         )
         return { token, user: newUser }
-    }
+    },
+
+    
 }
 
 module.exports = authHelper

@@ -19,8 +19,8 @@ router.post('/register', async (req, res) => {
             success: true,
             message: 'Verification code has been sent.'
         })
-    } catch (err) {
-        return res.status(400).json({ err: err.message })
+    } catch (error) {
+        return res.status(400).json({ error: error.message })
     }
 })
 
@@ -39,8 +39,8 @@ router.post('/verify-code', async (req, res) => {
             token: data.token,
             role: data.user.role
         })
-    } catch (err) {
-        return res.status(400).json({ err: err.message })
+    } catch (error) {
+        return res.status(400).json({ error: error.message })
     }
 })
 

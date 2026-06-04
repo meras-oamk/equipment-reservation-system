@@ -12,12 +12,12 @@ const transporter = nodemailer.createTransport({
 async function sendEmail(options) {
     try {
         await transporter.sendMail({
-            from: `"Account Verification" <${process.env.EMAIL_USER}>`
-            .replace.call.options
+            from: `"Account Verification" <${process.env.EMAIL_USER}>`,
+            ...options
         })
         console.log('Email sent to user!')
-    } catch (err) {
-        console.error('Error sending email: ', err)
+    } catch (error) {
+        console.error('Error sending email: ', error)
     }
 }
 

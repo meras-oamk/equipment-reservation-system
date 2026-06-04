@@ -1,15 +1,17 @@
 const express = require('express')
-const app = express()
 const cors = require('cors')
-const path = require('path')
-const { connectDB } = require('../database/database')
+const { connectDB } = require('../database/db')
+const authRoute = require('./routes/auth')
 
 require('dotenv').config()
+const app = express()
 
 connectDB()
 
 app.use(express.json())
 app.use(cors())
+
+app.use('/api/auth', authRoute)
 
 app.get('/', (req, res) => {
   res.send('Hello World!')

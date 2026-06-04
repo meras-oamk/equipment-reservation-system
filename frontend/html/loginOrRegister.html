@@ -63,6 +63,37 @@
         </p>
     </form>
 </div>
+<!-- Email Verification Modal -->
+<div id="verificationModal" class="modal">
+    <div class="modal-content">
+
+        <h2>Email Verification</h2>
+
+        <p>
+            We've sent a 6-digit verification code to your email.
+            Enter it below to verify your account.
+        </p>
+
+        <div class="code-inputs">
+            <input type="text" maxlength="1" class="code-box">
+            <input type="text" maxlength="1" class="code-box">
+            <input type="text" maxlength="1" class="code-box">
+            <input type="text" maxlength="1" class="code-box">
+            <input type="text" maxlength="1" class="code-box">
+            <input type="text" maxlength="1" class="code-box">
+        </div>
+
+        <button id="verifyBtn" class="primary-btn">
+            Verify Email
+        </button>
+
+        <p class="resend-text">
+            Didn't receive the code?
+            <a href="#" id="resendCode">Resend Code</a>
+        </p>
+
+    </div>
+</div>
 <script src="../js/loginOrRegister.js"></script>
 </body>
 </html>

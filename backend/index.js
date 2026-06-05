@@ -9,15 +9,21 @@ const app = express()
 connectDB()
 
 app.use(express.json())
-app.use(cors())
-
-app.use('/api/auth', authRoute)
+app.use(cors({
+  origin: 'http://127.0.0.1:5500',
+  // methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  // allowedHeaders: ['Content-Type', 'Authorization'],
+  // credentials: true
+}))
 
 app.get('/', (req, res) => {
   res.send('Hello World!')
 })
 
-const PORT = process.env.PORT || 3000
+app.use('/api/auth', authRoute)
+
+
+const PORT = process.env.PORT || 5000
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`)
 })

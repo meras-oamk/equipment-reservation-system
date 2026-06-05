@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Equipment Reservation</title>
+</head>
+<body>
+
+<button id="logoutBtn">Logout</button>
+
+<script>
+    const logoutBtn = document.getElementById('logoutBtn')
+    const token = localStorage.getItem('token')
+    
+    if (!token) window.location.href = '../index.html'
+
+    logoutBtn.addEventListener('click', () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('role');
+
+        window.location.href = '../index.html'
+    })
+</script>
+<script src="../../js/user/equipments_list.js"></script>
+</body>
+</html>

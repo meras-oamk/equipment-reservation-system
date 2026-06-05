@@ -68,7 +68,7 @@ const authHelper = {
             throw new Error('Invalid verification code. Please check your email and try again.')
         }
 
-        let assignedRole
+        let assignedRole = ''
         if (trimEmail.includes('@students.oamk.fi')) {
             assignedRole = 'student'
         } else if (trimEmail.includes('@oamk.fi')) {
@@ -97,7 +97,25 @@ const authHelper = {
         return { token, user: newUser }
     },
 
-    
+    login: async (email, password) => {
+        const trimEmail = email.toLowerCase().trim()
+
+        const getUser = await db.query('SELECT * FROM users WHERE email = $1;', [trimEmail])
+        
+        const user = getUser.rows[0]
+        if (!user) throw new Error('Invalid email or password!')
+
+        const isMatch = await bcrypt.compare(password, user.password_hash)
+        if (!isMatch) throw new Error('Wrong password!')
+
+        const token = jwt.sign(
+            { userId: user.id, role: user.role },
+            process.env.JWT_SECRET,
+            { expiresIn: '1h'}
+        )
+
+        return { token, role: user.role }
+    }
 }
 
 module.exports = authHelper

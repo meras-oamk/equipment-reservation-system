@@ -28,10 +28,10 @@
     <a class="nav-item" href="#"><i class="bi bi-book"></i> Booking Policies</a>
   </nav>
 
-  <div class="sidebar-footer">
-    <a href="#" class="logout-btn">
+  <div class="sidebar-footer d-flex justify-content-center align-items-center">
+    <div class="logout-btn" style="cursor: default">
       <i class="bi bi-box-arrow-right"></i> Log out
-    </a>
+    </div>
   </div>
 </aside>
 
@@ -283,6 +283,20 @@
   document.getElementById("addEquipmentModal").addEventListener("click", function(e) {
     if (e.target === this) closeModal();
   });
+</script>
+<script>
+  const token = localStorage.getItem('token')
+
+  if (!token) window.location.href = '../index.html'
+
+  const logoutBtn = document.querySelector('.logout-btn')
+
+  logoutBtn.addEventListener('click', () => {
+      localStorage.removeItem('token')
+      localStorage.removeItem('role')
+
+      window.location.href = '../index.html'
+  })
 </script>
 </body>
 </html>

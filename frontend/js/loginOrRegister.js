@@ -52,3 +52,52 @@ document.getElementById("showLogin")
 
 setupPasswordToggle("loginPassword", "loginEye");
 setupPasswordToggle("registerPassword", "registerEye");
+
+
+//Auto move between boxes 
+const codeInputs =
+    document.querySelectorAll(".code-box");
+
+codeInputs.forEach((input, index) => {
+
+    input.addEventListener("input", () => {
+
+        if(input.value.length === 1 &&
+           index < codeInputs.length - 1){
+
+            codeInputs[index + 1].focus();
+        }
+    });
+
+    input.addEventListener("keydown", (e) => {
+
+        if(
+            e.key === "Backspace" &&
+            input.value === "" &&
+            index > 0
+        ){
+            codeInputs[index - 1].focus();
+        }
+    });
+
+});
+
+//get the full code
+document
+.getElementById("verifyBtn")
+.addEventListener("click", () => {
+
+    let code = "";
+
+    document
+    .querySelectorAll(".code-box")
+    .forEach(input => {
+        code += input.value;
+    });
+
+    // send code to backend for verification
+    // fetch('/verify-email', {
+    //     method:'POST',
+    //     body: JSON.stringify({ code })
+    // });
+});

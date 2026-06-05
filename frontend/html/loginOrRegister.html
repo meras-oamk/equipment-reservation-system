@@ -27,7 +27,7 @@
     <!-- Login Form -->
     <form id="loginForm">
         <label>Email</label>
-        <input type="email" placeholder="user@example.com">
+        <input type="email" id="loginEmail" placeholder="user@example.com">
 
         <label>Password</label>
 
@@ -35,6 +35,8 @@
     <input type="password" id="loginPassword" placeholder="Enter your password">
 <i class="fa-solid fa-eye" id="loginEye"></i>
 </div>
+        <p id="loginError" class="error-text"></p>
+
         <button type="submit" class="primary-btn">Login</button>
 
         <p class="switch-text">
@@ -46,14 +48,16 @@
     <!-- Register Form -->
     <form id="registerForm" style="display:none;">
         <label>Full Name</label>
-        <input type="text" placeholder="John Doe">
+        <input type="text" id="registerFullname" placeholder="John Doe">
 
         <label>Email</label>
-        <input type="email" placeholder="user@example.com">
+        <input type="email" id="registerEmail" placeholder="user@example.com">
 
         <label>Password</label>
         <input type="password" id="registerPassword" placeholder="Enter your password">
         <i class="fa-solid fa-eye" id="registerEye"></i>
+
+        <p id="registerError" class="error-text"></p>
 
         <button type="submit" class="primary-btn">Register</button>
 
@@ -63,6 +67,40 @@
         </p>
     </form>
 </div>
+<!-- Email Verification Modal -->
+<div id="verificationModal" class="modal">
+    <div class="modal-content">
+
+        <h2>Email Verification</h2>
+
+        <p>
+            We've sent a 6-digit verification code to your email.
+            Enter it below to verify your account.
+        </p>
+
+        <div class="code-inputs">
+            <input type="text" maxlength="1" class="code-box">
+            <input type="text" maxlength="1" class="code-box">
+            <input type="text" maxlength="1" class="code-box">
+            <input type="text" maxlength="1" class="code-box">
+            <input type="text" maxlength="1" class="code-box">
+            <input type="text" maxlength="1" class="code-box">
+        </div>
+
+        <p id="verifyError" class="error-text"></p>
+
+        <button id="verifyBtn" class="primary-btn">
+            Verify Email
+        </button>
+
+        <p class="resend-text">
+            Didn't receive the code?
+            <a href="#" id="resendCode">Resend Code</a>
+        </p>
+
+    </div>
+</div>
 <script src="../js/loginOrRegister.js"></script>
+<script src="../js/auth.js"></script>
 </body>
 </html>

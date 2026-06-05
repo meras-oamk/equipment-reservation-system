@@ -3,6 +3,7 @@
 -- =====================
 
 DROP TABLE IF EXISTS equipment_logs CASCADE;
+DROP TABLE IF EXISTS pending_verifications CASCADE;
 DROP TABLE IF EXISTS reservations CASCADE;
 DROP TABLE IF EXISTS equipment_units CASCADE;
 DROP TABLE IF EXISTS equipment_types CASCADE;
@@ -73,6 +74,14 @@ CREATE TYPE log_action AS ENUM (
 -- =====================
 -- TABLES
 -- =====================
+
+CREATE TABLE pending_verifications (
+  email VARCHAR(255) PRIMARY KEY,
+	fullname          VARCHAR(255)  NOT NULL,
+  password          VARCHAR(255)  NOT NULL, 
+  verification_code VARCHAR(6)    NOT NULL,
+  expires_at        TIMESTAMP     NOT NULL
+);
 
 CREATE TABLE users (
   id            SERIAL PRIMARY KEY,

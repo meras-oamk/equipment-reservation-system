@@ -90,7 +90,7 @@ const authHelper = {
         )
 
         const token = jwt.sign(
-            { userId: newUser.id, role: newUser.fullname },
+            { userId: newUser.id, role: newUser.role },
             process.env.JWT_SECRET,
             { expiresIn: '1h' }
         )

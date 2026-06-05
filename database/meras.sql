@@ -3,6 +3,7 @@
 -- =====================
 
 DROP TABLE IF EXISTS equipment_logs CASCADE;
+DROP TABLE IF EXISTS pending_verifications CASCADE;
 DROP TABLE IF EXISTS reservations CASCADE;
 DROP TABLE IF EXISTS equipment_units CASCADE;
 DROP TABLE IF EXISTS equipment_types CASCADE;

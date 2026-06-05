@@ -21,7 +21,7 @@ router.post('/register', async (req, res) => {
         })
     } catch (error) {
         console.error('Backend error: ', error)
-        return res.status(400).json({ error: error.message })
+        return res.status(400).json({ message: error.message })
     }
 })
 
@@ -37,10 +37,10 @@ router.post('/verify-email', async (req, res) => {
 
         return res.status(200).json({
             token: data.token,
-            role: data.user.role
+            role: data.role
         })
     } catch (error) {
-        return res.status(400).json({ error: error.message })
+        return res.status(400).json({ message: error.message })
     }
 })
 
@@ -59,7 +59,7 @@ router.post('/login', async (req, res) => {
         })
     } catch (error) {
         console.log('Error: ' + error.message)
-        return res.status(401).json({ error: error.message })
+        return res.status(401).json({ message: error.message })
     }
 })
 

@@ -6,14 +6,13 @@ require('dotenv').config()
 
 const authHelper = {
     register: async (fullname, email, password) => {
-        const trimEmail = email.toLowerCase().trim()
+        const normalizedEmail = email.toLowerCase()
 
-        const checkEmail = trimEmail.includes('oamk.fi')
 
-        if (checkEmail) {
+        if (normalizedEmail.endsWith('@oamk.fi') || normalizedEmail.endsWith('@students.oamk.fi')) {
             const checkUser = await db.query(
                 'SELECT id FROM users WHERE email = $1;',
-                [trimEmail]
+                [normalizedEmail]
             )
 
             if (checkUser.rows.length > 0) {
@@ -29,12 +28,12 @@ const authHelper = {
                 VALUES ($1, $2, $3, $4, $5)
                 ON CONFLICT (email) DO UPDATE
                 SET fullname = $2, password = $3, verification_code = $4, expires_at = $5;
-            `, [email, fullname, hashedPassword, verificationCode, expiresAt]
+            `, [normalizedEmail, fullname, hashedPassword, verificationCode, expiresAt]
             )
     
             // Email content
             await sendEmail({
-                to: trimEmail,
+                to: normalizedEmail,
                 subject: 'Verification Account',
                 html: `
                     <h3>Verify your email</h3>
@@ -48,11 +47,11 @@ const authHelper = {
     },
 
     validateVerificationCode: async (email, incomingCode) => {
-        const trimEmail = email.toLowerCase().trim()
+        const normalizedEmail = email.toLowerCase()
 
         const result = await db.query(
             'SELECT * FROM pending_verifications WHERE email = $1;',
-            [trimEmail]
+            [normalizedEmail]
         )
         const pendingUser = result.rows[0]
 
@@ -69,9 +68,9 @@ const authHelper = {
         }
 
         let assignedRole = ''
-        if (trimEmail.includes('@students.oamk.fi')) {
+        if (normalizedEmail.endsWith('@students.oamk.fi')) {
             assignedRole = 'student'
-        } else if (trimEmail.includes('@oamk.fi')) {
+        } else if (normalizedEmail.endsWith('@oamk.fi')) {
             assignedRole = 'staff'
         }
 
@@ -86,7 +85,7 @@ const authHelper = {
 
         await db.query(
             'DELETE FROM pending_verifications WHERE email = $1;',
-            [trimEmail]
+            [normalizedEmail]
         )
 
         const token = jwt.sign(
@@ -94,13 +93,13 @@ const authHelper = {
             process.env.JWT_SECRET,
             { expiresIn: '1h' }
         )
-        return { token, user: newUser }
+        return { token, role: newUser.role }
     },
 
     login: async (email, password) => {
-        const trimEmail = email.toLowerCase().trim()
+        const normalizedEmail = email.toLowerCase()
 
-        const getUser = await db.query('SELECT * FROM users WHERE email = $1;', [trimEmail])
+        const getUser = await db.query('SELECT * FROM users WHERE email = $1;', [normalizedEmail])
         
         const user = getUser.rows[0]
         if (!user) throw new Error('Invalid email or password!')

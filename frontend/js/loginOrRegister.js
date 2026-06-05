@@ -54,23 +54,6 @@ setupPasswordToggle("loginPassword", "loginEye");
 setupPasswordToggle("registerPassword", "registerEye");
 
 
-
-// Modal to enter the verification code
-const registerFormElement = document.getElementById("registerForm");
-
-const verificationModal = document.getElementById("verificationModal");
-
-registerFormElement.addEventListener("submit", function(e){
-
-    e.preventDefault();
-
-    // collect registration data
-    // send registration data to backend
-    // backend sends email code
-
-    verificationModal.style.display = "flex";
-});
-
 //Auto move between boxes 
 const codeInputs =
     document.querySelectorAll(".code-box");
@@ -111,8 +94,6 @@ document
     .forEach(input => {
         code += input.value;
     });
-
-    console.log("Verification Code:", code);
 
     // send code to backend for verification
     // fetch('/verify-email', {

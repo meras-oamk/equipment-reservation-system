@@ -1,14 +1,30 @@
 const codeBoxes = document.querySelectorAll('.code-box')
 const verifyBtn = document.getElementById('verifyBtn')
+const loginError = document.getElementById('loginError')
+const registerError = document.getElementById('registerError')
+const verifyError = document.getElementById('verifyError')
+const verificationModal = document.getElementById('verificationModal')
 
 let userEmailInMemory = ''
 
 if (registerForm) {
     registerForm.addEventListener('submit', async (e) => {
         e.preventDefault()
-        const fullname = document.getElementById('registerFullname').value
-        const email = document.getElementById('registerEmail').value
-        const password = document.getElementById('registerPassword').value
+        registerError.textContent = ''
+
+        const fullname = document.getElementById('registerFullname').value.trim()
+        const email = document.getElementById('registerEmail').value.trim()
+        const password = document.getElementById('registerPassword').value.trim()
+
+        if (!fullname || !email || !password) {
+            registerError.textContent = 'All fields are required.'
+            return
+        }
+
+        if (!email.endsWith('@oamk.fi') && !email.endsWith('@students.oamk.fi')) {
+            registerError.textContent = 'Use student email'
+            return
+        }
 
         userEmailInMemory = email
 
@@ -23,9 +39,20 @@ if (registerForm) {
                 })
             })
 
+            const data = await res.json();
+
+            if (!res.ok) {
+                registerError.textContent = data.message
+                return
+            }
+
+            registerError.textContent = ''
+
+            verificationModal.style.display = 'flex'
+
         } catch (error) {
             console.error(error)
-            alert('Error:' + error.message)
+            registerError.textContent = 'Network error'
         }
     })
 }
@@ -33,11 +60,15 @@ if (registerForm) {
 if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault()
-        const email = document.getElementById('loginEmail').value
-        const password = document.getElementById('loginPassword').value
+        loginError.textContent = ''
+        
+        const email = document.getElementById('loginEmail').value.trim()
+        const password = document.getElementById('loginPassword').value.trim()
 
-        console.log(email)
-        console.log(password)
+        if (!email || !password) {
+            loginError.textContent = 'Email and password are required.'
+            return
+        }
 
         try {
             const res = await fetch('http://localhost:3001/api/auth/login', {
@@ -51,32 +82,38 @@ if (loginForm) {
 
             const data = await res.json()
 
-            if (res.ok) {
-                localStorage.setItem('token', data.token)
-                localStorage.setItem('role', data.role)
-
-                if (data.role === 'student' || data.role === 'staff') {
-                    window.location.href = './user/equipments_list.html'
-                } else if (data.role === 'admin') {
-                    window.location.href = './admin/dashboard.html'
-                }
-            } else {
-                alert(data.error || 'Verification failed!')
+            if (!res.ok) {
+                loginError.textContent = data.message
+                return
             }
+
+            localStorage.setItem('token', data.token)
+            localStorage.setItem('role', data.role)
+            
+            if (data.role === 'student' || data.role === 'staff') {
+                window.location.href = './user/equipments_list.html'
+            } else if (data.role === 'admin') {
+                window.location.href = './admin/dashboard.html'
+            }
+
+            loginError.textContent = ''
+
         } catch (error) {
             console.error(error)
-            alert('Error' + error.message)
+            loginError.textContent = 'Network error'
         }
     })
 }
 
 if (verificationModal && verifyBtn) {
     verifyBtn.addEventListener('click', async () => {
+        verifyError.textContent = ''
+
         let combinedCode = ''
         codeBoxes.forEach(box => combinedCode += box.value)
 
         if (combinedCode.length < 6) {
-            alert('Please enter 6 digits.')
+            verifyError.textContent = 'Please enter 6 digits.'
             return
         }
 
@@ -92,18 +129,25 @@ if (verificationModal && verifyBtn) {
 
             const data = await res.json()
 
-            if (res.ok) {
-                localStorage.setItem('token', data.token)
-                localStorage.setItem('role', data.role)
-
-                if (data.role === 'student' || data.role === 'staff') {
-                    window.location.href = './user/equipments_list.html'
-                }
-            } else {
-                alert(data.error || 'Verification failed!')
+            if (!res.ok) {
+                verifyError.textContent = data.message
+                return
             }
+
+            console.log('Role: ' + data.role)
+
+            localStorage.setItem('token', data.token)
+            localStorage.setItem('role', data.role)
+
+            verifyError.textContent = ''
+            
+            if (data.role === 'student' || data.role === 'staff') {
+                window.location.href = './user/equipments_list.html'
+            }
+            
         } catch (error) {
-            console.error('Network error: ', error)
+            console.error(error)
+            verifyError.textContent = 'Network error'
         }
     })
 }

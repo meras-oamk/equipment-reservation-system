@@ -5,6 +5,8 @@ const registerError = document.getElementById('registerError')
 const verifyError = document.getElementById('verifyError')
 const verificationModal = document.getElementById('verificationModal')
 
+const BACKEND_URL = 'reservation-faevbvdgeybqg4fv.swedencentral-01.azurewebsites.net'
+
 let userEmailInMemory = ''
 
 if (registerForm) {
@@ -29,7 +31,7 @@ if (registerForm) {
         userEmailInMemory = email
 
         try {
-            const res = await fetch('http://localhost:3001/api/auth/register', {
+            const res = await fetch(`${BACKEND_URL}/api/auth/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
@@ -71,7 +73,7 @@ if (loginForm) {
         }
 
         try {
-            const res = await fetch('http://localhost:3001/api/auth/login', {
+            const res = await fetch(`${BACKEND_URL}/api/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
@@ -118,7 +120,7 @@ if (verificationModal && verifyBtn) {
         }
 
         try {
-            const res = await fetch('http://localhost:3001/api/auth/verify-email', {
+            const res = await fetch(`${BACKEND_URL}/api/auth/verify-email`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

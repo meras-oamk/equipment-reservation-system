@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
-const { db } = require('../../database/db')
+const { db } = require('./db')
 const sendEmail = require('./email')
 require('dotenv').config()
 
@@ -114,6 +114,25 @@ const authHelper = {
         )
 
         return { token, role: user.role }
+    },
+
+    changePassword: async (email, newPassword) => {
+        const normalizedEmail = email.toLowerCase()
+
+        const newHashed = await bcrypt.hash(newPassword, 10)
+
+        const change = await db.query(`
+            UPDATE users 
+            SET password_hash = $1 
+            WHERE email = $2;
+        `, [newHashed, normalizedEmail]
+        )
+
+        if (change.rowCount === 0) {
+            throw new Error('No account found matching that email address.')
+        }
+
+        return true
     }
 }
 

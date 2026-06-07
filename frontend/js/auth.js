@@ -42,7 +42,7 @@ if (registerForm) {
             const data = await res.json();
 
             if (!res.ok) {
-                registerError.textContent = data.message
+                registerError.textContent = data.error
                 return
             }
 
@@ -83,7 +83,7 @@ if (loginForm) {
             const data = await res.json()
 
             if (!res.ok) {
-                loginError.textContent = data.message
+                loginError.textContent = data.error
                 return
             }
 
@@ -130,7 +130,7 @@ if (verificationModal && verifyBtn) {
             const data = await res.json()
 
             if (!res.ok) {
-                verifyError.textContent = data.message
+                verifyError.textContent = data.error
                 return
             }
 

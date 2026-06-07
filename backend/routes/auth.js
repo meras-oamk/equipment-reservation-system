@@ -1,6 +1,25 @@
 const express = require('express')
 const router = express.Router()
 const authHelper = require('../helpers/auth')
+require('dotenv').config()
+
+const verifyToken = (req, res, next) => {
+    const authHeader = req.header['authorization']
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'Access denied. No token provided.' })
+    }
+
+    const token = authHeader.split(' ')[1]
+    
+    try {
+        const decodedToken = JsonWebTokenError.verify(token, process.env.JWT_SECRET)
+        req.user = decodedToken
+        next()
+    } catch (error) {
+        return res.status(403).json({ error: 'Invalid or expired token!' })
+    }
+} 
 
 router.post('/register', async (req, res) => {
     try { 
@@ -16,12 +35,11 @@ router.post('/register', async (req, res) => {
 
         await authHelper.register(fullname, email, password)
         return res.status(200).json({
-            success: true,
             message: 'Verification code has been sent.'
         })
     } catch (error) {
-        console.error('Backend error: ', error)
-        return res.status(400).json({ message: error.message })
+        console.error('Error register: ', error)
+        return res.status(400).json({ error: error.message })
     }
 })
 
@@ -40,13 +58,15 @@ router.post('/verify-email', async (req, res) => {
             role: data.role
         })
     } catch (error) {
-        return res.status(400).json({ message: error.message })
+        console.error('Error verify email: ' + error.message)
+        return res.status(400).json({ error: error.message })
     }
 })
 
 router.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body
+
         if (!email || !password) {
             return res.status(400).json({ error: 'Missing field!'})
         }
@@ -58,8 +78,25 @@ router.post('/login', async (req, res) => {
             role: loginData.role
         })
     } catch (error) {
-        console.log('Error: ' + error.message)
-        return res.status(401).json({ message: error.message })
+        console.log('Error login: ' + error.message)
+        return res.status(401).json({ error: error.message })
+    }
+})
+
+router.post('/change-password', verifyToken, async (req, res) => {
+    try {
+        const { email, newPassword } = req.body
+
+        if (!email || !newPassword) {
+            return res.status(400).json({ error: 'Missing field!'})
+        }
+
+        await authHelper.changePassword(email, newPassword)
+
+        return res.status(200).json({ message: 'Password changed successfully!'})
+    } catch (error) {
+        console.error('Error changing password: ' + error.message)
+        return res.status(500).json({ error: error.message})
     }
 })
 

@@ -1,0 +1,384 @@
+ :root {
+      --orange: #F07D00;
+      --orange-hover: #d96e00;
+      --bg: #f5f3ef;
+      --border: #e0ddd8;
+      --muted: #888;
+      --card-bg: #ffffff;
+      --spec-bg: #faf9f7;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+    }
+
+    /* NAV */
+    .navbar {
+      background: var(--card-bg) !important;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .navbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .logo-icon {
+      width: 38px;
+      height: 38px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+
+    /*.logo-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 0.85rem;
+      line-height: 1.15;
+      color: #1a1a1a;
+    }*/
+
+    .nav-link {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #555 !important;
+    }
+
+    .nav-link:hover { color: #1a1a1a !important; }
+
+    .nav-link.logout { color: var(--orange) !important; }
+    .nav-link.logout:hover { color: var(--orange-hover) !important; }
+
+    .navbar-toggler {
+      border: none;
+      box-shadow: none !important;
+    }
+
+    /* BACK LINK */
+    .back-link {
+      color: var(--orange);
+      font-size: 0.9rem;
+      font-weight: 500;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: gap 0.2s;
+    }
+
+    .back-link:hover {
+      color: var(--orange-hover);
+      gap: 0.5rem;
+    }
+
+    /* PRODUCT CARD */
+    .product-card {
+      background: var(--card-bg);
+      border-radius: 10px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+      border: none;
+    }
+
+    .product-img-wrap {
+      background: #f0ede7;
+      border-radius: 8px;
+      aspect-ratio: 4/3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      font-size: 5rem;
+      color: #bbb;
+    }
+
+    .product-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .product-category {
+      color: var(--orange);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+
+    .product-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      color: #1a1a1a;
+      line-height: 1.2;
+    }
+
+    .avail-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-size: 0.85rem;
+      color: #555;
+    }
+
+    /*.avail-dot {
+      width: 20px;
+      height: 20px;
+      background: var(--orange);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 0.6rem;
+      flex-shrink: 0;
+    }*/
+
+    .spec-box {
+      background: var(--spec-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.2rem 1.4rem;
+    }
+
+    .spec-box h6 {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 0.5rem;
+    }
+
+    .spec-box ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .spec-box li {
+      font-size: 0.9rem;
+      color: #666;
+      padding-left: 1rem;
+      position: relative;
+      margin-bottom: 0.25rem;
+    }
+
+    .spec-box li::before {
+      content: '·';
+      position: absolute;
+      left: 0;
+      color: var(--orange);
+      font-weight: bold;
+      font-size: 1rem;
+      line-height: 1;
+    }
+
+    /* RESERVATION CARD */
+    .reservation-card {
+      background: var(--card-bg);
+      border-radius: 10px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+      border: none;
+    }
+
+    .reservation-card h5 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      color: #1a1a1a;
+    }
+
+    .form-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #777;
+      letter-spacing: 0.02em;
+      margin-bottom: 0.3rem;
+    }
+
+    .form-control,
+    .form-select {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      color: #888;
+      background: var(--spec-bg);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 0.75rem 1rem;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+      border-color: var(--orange);
+      box-shadow: 0 0 0 3px rgba(240,125,0,0.12);
+      color: #1a1a1a;
+      background: #fff;
+    }
+
+    /* Hide the native browser calendar icon inside the input */
+    input[type="date"]::-webkit-calendar-picker-indicator { display: none; }
+
+    /* Orange highlight when hovering the calendar icon button */
+    .cal-trigger { transition: background 0.2s, color 0.2s; }
+    .cal-trigger:hover { background: var(--orange); border-color: var(--orange); color: white; }
+
+    /* Hide native select arrow, show custom chevron icon */
+    .select-group .form-select {
+      appearance: none;
+      -webkit-appearance: none;
+      border-right: none;
+      border-radius: 7px 0 0 7px;
+    }
+
+    .select-group .form-select:focus {
+      border-color: var(--orange);
+      box-shadow: 0 0 0 3px rgba(240,125,0,0.12);
+    }
+
+    .select-icon {
+      background: var(--spec-bg);
+      border: 1px solid var(--border);
+      border-left: none;
+      border-radius: 0 7px 7px 0;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.75rem;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .select-group:focus-within .select-icon {
+      border-color: var(--orange);
+      color: var(--orange);
+    }
+
+    .select-icon:hover { color: var(--orange); }
+    .location-dropdown {
+      display: none !important;
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      right: 0;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.12);
+      list-style: none;
+      padding: 0.4rem 0;
+      margin: 0;
+      z-index: 9999;
+      animation: dropDown 0.18s ease;
+    }
+
+    .location-dropdown.show { display: block !important; }
+
+    @keyframes dropDown {
+      from { opacity: 0; transform: translateY(-6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .location-header {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      padding: 0.5rem 1rem 0.4rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 0.25rem;
+    }
+
+    .location-item {
+      display: flex;
+      align-items: center;
+      padding: 0.6rem 1rem;
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: #333;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      position: relative;
+      gap: 0.1rem;
+    }
+
+    .location-item:hover {
+      background: rgba(240,125,0,0.07);
+      color: var(--orange);
+    }
+
+    .location-item.selected {
+      background: rgba(240,125,0,0.1);
+      color: var(--orange);
+      font-weight: 600;
+    }
+
+    .location-item.selected::after {
+      content: '\F26E';
+      font-family: 'Bootstrap-Icons';
+      position: absolute;
+      right: 1rem;
+      font-size: 0.85rem;
+    }
+
+    .location-sub {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 400;
+      color: var(--muted);
+      margin-left: auto;
+      padding-left: 0.5rem;
+    }
+
+    .location-item:hover .location-sub { color: var(--orange); opacity: 0.7; }
+
+    .input-group-text {
+      background: var(--spec-bg);
+      border: 1px solid var(--border);
+      border-left: none;
+      color: var(--muted);
+      border-radius: 0 7px 7px 0;
+    }
+
+    .input-group .form-control {
+      border-right: none;
+      border-radius: 7px 0 0 7px;
+    }
+
+    .input-group .form-control:focus + .input-group-text {
+      border-color: var(--orange);
+    }
+
+    .btn-confirm {
+      background: var(--orange);
+      color: white;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      padding: 1rem;
+      width: 100%;
+      letter-spacing: 0.02em;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .btn-confirm:hover {
+      background: var(--orange-hover);
+      color: white;
+    }
+
+    .btn-confirm:active { transform: scale(0.99); }
+
+    .product-title { font-size: 1.85rem; }
+
+    /* Mobile tweaks */
+    @media (max-width: 576px) {
+      .product-img-wrap {
+        aspect-ratio: 16/9;
+        max-height: 260px;
+      }
+
+      .product-title { font-size: 1.4rem; }
+    }

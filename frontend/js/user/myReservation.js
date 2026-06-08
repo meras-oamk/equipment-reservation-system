@@ -1,4 +1,4 @@
-const reservations = {
+    const reservations = {
       inactive: [
         { id: 1, device: 'NewBeeDrone Replacement', start: '12:00\n12/06/2026', end: '18:00\n15/06/2026', duration: '4 days', location: 'Linnanmaa Kirjasto', status: 'inactive' },
         { id: 2, device: 'NewBeeDrone Replacement', start: '12:00\n12/06/2026', end: '18:00\n15/06/2026', duration: '4 days', location: 'Linnanmaa Kirjasto', status: 'inactive' },
@@ -33,13 +33,12 @@ const reservations = {
         return;
       }
 
-      // Desktop rows
+      // Desktop rows — every row navigates to detail on click
       tbody.innerHTML = rows.map(r => {
         const startLines = r.start.split('\n');
         const endLines   = r.end.split('\n');
-        const isClickable = r.status === 'inactive';
         return `
-          <tr class="${isClickable ? 'clickable' : ''}" ${isClickable ? `onclick="goToDetail(${r.id})"` : ''}>
+          <tr class="clickable" onclick="goToDetail(${r.id})">
             <td><span class="device-name">${r.device}</span></td>
             <td>${startLines[0]}<br><span style="color:var(--muted);font-size:0.8rem;">${startLines[1]||''}</span></td>
             <td>${endLines[0]}<br><span style="color:var(--muted);font-size:0.8rem;">${endLines[1]||''}</span></td>
@@ -48,10 +47,10 @@ const reservations = {
             <td>${badgeHtml(r.status)}</td>
             <td>
               <div class="action-btns">
-                <a href="reservationAction.html?id=${r.id}" class="btn-view-icon" onclick="event.stopPropagation()" title="View">
+                <a href="reservationDetails.html?id=${r.id}" class="btn-view-icon" onclick="event.stopPropagation()" title="View">
                   <i class="bi bi-eye"></i>
                 </a>
-                <button class="btn-delete-icon" onclick="event.stopPropagation(); deleteRow(${r.id})" title="Cancel">
+                <button class="btn-delete-icon" onclick="event.stopPropagation(); deleteRow(${r.id}, '${r.device}')" title="Remove">
                   <i class="bi bi-x-lg"></i>
                 </button>
               </div>
@@ -77,17 +76,44 @@ const reservations = {
             </div>
           </div>`;
       }).join('');
+
+    // Attach touch + click listeners to each mobile card
+      mobileList.querySelectorAll('.mobile-res-card').forEach(card => {
+        let touchMoved = false;
+        card.addEventListener('touchstart', () => { touchMoved = false; }, { passive: true });
+        card.addEventListener('touchmove',  () => { touchMoved = true;  }, { passive: true });
+        card.addEventListener('touchend', (e) => {
+          if (!touchMoved) {
+            e.preventDefault();
+            goToDetail(card.dataset.id);
+          }
+        });
+        card.addEventListener('click', () => goToDetail(card.dataset.id));
+      });
     }
 
     function goToDetail(id) {
-      window.location.href = `reservation-detail.html?id=${id}`;
+      window.location.href = `reservationDetails.html?id=${id}`;
     }
 
-    function deleteRow(id) {
+    function deleteRow(id, deviceName) {
+      if (!confirm(`Remove the reservation for "${deviceName}"?\nThis cannot be undone.`)) return;
       for (const tab in reservations) {
         reservations[tab] = reservations[tab].filter(r => r.id !== id);
       }
+      // Update tab counts
+      updateTabCounts();
       renderTable(currentTab);
+    }
+
+    function updateTabCounts() {
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        const tab = btn.dataset.tab;
+        const count = reservations[tab].length;
+        const label = tab.charAt(0).toUpperCase() + tab.slice(1);
+        btn.textContent = `${label} (${count})`;
+        if (btn.classList.contains('active')) btn.classList.add('active');
+      });
     }
 
     // Tab switching

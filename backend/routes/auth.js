@@ -1,10 +1,11 @@
 const express = require('express')
 const router = express.Router()
+const jwt = require('jsonwebtoken')
 const authHelper = require('../helpers/auth')
 require('dotenv').config()
 
 const verifyToken = (req, res, next) => {
-    const authHeader = req.header['authorization']
+    const authHeader = req.headers['authorization']
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return res.status(401).json({ error: 'Access denied. No token provided.' })
@@ -13,7 +14,7 @@ const verifyToken = (req, res, next) => {
     const token = authHeader.split(' ')[1]
     
     try {
-        const decodedToken = JsonWebTokenError.verify(token, process.env.JWT_SECRET)
+        const decodedToken = jwt.verify(token, process.env.JWT_SECRET)
         req.user = decodedToken
         next()
     } catch (error) {
@@ -85,18 +86,57 @@ router.post('/login', async (req, res) => {
 
 router.post('/change-password', verifyToken, async (req, res) => {
     try {
-        const { email, newPassword } = req.body
+        const { newPassword } = req.body
+        const userId = req.user.userId
 
-        if (!email || !newPassword) {
+        if (!newPassword) {
             return res.status(400).json({ error: 'Missing field!'})
         }
 
-        await authHelper.changePassword(email, newPassword)
+        await authHelper.changePassword(userId, newPassword)
 
         return res.status(200).json({ message: 'Password changed successfully!'})
     } catch (error) {
         console.error('Error changing password: ' + error.message)
         return res.status(500).json({ error: error.message})
+    }
+})
+
+router.post('/resendCode', async (req, res) => {
+    try {
+        const { email } = req.body
+
+        if (!email) {
+            res.status(400).json({ error: 'Email parameter is required!' })
+        }
+
+        await authHelper.resendCode(email)
+        res.status(200).json({ message: 'A new 6-digit verification code has been sent to your email.' })
+    
+    } catch (error) {
+        console.error('Error resending code: ' + error.message)
+        return res.status(400).json({ error: error.message })
+    }
+})
+
+router.post('/admin/add-user', verifyToken, async (req, res) => {
+    try {
+        const { fullname, email, password } = req.body
+
+        if (!email || !password) {
+            res.status(400).json({ error: 'Missing fields!' })
+        }
+
+        if (password.length < 6) {
+            return res.status(400).json({ error: 'Password must be at least 6 characters.' });
+        }
+
+        await authHelper.register(fullname, email, password, true)
+
+        return res.status(201).json({ message: 'Admin account created!' })
+    } catch (error) {
+        console.error('Error admin register: ', error)
+        return res.status(400).json({ error: error.message })
     }
 })
 

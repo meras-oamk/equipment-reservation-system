@@ -4,6 +4,8 @@ const loginError = document.getElementById('loginError')
 const registerError = document.getElementById('registerError')
 const verifyError = document.getElementById('verifyError')
 const verificationModal = document.getElementById('verificationModal')
+const changePasswordBtn = document.getElementById('changePasswordBtn')
+const resendCode = document.getElementById('resendCode')
 
 let userEmailInMemory = ''
 
@@ -22,14 +24,14 @@ if (registerForm) {
         }
 
         if (!email.endsWith('@oamk.fi') && !email.endsWith('@students.oamk.fi')) {
-            registerError.textContent = 'Use student email'
+            registerError.textContent = 'Only OAMK accounts are allowed!'
             return
         }
 
         userEmailInMemory = email
 
         try {
-            const res = await fetch('/api/auth/register', {
+            const res = await fetch('http://localhost:3001/api/auth/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
@@ -71,7 +73,7 @@ if (loginForm) {
         }
 
         try {
-            const res = await fetch('/api/auth/login', {
+            const res = await fetch('http://localhost:3001/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
@@ -118,7 +120,7 @@ if (verificationModal && verifyBtn) {
         }
 
         try {
-            const res = await fetch('/api/auth/verify-email', {
+            const res = await fetch('http://localhost:3001/api/auth/verify-email', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -151,6 +153,69 @@ if (verificationModal && verifyBtn) {
         }
     })
 }
+
+if (changePasswordBtn) {
+    changePasswordBtn.addEventListener('click', async () => {
+        const token = localStorage.getItem('token')
+        if (!token) {
+            window.location.href = '/login.html'
+            return
+        }
+
+        try {
+            const res = await fetch('http://localhost:3001/api/auth/change-password', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ fullname, email, password })
+            })
+
+            const data = await res.json()
+
+            if (res.ok) {
+                
+            }
+        } 
+    })
+}
+
+if (resendCode) {
+    resendCode.addEventListener('click', async (e) => {
+        e.preventDefault()
+
+        if (!userEmailInMemory) {
+            alert('Session email missing. Please registering again.')
+            return
+        }
+
+        resendCode.textContent = 'Sending...'
+
+        try {
+            const res = await fetch('http://localhost:3001/api/auth/resendCode', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: userEmailInMemory })
+            })
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                verifyError.textContent = data.error
+                return
+            }
+
+            verifyError.textContent = ''
+        } catch (error) {
+            console.error("Network problem resending token code:", error)
+            verifyError.textContent = 'Network error'
+        } finally {
+            resendLink.textContent = "Resend Code"
+        }
+    })
+}    
+
 
 
 

@@ -29,7 +29,7 @@ if (registerForm) {
         userEmailInMemory = email
 
         try {
-            const res = await fetch('http://localhost:3001/api/auth/register', {
+            const res = await fetch('/api/auth/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
@@ -71,7 +71,7 @@ if (loginForm) {
         }
 
         try {
-            const res = await fetch('http://localhost:3001/api/auth/login', {
+            const res = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
@@ -118,7 +118,7 @@ if (verificationModal && verifyBtn) {
         }
 
         try {
-            const res = await fetch('http://localhost:3001/api/auth/verify-email', {
+            const res = await fetch('/api/auth/verify-email', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

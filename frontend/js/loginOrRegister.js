@@ -95,9 +95,4 @@ document
         code += input.value;
     });
 
-    // send code to backend for verification
-    // fetch('/verify-email', {
-    //     method:'POST',
-    //     body: JSON.stringify({ code })
-    // });
 });

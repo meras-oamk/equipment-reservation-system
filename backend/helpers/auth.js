@@ -5,44 +5,70 @@ const sendEmail = require('./email')
 require('dotenv').config()
 
 const authHelper = {
-    register: async (fullname, email, password) => {
-        const normalizedEmail = email.toLowerCase()
+    generateToken: (user) => {
+        return jwt.sign(
+            {
+                userId: user.id,
+                role: user.role
+            },
+            process.env.JWT_SECRET,
+            { expiresIn: '1h' }
+        )
+    },
 
+    sendVerification: async (normalizedEmail, fullname, hashedPassword) => {
+        const verificationCode = Math.floor(100000 + Math.random() * 900000).toString()
+        const expiresAt = new Date(Date.now() + 10 * 60 * 1000)
 
-        if (normalizedEmail.endsWith('@oamk.fi') || normalizedEmail.endsWith('@students.oamk.fi')) {
-            const checkUser = await db.query(
-                'SELECT id FROM users WHERE email = $1;',
-                [normalizedEmail]
-            )
-
-            if (checkUser.rows.length > 0) {
-                throw new Error('An account with this email already exists.')
-            }
-    
-            const verificationCode = Math.floor(100000 + Math.random() * 900000).toString()
-            const expiresAt = new Date(Date.now() + 10 * 60 * 1000)
-            const hashedPassword = await bcrypt.hash(password, 10)
-    
-            const temporaryRegister = await db.query(`
+        await db.query(`
                 INSERT INTO pending_verifications (email, fullname, password, verification_code, expires_at)
                 VALUES ($1, $2, $3, $4, $5)
                 ON CONFLICT (email) DO UPDATE
                 SET fullname = $2, password = $3, verification_code = $4, expires_at = $5;
             `, [normalizedEmail, fullname, hashedPassword, verificationCode, expiresAt]
+        )
+
+        await sendEmail({
+            to: normalizedEmail,
+            subject: 'Verification Account',
+            html: `
+                <h3>Verify your email</h3>
+                <p>Verification code: <strong>${verificationCode}</strong></p>
+                <p>This code will expire 10 minutes after it was sent.</p>
+                `
+        })
+
+        return true
+    },
+
+    register: async (fullname, email, password, isAdminCreation = false) => {
+        const normalizedEmail = email.toLowerCase()
+
+        if (!normalizedEmail.endsWith('@oamk.fi') && !normalizedEmail.endsWith('@students.oamk.fi')) {
+            throw new Error('Only OAMK accounts are allowed!');
+        }
+
+        const checkUser = await db.query(
+            'SELECT id FROM users WHERE email = $1;',
+            [normalizedEmail]
+        )
+
+        if (checkUser.rows.length > 0) {
+            throw new Error('An account with this email already exists.')
+        }
+        
+        const hashedPassword = await bcrypt.hash(password, 10)
+
+        if (isAdminCreation) {
+            let assignedRole = 'admin'
+
+            await db.query(`
+                INSERT INTO users (full_name, email, password_hash, role)
+                VALUES ($1, $2, $3, $4);    
+            `, [fullname, normalizedEmail, hashedPassword, assignedRole]
             )
-    
-            // Email content
-            await sendEmail({
-                to: normalizedEmail,
-                subject: 'Verification Account',
-                html: `
-                    <h3>Verify your email</h3>
-                    <p>Verification code: <strong>${verificationCode}</strong></p>
-                    <p>This code will expire 10 minutes after it was sent.</p>
-                    `
-            })
         } else {
-            throw new Error('Invalid email!')
+            await authHelper.sendVerification(normalizedEmail, fullname, hashedPassword)
         }
     },
 
@@ -88,11 +114,7 @@ const authHelper = {
             [normalizedEmail]
         )
 
-        const token = jwt.sign(
-            { userId: newUser.id, role: newUser.role },
-            process.env.JWT_SECRET,
-            { expiresIn: '1h' }
-        )
+        const token = authHelper.generateToken(newUser)
         return { token, role: newUser.role }
     },
 
@@ -107,13 +129,44 @@ const authHelper = {
         const isMatch = await bcrypt.compare(password, user.password_hash)
         if (!isMatch) throw new Error('Wrong password!')
 
-        const token = jwt.sign(
-            { userId: user.id, role: user.role },
-            process.env.JWT_SECRET,
-            { expiresIn: '1h'}
+        const token = authHelper.generateToken(user)
+        return { token, role: user.role }
+    },
+
+    changePassword: async (userId, newPassword) => {
+        const newHashed = await bcrypt.hash(newPassword, 10)
+
+        const change = await db.query(`
+            UPDATE users 
+            SET password_hash = $1 
+            WHERE id = $2;
+        `, [newHashed, userId]
         )
 
-        return { token, role: user.role }
+        if (change.rowCount === 0) {
+            throw new Error('No account found.')
+        }
+
+        return true
+    },
+
+    resendCode: async (email) => {
+        const normalizeEmail = email.toLowerCase()
+
+        const checkUser = await db.query('SELECT id FROM users WHERE email = $1;', [normalizeEmail])
+        if (checkUser.rows.length > 0) {
+            throw new Error('This account is already verified. Please login.')
+        }
+
+        const checkPending = await db.query('SELECT fullname, password FROM pending_verifications WHERE email = $1;', [normalizeEmail])
+        const pendingUser = checkPending.rows[0]
+        if (!pendingUser) {
+            throw new Error('No registration session found. Please register.')
+        }
+
+        await authHelper.sendVerification(normalizeEmail, pendingUser.fullname, pendingUser.password)
+    
+        return true
     }
 }
 

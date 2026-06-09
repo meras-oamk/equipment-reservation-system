@@ -13,15 +13,14 @@
     const logoutBtn = document.getElementById('logoutBtn')
     const token = localStorage.getItem('token')
     
-    if (!token) window.location.href = '../index.html'
+    if (!token) window.location.href = '/index.html'
 
     logoutBtn.addEventListener('click', () => {
         localStorage.removeItem('token');
         localStorage.removeItem('role');
 
-        window.location.href = '../index.html'
+        window.location.href = '/index.html'
     })
 </script>
-<script src="/js/auth.js"></script>
 </body>
 </html>

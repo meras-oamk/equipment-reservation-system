@@ -1,0 +1,216 @@
+const token = localStorage.getItem('token')
+
+let allTypes = []
+
+// =====================
+// LOAD & RENDER TYPES
+// =====================
+
+async function loadEquipments() {
+    const res = await fetch('/api/equipment/types')
+    const data = await res.json()
+    allTypes = data
+    renderEquipments(data)
+}
+
+function renderEquipments(types) {
+    const container = document.getElementById('equipmentList')
+    if (types.length === 0) {
+        container.innerHTML = '<p class="text-muted">No equipment found.</p>'
+        return
+    }
+    container.innerHTML = types.map(t => renderCard(t)).join('')
+}
+
+function renderCard(t) {
+    const image = t.image_url
+    const statusBadge = parseInt(t.available_count) > 0
+        ? `<span class="badge-available me-2">Available</span>`
+        : `<span class="badge-broken me-2">Unavailable</span>`
+
+    return `
+    <div class="eq-card" id="card-${t.id}">
+      <div class="eq-card-header">
+        <img class="eq-img" src="${image}" alt="${t.name}" />
+        <div class="eq-info">
+          <div class="name">${t.name}</div>
+          <div class="meta">${t.subcategory || ''} · ${formatCategory(t.category)}</div>
+        </div>
+        <div class="eq-units">
+          <div class="label">Available Units</div>
+          <div class="count">${t.available_count}/${t.total_units}</div>
+        </div>
+        ${statusBadge}
+        <div class="eq-actions">
+          <button class="btn-edit" onclick='openTypeModal(${JSON.stringify(t)})'>Edit</button>
+          <button class="btn-expand" onclick="toggleUnits(this, ${t.id})"><i class="bi bi-chevron-down"></i></button>
+        </div>
+      </div>
+      <div class="units-table" style="display:none">
+        <div class="units-table-title">
+          Individual Units
+          <button class="btn-add-unit"><i class="bi bi-plus-lg"></i> Add Unit</button>
+        </div>
+        <div class="units-header">
+          <span>Serial Number</span><span>Status</span><span>Condition</span><span>Location</span><span>Actions</span>
+        </div>
+        <div id="units-${t.id}"></div>
+      </div>
+    </div>`
+}
+
+// =====================
+// TOGGLE + LOAD UNITS
+// =====================
+
+async function toggleUnits(btn, typeId) {
+    const card = btn.closest('.eq-card')
+    const table = card.querySelector('.units-table')
+    const isOpen = btn.classList.contains('open')
+
+    if (isOpen) {
+        btn.classList.remove('open')
+        table.style.display = 'none'
+    } else {
+        btn.classList.add('open')
+        table.style.display = 'block'
+        await loadUnits(typeId)
+    }
+}
+
+async function loadUnits(typeId) {
+    const res = await fetch(`/api/equipment/types/${typeId}/units`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    })
+    if (!res.ok) {
+        console.error(data.error)
+        return
+    }
+    const data = await res.json()
+    renderUnits(typeId, data)
+}
+
+function renderUnits(typeId, units) {
+    const container = document.getElementById(`units-${typeId}`)
+    if (units.length === 0) {
+        container.innerHTML = '<div class="units-row" style="color:#aaa;grid-column:1/-1">No units yet.</div>'
+        return
+    }
+    container.innerHTML = units.map(u => `
+        <div class="units-row">
+          <span class="unit-id">${u.qr_code}</span>
+          <span><span class="badge-${badgeClass(u.status)}">${formatStatus(u.status)}</span></span>
+          <span>${formatCondition(u.condition)}</span>
+          <span class="unit-location">${u.location || ''}</span>
+          <div class="unit-actions">
+            <button class="icon-edit"><i class="bi bi-pencil"></i></button>
+            <button class="icon-delete"><i class="bi bi-trash"></i></button>
+          </div>
+        </div>
+    `).join('')
+}
+
+// =====================
+// HELPERS
+// =====================
+
+function formatCategory(cat) {
+    const map = {
+        vr_ar: 'VR/AR', robotics: 'Robotics', audio_video: 'Audio/Video',
+        laboratory: 'Laboratory', computing: 'Computing', iot_embedded: 'IoT/Embedded'
+    }
+    return map[cat] || cat
+}
+
+function formatStatus(s) {
+    const map = {
+        available: 'Available', checked_out: 'In Use', pending_return: 'Pending Return',
+        maintenance: 'Maintenance', broken: 'Broken', lost: 'Lost'
+    }
+    return map[s] || s
+}
+
+function formatCondition(c) {
+    const map = {
+        good: 'Good', scratched: 'Scratched', missing_parts: 'Missing Parts',
+        malfunction: 'Malfunction', damaged: 'Damaged', lost: 'Lost'
+    }
+    return map[c] || c
+}
+
+function badgeClass(status) {
+    const map = {
+        available: 'available', checked_out: 'inuse', pending_return: 'pending',
+        maintenance: 'pending', broken: 'broken', lost: 'broken'
+    }
+    return map[status] || 'available'
+}
+
+// =====================
+// INIT
+// =====================
+
+loadEquipments()
+
+// Add types
+function openTypeModal(type = null) {
+    document.getElementById('typeId').value = type ? type.id : ''
+    document.getElementById('typeName').value = type ? type.name : ''
+    document.getElementById('typeCategory').value = type ? type.category : ''
+    document.getElementById('typeDescription').value = type ? type.description || '' : ''
+    document.getElementById('typeModalTitle').textContent = type ? 'Edit Equipment' : 'Add Equipment'
+
+    updateSubcategory()
+    if (type) document.getElementById('typeSubcategory').value = type.subcategory || ''
+
+    const preview = document.getElementById('typeImagePreview')
+    if (type && type.image_url) {
+        preview.src = type.image_url
+        preview.style.display = 'block'
+    } else {
+        preview.src = ''
+        preview.style.display = 'none'
+    }
+
+    document.getElementById('typeModal').classList.add('open')
+}
+
+function closeTypeModal() {
+    document.getElementById('typeModal').classList.remove('open')
+    document.getElementById('typeImage').value = ''
+}
+async function saveType() {
+    const id = document.getElementById('typeId').value
+    const formData = new FormData()
+    formData.append('name', document.getElementById('typeName').value)
+    formData.append('category', document.getElementById('typeCategory').value)
+    formData.append('subcategory', document.getElementById('typeSubcategory').value)
+    formData.append('description', document.getElementById('typeDescription').value)
+
+    const imageFile = document.getElementById('typeImage').files[0]
+    if (imageFile) formData.append('image', imageFile)
+
+    const url = id ? `/api/equipment/types/${id}` : '/api/equipment/types'
+    const method = id ? 'PUT' : 'POST'
+
+    const res = await fetch(url, {
+        method,
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData
+    })
+
+    if (res.ok) {
+        closeTypeModal()
+        loadEquipments()
+    } else {
+        const data = await res.json()
+        alert(data.error)
+    }
+}
+function previewImage(input) {
+    const preview = document.getElementById('typeImagePreview')
+    if (input.files && input.files[0]) {
+        preview.src = URL.createObjectURL(input.files[0])
+        preview.style.display = 'block'
+    }
+}

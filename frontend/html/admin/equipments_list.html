@@ -178,7 +178,7 @@
 
     <div class="modal-field">
       <label>Category<span class="req">*</span></label>
-      <select class="modal-select" id="typeCategory">
+      <select class="modal-select" id="typeCategory" onchange="updateSubcategory()">
         <option value="">Select category</option>
         <option value="vr_ar">VR/AR</option>
         <option value="robotics">Robotics</option>
@@ -186,6 +186,13 @@
         <option value="laboratory">Laboratory</option>
         <option value="computing">Computing</option>
         <option value="iot_embedded">IoT/Embedded</option>
+      </select>
+    </div>
+
+    <div class="modal-field">
+      <label>Sub category<span class="req">*</span></label>
+      <select class="modal-select" id="typeSubcategory">
+        <option value="">Select category first</option>
       </select>
     </div>
 
@@ -232,9 +239,11 @@
       <label>Location<span class="req">*</span></label>
       <select class="modal-select" id="unitLocation">
         <option value="">Select location</option>
-        <option>Campus A - Lab 101</option>
-        <option>Campus B - Room 202</option>
+        <option>Kontinkangas 5a</option>
+        <option>Kontinkangas SOTE</option>
+        <option>Linnanmaa Keskusaula</option>
         <option>Linnanmaa Kirjasto</option>
+        <option>Linnanmaa OAMK</option>
       </select>
     </div>
 
@@ -290,6 +299,29 @@
     if (e.target === this) closeUnitModal();
   });
 
+  const subcategories = {
+    vr_ar: ['AR Glasses', 'Base Stations / Sensors', 'Haptic Gloves', 'Motion Trackers', 'VR Controllers', 'VR Headset', 'VR Ready Laptops'],
+    robotics: ['Drones', 'Educational Robots', 'Embedded Boards', 'Mobile Robots', 'Motor Controllers', 'Robot Arms', 'Sensors'],
+    audio_video: ['Cameras', 'Capture Cards', 'Lighting Kits', 'Microphones', 'Tripods', 'Video Switches'],
+    laboratory: ['3D Printers', 'Microscopes', 'Multimeters', 'Oscilloscopes', 'Power Supplies', 'Signal Generators'],
+    computing: ['GPUs', 'Laptops', 'Networking Equipment', 'Raspberry Pi Kits', 'Tablets', 'Workstations'],
+    iot_embedded: ['FPGA Boards', 'LoRa Devices', 'Microcontrollers', 'Sensor Modules', 'Smart Home Kits']
+  }
+
+  function updateSubcategory() {
+    const category = document.getElementById('typeCategory').value
+    const select = document.getElementById('typeSubcategory')
+    select.innerHTML = '<option value="">Select subcategory</option>'
+    if (category && subcategories[category]) {
+      subcategories[category].forEach(sub => {
+        const opt = document.createElement('option')
+        opt.value = sub
+        opt.textContent = sub
+        select.appendChild(opt)
+      })
+    }
+  }
+
   function toggleUnits(btn) {
     const card = btn.closest('.eq-card');
     const table = card.querySelector('.units-table');
@@ -310,6 +342,6 @@
     }
   });
 </script>
-<script src="/frontend/js/admin/equipments_list.js"></script>
+<script src="/js/admin/equipments_list.js"></script>
 </body>
 </html>

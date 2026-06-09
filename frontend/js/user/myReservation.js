@@ -93,7 +93,13 @@
     }
 
     function goToDetail(id) {
-      window.location.href = `reservationDetails.html?id=${id}`;
+      // Find the reservation across all tabs to get its status
+      let status = 'inactive';
+      for (const tab in reservations) {
+        const found = reservations[tab].find(r => r.id == id);
+        if (found) { status = found.status; break; }
+      }
+      window.location.href = `reservationDetails.html?id=${id}&status=${status}`;
     }
 
     function deleteRow(id, deviceName) {

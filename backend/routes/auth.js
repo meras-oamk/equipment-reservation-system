@@ -2,25 +2,8 @@ const express = require('express')
 const router = express.Router()
 const jwt = require('jsonwebtoken')
 const authHelper = require('../helpers/auth')
+const { authenticate, authorizeRole } = require('../helpers/role')
 require('dotenv').config()
-
-const verifyToken = (req, res, next) => {
-    const authHeader = req.headers['authorization']
-
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(401).json({ error: 'Access denied. No token provided.' })
-    }
-
-    const token = authHeader.split(' ')[1]
-    
-    try {
-        const decodedToken = jwt.verify(token, process.env.JWT_SECRET)
-        req.user = decodedToken
-        next()
-    } catch (error) {
-        return res.status(403).json({ error: 'Invalid or expired token!' })
-    }
-} 
 
 router.post('/register', async (req, res) => {
     try { 
@@ -84,7 +67,7 @@ router.post('/login', async (req, res) => {
     }
 })
 
-router.post('/change-password', verifyToken, async (req, res) => {
+router.post('/change-password', authenticate, authorizeRole('admin'), async (req, res) => {
     try {
         const { newPassword } = req.body
         const userId = req.user.userId

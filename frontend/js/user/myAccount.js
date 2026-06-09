@@ -1,10 +1,14 @@
 document.addEventListener("DOMContentLoaded", () => {
-
-    const form = document.getElementById("resetPasswordForm");
-
+    const token = localStorage.getItem('token')
+    const form = document.forms["resetPasswordForm"];
+    
     if (!form) return;
+    if (!token) {
+        window.location.href = '/loginOrRegister.html';
+        return;
+    };
 
-    form.addEventListener("submit", function(e){
+    form.addEventListener("submit", async function(e){
 
         e.preventDefault();
 
@@ -19,13 +23,36 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        alert("Password reset successfully");
+        try {
+            const res = await fetch('/api/auth/change-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ newPassword: newPassword })
+            });
 
-        const modal = bootstrap.Modal.getInstance(
-            document.getElementById("resetPasswordModal")
-        );
+            const data = await res.json();
 
-        modal.hide();
+            if (!res.ok) {
+                throw new Error(data.error || "Failed to reset password");
+            };
+            
+            alert("Password reset successfully");
+    
+            const modal = bootstrap.Modal.getInstance(
+                document.getElementById("resetPasswordModal")
+            );
+    
+            modal.hide();    
+            form.reset();        
+
+        } catch (error) {
+            console.error("Reset password error: ", error)
+            alert(error.message || "Something went wrong. Please try again.");
+        };
+
     });
 
 });

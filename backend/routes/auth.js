@@ -1,6 +1,9 @@
 const express = require('express')
 const router = express.Router()
+const jwt = require('jsonwebtoken')
 const authHelper = require('../helpers/auth')
+const { authenticate, authorizeRole } = require('../helpers/role')
+require('dotenv').config()
 
 router.post('/register', async (req, res) => {
     try { 
@@ -16,12 +19,11 @@ router.post('/register', async (req, res) => {
 
         await authHelper.register(fullname, email, password)
         return res.status(200).json({
-            success: true,
             message: 'Verification code has been sent.'
         })
     } catch (error) {
-        console.error('Backend error: ', error)
-        return res.status(400).json({ message: error.message })
+        console.error('Error register: ', error)
+        return res.status(400).json({ error: error.message })
     }
 })
 
@@ -40,13 +42,15 @@ router.post('/verify-email', async (req, res) => {
             role: data.role
         })
     } catch (error) {
-        return res.status(400).json({ message: error.message })
+        console.error('Error verify email: ' + error.message)
+        return res.status(400).json({ error: error.message })
     }
 })
 
 router.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body
+
         if (!email || !password) {
             return res.status(400).json({ error: 'Missing field!'})
         }
@@ -58,8 +62,43 @@ router.post('/login', async (req, res) => {
             role: loginData.role
         })
     } catch (error) {
-        console.log('Error: ' + error.message)
-        return res.status(401).json({ message: error.message })
+        console.log('Error login: ' + error.message)
+        return res.status(401).json({ error: error.message })
+    }
+})
+
+router.post('/change-password', authenticate, async (req, res) => {
+    try {
+        const { newPassword } = req.body
+        const userId = req.user.userId
+
+        if (!newPassword) {
+            return res.status(400).json({ error: 'Missing field!'})
+        }
+
+        await authHelper.changePassword(userId, newPassword)
+
+        return res.status(200).json({ message: 'Password changed successfully!'})
+    } catch (error) {
+        console.error('Error changing password: ' + error.message)
+        return res.status(500).json({ error: error.message})
+    }
+})
+
+router.post('/resendCode', async (req, res) => {
+    try {
+        const { email } = req.body
+
+        if (!email) {
+            res.status(400).json({ error: 'Email parameter is required!' })
+        }
+
+        await authHelper.resendCode(email)
+        res.status(200).json({ message: 'A new 6-digit verification code has been sent to your email.' })
+    
+    } catch (error) {
+        console.error('Error resending code: ' + error.message)
+        return res.status(400).json({ error: error.message })
     }
 })
 

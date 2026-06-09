@@ -67,7 +67,7 @@ router.post('/login', async (req, res) => {
     }
 })
 
-router.post('/change-password', authenticate, authorizeRole('admin'), async (req, res) => {
+router.post('/change-password', authenticate, async (req, res) => {
     try {
         const { newPassword } = req.body
         const userId = req.user.userId

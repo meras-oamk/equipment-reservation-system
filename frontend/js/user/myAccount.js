@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
     const token = localStorage.getItem('token')
-    const form = document.getElementById("resetPasswordForm");
+    const form = document.forms["resetPasswordForm"];
     
     if (!form) return;
     if (!token) {
@@ -45,7 +45,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 document.getElementById("resetPasswordModal")
             );
     
-            modal.hide();
+            modal.hide();    
+            form.reset();        
 
         } catch (error) {
             console.error("Reset password error: ", error)

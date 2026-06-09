@@ -31,9 +31,9 @@ function renderCard(t) {
     return `
     <div class="eq-card" id="card-${t.id}">
       <div class="eq-card-header">
-        <img class="eq-img" src="${image}" alt="${t.name}" />
+        <img class="eq-img" src="${image}" alt="${t.name}" onclick='openDetailModal(${JSON.stringify(t)})' style="cursor:pointer;" />
         <div class="eq-info">
-          <div class="name">${t.name}</div>
+          <div class="name" onclick='openDetailModal(${JSON.stringify(t)})' style="cursor:pointer;">${t.name}</div>
           <div class="meta">${t.subcategory || ''} · ${formatCategory(t.category)}</div>
         </div>
         <div class="eq-units">
@@ -213,4 +213,39 @@ function previewImage(input) {
         preview.src = URL.createObjectURL(input.files[0])
         preview.style.display = 'block'
     }
+}
+// View equipement type details
+async function openDetailModal(t) {
+    document.getElementById('detailImage').src = t.image_url
+    document.getElementById('detailName').textContent = t.name
+    document.getElementById('detailMeta').textContent = `${t.subcategory || ''} · ${formatCategory(t.category)}`
+    document.getElementById('detailCount').textContent = `${t.available_count}/${t.total_units}`
+    document.getElementById('detailDescription').textContent = t.description || ''
+    document.getElementById('detailTotalUnits').textContent = `${t.total_units} total`
+    document.getElementById('detailUnits').innerHTML = '<p style="color:#aaa;font-size:13px;">Loading...</p>'
+
+    document.getElementById('detailModal').classList.add('open')
+
+    const res = await fetch(`/api/equipment/types/${t.id}/units`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    })
+    const units = await res.json()
+
+    if (!res.ok || units.length === 0) {
+        document.getElementById('detailUnits').innerHTML = '<p style="color:#aaa;font-size:13px;padding:10px;">No units yet.</p>'
+        return
+    }
+
+    document.getElementById('detailUnits').innerHTML = units.map(u => `
+        <div class="units-row" style="grid-template-columns:1.2fr 1fr 1fr 1.2fr;">
+          <span class="unit-id">${u.qr_code}</span>
+          <span><span class="badge-${badgeClass(u.status)}">${formatStatus(u.status)}</span></span>
+          <span>${formatCondition(u.condition)}</span>
+          <span class="unit-location">${u.location || ''}</span>
+        </div>
+    `).join('')
+}
+
+function closeDetailModal() {
+    document.getElementById('detailModal').classList.remove('open')
 }

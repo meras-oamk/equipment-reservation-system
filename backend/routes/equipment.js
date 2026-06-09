@@ -55,5 +55,31 @@ router.post('/types', authenticate, authorizeRole('admin'), upload.single('image
         return res.status(400).json({ error: error.message })
     }
 })
+// Edit type
+router.put('/types/:id', authenticate, authorizeRole('admin'), upload.single('image'), async (req, res) => {
+    try {
+        const { id } = req.params
+        const { name, category, subcategory, description } = req.body
 
+        let image_url = req.file ? req.file.path : null
+        if (!image_url) {
+            const current = await db.query('SELECT image_url FROM equipment_types WHERE id = $1', [id])
+            image_url = current.rows[0]?.image_url
+        }
+
+        const result = await db.query(`
+            UPDATE equipment_types
+            SET name = $1, category = $2, subcategory = $3, description = $4, image_url = $5, updated_at = NOW()
+            WHERE id = $6
+            RETURNING *;
+        `, [name, category, subcategory, description, image_url, id])
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Equipment type not found.' })
+        }
+        return res.status(200).json(result.rows[0])
+    } catch (error) {
+        return res.status(400).json({ error: error.message })
+    }
+})
 module.exports = router

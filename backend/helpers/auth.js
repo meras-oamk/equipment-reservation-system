@@ -5,6 +5,17 @@ const sendEmail = require('./email')
 require('dotenv').config()
 
 const authHelper = {
+    generateToken: (user) => {
+        return jwt.sign(
+            {
+                userId: user.id,
+                role: user.role
+            },
+            process.env.JWT_SECRET,
+            { expiresIn: '1h' }
+        )
+    },
+
     sendVerification: async (normalizedEmail, fullname, hashedPassword) => {
         const verificationCode = Math.floor(100000 + Math.random() * 900000).toString()
         const expiresAt = new Date(Date.now() + 10 * 60 * 1000)
@@ -103,11 +114,7 @@ const authHelper = {
             [normalizedEmail]
         )
 
-        const token = jwt.sign(
-            { userId: newUser.id, role: newUser.role },
-            process.env.JWT_SECRET,
-            { expiresIn: '1h' }
-        )
+        const token = authHelper.generateToken(newUser)
         return { token, role: newUser.role }
     },
 
@@ -122,12 +129,7 @@ const authHelper = {
         const isMatch = await bcrypt.compare(password, user.password_hash)
         if (!isMatch) throw new Error('Wrong password!')
 
-        const token = jwt.sign(
-            { id: user.id, role: user.role },
-            process.env.JWT_SECRET,
-            { expiresIn: '1h'}
-        )
-
+        const token = authHelper.generateToken(user)
         return { token, role: user.role }
     },
 

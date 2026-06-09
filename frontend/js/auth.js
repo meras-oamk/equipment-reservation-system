@@ -4,7 +4,6 @@ const loginError = document.getElementById('loginError')
 const registerError = document.getElementById('registerError')
 const verifyError = document.getElementById('verifyError')
 const verificationModal = document.getElementById('verificationModal')
-const changePasswordBtn = document.getElementById('changePasswordBtn')
 const resendCode = document.getElementById('resendCode')
 
 let userEmailInMemory = ''
@@ -93,9 +92,9 @@ if (loginForm) {
             localStorage.setItem('role', data.role)
             
             if (data.role === 'student' || data.role === 'staff') {
-                window.location.href = './user/equipments_list.html'
+                window.location.href = '/user/equipments_list.html'
             } else if (data.role === 'admin') {
-                window.location.href = './admin/dashboard.html'
+                window.location.href = '/admin/dashboard.html'
             }
 
             loginError.textContent = ''
@@ -144,40 +143,13 @@ if (verificationModal && verifyBtn) {
             verifyError.textContent = ''
             
             if (data.role === 'student' || data.role === 'staff') {
-                window.location.href = './user/equipments_list.html'
+                window.location.href = '/user/equipments_list.html'
             }
             
         } catch (error) {
             console.error(error)
             verifyError.textContent = 'Network error'
         }
-    })
-}
-
-if (changePasswordBtn) {
-    changePasswordBtn.addEventListener('click', async () => {
-        const token = localStorage.getItem('token')
-        if (!token) {
-            window.location.href = '/login.html'
-            return
-        }
-
-        try {
-            const res = await fetch('http://localhost:3001/api/auth/change-password', {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ fullname, email, password })
-            })
-
-            const data = await res.json()
-
-            if (res.ok) {
-                
-            }
-        } 
     })
 }
 

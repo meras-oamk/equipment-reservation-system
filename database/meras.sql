@@ -3,6 +3,7 @@
 -- =====================
 
 DROP TABLE IF EXISTS equipment_logs CASCADE;
+DROP TABLE IF EXISTS pending_verifications CASCADE;
 DROP TABLE IF EXISTS reservations CASCADE;
 DROP TABLE IF EXISTS equipment_units CASCADE;
 DROP TABLE IF EXISTS equipment_types CASCADE;
@@ -74,6 +75,14 @@ CREATE TYPE log_action AS ENUM (
 -- TABLES
 -- =====================
 
+CREATE TABLE pending_verifications (
+  email VARCHAR(255) PRIMARY KEY,
+	fullname          VARCHAR(255)  NOT NULL,
+  password          VARCHAR(255)  NOT NULL, 
+  verification_code VARCHAR(6)    NOT NULL,
+  expires_at        TIMESTAMP     NOT NULL
+);
+
 CREATE TABLE users (
   id            SERIAL PRIMARY KEY,
   full_name    	VARCHAR(50)  NOT NULL,
@@ -89,6 +98,7 @@ CREATE TABLE equipment_types (
   id          SERIAL PRIMARY KEY,
   name        VARCHAR(100)       NOT NULL,
   category    equipment_category NOT NULL,
+  subcategory  VARCHAR(100),
   description TEXT,
   created_at  TIMESTAMP          DEFAULT NOW(),
   updated_at  TIMESTAMP          DEFAULT NOW()
@@ -167,3 +177,40 @@ CREATE TABLE equipment_logs (
     REFERENCES reservations(id)
     ON DELETE SET NULL
 );
+INSERT INTO equipment_types (name, category, subcategory, description, image_url) VALUES
+
+('Microsoft HoloLens 2', 'vr_ar', 'AR Glasses',
+'Storage: 64 GB
+Details: Features hands-free interaction, spatial mapping, eye tracking, and holographic visualization.',
+'https://res.cloudinary.com/dadujbhoi/image/upload/f_auto,q_auto/Microsoft_HoloLens_2_ipiven'),
+
+('Magic Leap 2', 'vr_ar', 'AR Glasses',
+'Storage: 256 GB
+Details: Features high-resolution displays, eye tracking, hand tracking, spatial computing capabilities, and immersive AR visualization.',
+'https://res.cloudinary.com/dadujbhoi/image/upload/f_auto,q_auto/Magic-Leap-2_danvmc'),
+
+('Valve / HTC SteamVR Base Station 2.0', 'vr_ar', 'Base Stations / Sensors',
+'Details: High-precision tracking, large play area coverage, support for multiple tracked devices, low-latency performance, SteamVR compatibility.',
+'https://res.cloudinary.com/dadujbhoi/image/upload/f_auto,q_auto/HTC_Steam_VR_2.0_i6pruk'),
+
+('HaptX Gloves G1', 'vr_ar', 'Haptic Gloves',
+'Details: Force feedback, microfluidic haptics, finger tracking, realistic touch sensation, precise hand motion capture.',
+'https://res.cloudinary.com/dadujbhoi/image/upload/f_auto,q_auto/HaptX_gloves_G1_eo8ia9'),
+
+('HTC Vive Tracker 3.0', 'vr_ar', 'Motion Trackers',
+'Sensors: SteamVR Lighthouse Tracking Sensors
+Details: Enables precise positional tracking of body movements and physical objects within SteamVR environments.',
+'https://res.cloudinary.com/dadujbhoi/image/upload/f_auto,q_auto/HTC_VIVETracker_3_gz12xb'),
+
+('Meta Quest Touch Plus Controller', 'vr_ar', 'VR Controllers',
+'Details: Inside-out tracking, TruTouch haptic feedback, ergonomic design, wireless operation, precise motion tracking.',
+'https://res.cloudinary.com/dadujbhoi/image/upload/f_auto,q_auto/Meta_Quest_touch_plus_sz6gbc'),
+
+('Meta Quest 3', 'vr_ar', 'VR Headset',
+'Storage: 128 GB / 512 GB
+Details: Features full color passthrough, high-resolution displays, hand tracking, and wireless operation without external sensors.',
+'https://res.cloudinary.com/dadujbhoi/image/upload/f_auto,q_auto/Meta_Quest_3_f1jydb'),
+
+('Lenovo Legion Pro 7i', 'vr_ar', 'VR Ready Laptops',
+'Details: NVIDIA RTX graphics, Intel Core HX processor, AI-enhanced performance, advanced thermal management, VR-ready capabilities.',
+'https://res.cloudinary.com/dadujbhoi/image/upload/f_auto,q_auto/Lenovo_Legion_Pro_7i_wgvwtf');

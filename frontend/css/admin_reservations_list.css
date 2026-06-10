@@ -1,0 +1,38 @@
+.table-header {
+  background: #F5C992;
+  border-radius: 10px;
+  padding: 14px 20px;
+  display: grid;
+  grid-template-columns: 140px 1fr 1fr 120px 120px 130px;
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.table-row {
+  display: grid;
+  grid-template-columns: 140px 1fr 1fr 120px 120px 130px;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 14px;
+}
+
+.table-row:last-child { border-bottom: none; }
+
+.table-row:hover { background: #fafafa; }
+
+.eq-name { font-weight: 600; margin-bottom: 2px; }
+.eq-unit  { font-size: 12px; color: #888; }
+
+.user-name  { font-weight: 500; }
+.user-email { font-size: 12px; color: #888; }
+
+.date-time { font-size: 13px; line-height: 1.6; }
+
+.table-wrap {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #eee;
+  overflow: hidden;
+}

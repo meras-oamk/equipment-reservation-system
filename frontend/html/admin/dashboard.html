@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/admin_shared.css" />
+  <link rel="stylesheet" href="/css/admin_dashboard.css" />
+</head>
+<body>
+
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar">
+  <div class="sidebar-profile">
+    <h6>Alexander Smith</h6>
+    <small>alexander.smith@example.com</small>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a class="nav-item active" href="#"><i class="bi bi-grid"></i> Dashboard</a>
+    <a class="nav-item" href="./reservations_list.html"><i class="bi bi-calendar-check"></i> Reservations</a>
+    <a class="nav-item" href="./equipments_list.html"><i class="bi bi-box-seam"></i> Equipments</a>
+    <a class="nav-item" href="./configuration.html"><i class="bi bi-gear"></i> Configuration</a>
+    <a class="nav-item" href="./manageUsers.html"><i class="bi bi-people"></i> Manage Users</a>
+    <a class="nav-item" href="#"><i class="bi bi-journal-text"></i> Logs</a>
+    <a class="nav-item" href="#"><i class="bi bi-book"></i> Booking Policies</a>
+  </nav>
+
+  <div class="sidebar-footer d-flex justify-content-center align-items-center">
+    <div class="logout-btn" style="cursor: default">
+      <i class="bi bi-box-arrow-right"></i> Log out
+    </div>
+  </div>
+</aside>
+
+<!-- ── MAIN ── -->
+<main class="main">
+  <h4 class="fw-bold mb-4">Dashboard</h4>
+
+  <div class="row g-3 mb-4">
+    <!-- Stat: Most Used -->
+    <div class="col-md-4">
+      <div class="stat-card">
+        <div class="stat-label">Most Used</div>
+        <div class="stat-sub">NewBeeDrone Replacement</div>
+        <div class="stat-value">78%</div>
+      </div>
+    </div>
+
+    <!-- Stat: Return Requests -->
+    <div class="col-md-4">
+      <div class="stat-card">
+        <div class="stat-label">Return Requests</div>
+        <div class="stat-value">12</div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="col-md-4">
+      <button class="action-btn btn-add-equipment"onclick="openModal()"><i class="bi bi-plus-lg"></i> Add Equipment</button>
+      <button class="action-btn btn-add-admin">
+        <i class="bi bi-plus-lg"></i> Add Admin
+      </button>
+    </div>
+  </div>
+
+  <!-- Stat: Overdue -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <div class="stat-card">
+        <div class="stat-label">Overdue Returns</div>
+        <div class="stat-value">3</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── BOTTOM PANELS ── -->
+  <div class="row g-3">
+    <!-- Return Requests List -->
+    <div class="col-md-5">
+      <div class="panel">
+        <div class="panel-title">Return Requests</div>
+
+        <div class="request-card active" onclick="selectRequest(this, 0)">
+          <div class="eq-name">NewBeeDrone Replacement</div>
+          <div class="eq-meta">Unit: DR-01-001</div>
+          <div class="eq-meta">Sarah Johnson</div>
+        </div>
+
+        <div class="request-card" onclick="selectRequest(this, 1)">
+          <div class="eq-name">Meta Quest 3</div>
+          <div class="eq-meta">Unit: VR-02-001</div>
+          <div class="eq-meta">James Johnson</div>
+        </div>
+
+        <div class="request-card" onclick="selectRequest(this, 2)">
+          <div class="eq-name">UR5e</div>
+          <div class="eq-meta">Unit: RB-02-004</div>
+          <div class="eq-meta">Joe Johnson</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Request Detail -->
+    <div class="col-md-7">
+      <div class="panel">
+        <div class="panel-title">Requests Details</div>
+        <div class="detail-title" id="detailName">NewBeeDrone Replacement</div>
+
+        <div class="detail-row">
+          <span class="label">Request ID:</span>
+          <span class="value" id="detailId">12593</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Unit:</span>
+          <span class="value" id="detailUnit">DR-01-001</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">User:</span>
+          <span class="value" id="detailUser">Sarah Johnson</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Email:</span>
+          <span class="value" id="detailEmail">sarah.johnson@example.com</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Start Date:</span>
+          <span class="value" id="detailStart">12:00 &nbsp; 21/06/2026</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">End Date:</span>
+          <span class="value" id="detailEnd">14:30 &nbsp; 23/06/2026</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Location:</span>
+          <span class="value" id="detailLocation">Linnanmaa Kirjasto</span>
+        </div>
+        <div class="detail-row mb-3">
+          <span class="label">Return At:</span>
+          <span class="value" id="detailReturn">13:50 &nbsp; 23/06/2026</span>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold" style="font-size:14px">Equipment's Condition:</label>
+          <select class="condition-select">
+            <option>Good</option>
+            <option>Scratched</option>
+            <option>Missing Parts</option>
+            <option>Malfunction</option>
+            <option>Damaged</option>
+            <option>Lost</option>
+          </select>
+        </div>
+
+        <div class="mb-2">
+          <label class="form-label fw-semibold" style="font-size:14px">Inspection Note (Optional)</label>
+          <textarea class="inspection-note" placeholder="e.g. minor scratch on left side..."></textarea>
+        </div>
+
+        <button class="confirm-btn">Confirm Return</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  const requests = [
+    {
+      name: 'NewBeeDrone Replacement',
+      id: '12593', unit: 'DR-01-001', user: 'Sarah Johnson',
+      email: 'sarah.johnson@example.com',
+      start: '12:00 &nbsp; 21/06/2026', end: '14:30 &nbsp; 23/06/2026',
+      location: 'Linnanmaa Kirjasto', returnAt: '13:50 &nbsp; 23/06/2026'
+    },
+    {
+      name: 'Meta Quest 3',
+      id: '12594', unit: 'VR-02-001', user: 'James Johnson',
+      email: 'james.johnson@example.com',
+      start: '09:00 &nbsp; 22/06/2026', end: '11:00 &nbsp; 22/06/2026',
+      location: 'Campus B - Room 202', returnAt: '11:15 &nbsp; 22/06/2026'
+    },
+    {
+      name: 'UR5e',
+      id: '12595', unit: 'RB-02-004', user: 'Joe Johnson',
+      email: 'joe.johnson@example.com',
+      start: '14:00 &nbsp; 23/06/2026', end: '16:00 &nbsp; 23/06/2026',
+      location: 'Campus A - Lab 101', returnAt: '16:30 &nbsp; 23/06/2026'
+    }
+  ];
+
+  const selectRequest = (el, index) => {
+    document.querySelectorAll('.request-card').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+
+    const r = requests[index];
+    document.getElementById('detailName').textContent     = r.name;
+    document.getElementById('detailId').textContent       = r.id;
+    document.getElementById('detailUnit').textContent     = r.unit;
+    document.getElementById('detailUser').textContent     = r.user;
+    document.getElementById('detailEmail').textContent    = r.email;
+    document.getElementById('detailStart').innerHTML      = r.start;
+    document.getElementById('detailEnd').innerHTML        = r.end;
+    document.getElementById('detailLocation').textContent = r.location;
+    document.getElementById('detailReturn').innerHTML     = r.returnAt;
+  };
+</script>
+<!-- ADD EQUIPMENT MODAL -->
+<div class="modal-overlay" id="addEquipmentModal">
+  <div class="modal-box">
+    <div class="modal-title">
+      <button class="modal-back" onclick="closeModal()"><i class="bi bi-chevron-left"></i></button>
+      Add Equipment
+    </div>
+
+    <div class="modal-field">
+      <label>Equipment Name<span class="req">*</span></label>
+      <input class="modal-input" type="text" placeholder="" />
+    </div>
+
+    <div class="modal-field">
+      <label>Category<span class="req">*</span></label>
+      <select class="modal-select">
+        <option value="">Select category</option>
+        <option value="vr_ar">VR/AR</option>
+        <option value="robotics">Robotics</option>
+        <option value="audio_video">Audio/Video</option>
+        <option value="laboratory">Laboratory</option>
+        <option value="computing">Computing</option>
+        <option value="iot_embedded">IoT/Embedded</option>
+      </select>
+    </div>
+
+    <div class="modal-field">
+      <label>Serial number<span class="req">*</span></label>
+      <input class="modal-input" type="text" placeholder="" />
+    </div>
+
+    <div class="modal-field">
+      <label>Location<span class="req">*</span></label>
+      <select class="modal-select">
+        <option value="">Select location</option>
+        <option>Campus A - Lab 101</option>
+        <option>Campus B - Room 202</option>
+        <option>Linnanmaa Kirjasto</option>
+      </select>
+    </div>
+
+    <div class="modal-field">
+      <label>Status<span class="req">*</span></label>
+      <select class="modal-select">
+        <option value="available">Available</option>
+        <option value="maintenance">Maintenance</option>
+        <option value="broken">Broken</option>
+        <option value="lost">Lost</option>
+      </select>
+    </div>
+
+    <div class="modal-field">
+      <label>Description</label>
+      <textarea class="modal-textarea" placeholder=""></textarea>
+    </div>
+
+    <div class="modal-field">
+      <label>Image</label>
+      <div class="modal-upload">Upload image</div>
+    </div>
+
+    <button class="btn-generate-qr">Generate QR Code</button>
+
+    <div class="modal-footer">
+      <button class="btn-modal-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-modal-save">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const openModal  = () => document.getElementById("addEquipmentModal").classList.add("open");
+  const closeModal = () => document.getElementById("addEquipmentModal").classList.remove("open");
+
+  document.getElementById("addEquipmentModal").addEventListener("click", function(e) {
+    if (e.target === this) closeModal();
+  });
+</script>
+<script>
+  const token = localStorage.getItem('token')
+
+  if (!token) window.location.href = '../index.html'
+
+  const logoutBtn = document.querySelector('.logout-btn')
+
+  logoutBtn.addEventListener('click', () => {
+      localStorage.removeItem('token')
+      localStorage.removeItem('role')
+
+      window.location.href = '../index.html'
+  })
+</script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+#Test register
+POST http://localhost:3001/api/auth/register
+Content-Type: application/json
+
+{
+  "fullname": "Diem Tran",
+  "email": "thtran25@students.oamk.fi",
+  "password": "cattuongkientuong@2993"
+}
+
+###Test verify code
+POST http://localhost:3001/api/auth/verify-code
+Content-Type: application/json
+
+{
+  "email": "thtran25@students.oamk.fi",
+  "code": "893612"
+}
+###Test login
+POST http://localhost:3001/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "thtran25@students.oamk.fi",
+  "password": "cattuongkientuong@2993"
+}

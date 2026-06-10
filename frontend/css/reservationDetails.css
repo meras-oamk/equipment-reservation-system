@@ -66,6 +66,20 @@
       font-size: 0.82rem; font-weight: 600;
     }
 
+    .badge-active {
+      background: #e6f9f0; color: #1a8a4a;
+      border: 1px solid #a3e0c0;
+      padding: 0.3rem 1rem; border-radius: 20px;
+      font-size: 0.82rem; font-weight: 600;
+    }
+
+    .badge-expired {
+      background: #f0f0f0; color: #777;
+      border: 1px solid #d0d0d0;
+      padding: 0.3rem 1rem; border-radius: 20px;
+      font-size: 0.82rem; font-weight: 600;
+    }
+
     /* BODY */
     .detail-body { padding: 1.75rem; }
 

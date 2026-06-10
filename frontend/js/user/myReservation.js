@@ -47,7 +47,7 @@
             <td>${badgeHtml(r.status)}</td>
             <td>
               <div class="action-btns">
-                <a href="reservationDetails.html?id=${r.id}" class="btn-view-icon" onclick="event.stopPropagation()" title="View">
+                <a href="reservationDetails.html?id=${r.id}&status=${r.status}" class="btn-view-icon" onclick="event.stopPropagation()" title="View">
                   <i class="bi bi-eye"></i>
                 </a>
                 <button class="btn-delete-icon" onclick="event.stopPropagation(); deleteRow(${r.id}, '${r.device}')" title="Remove">

@@ -13,52 +13,36 @@
 </head>
 <body>
 
-<div class="container py-4">
 
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg custom-navbar mb-4">
-        <div class="container-fluid">
 
-            <a class="navbar-brand" href="#">
-                <img src="../../Assets/Logo.png" alt="Logo" height="45"> 
-            </a>
+      <!-- NAVBAR -->
+  <nav class="navbar navbar-expand-md sticky-top px-3 px-md-4">
+    <a class="navbar-brand" href="equipments_list.html">
+      <div class="logo-icon"><img src="../../Assets/Logo.png" alt="Logo" width="60" height="60"/></div>
+    </a>
 
-            <button class="navbar-toggler border-0 shadow-none"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#navbarMenu">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+    <button class="navbar-toggler ms-auto" type="button"
+      data-bs-toggle="collapse" data-bs-target="#navMenu"
+      aria-controls="navMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <i class="bi bi-list fs-4"></i>
+    </button>
 
-            <div class="collapse navbar-collapse" id="navbarMenu">
-                <ul class="navbar-nav ms-auto align-items-lg-center">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="equipments_list.html">Equipments</a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Reservations</a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">My Account</a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link text-danger" href="#">Logout</a>
-                    </li>
-                </ul>
-            </div>
-
-        </div>
-    </nav>
+    <div class="collapse navbar-collapse" id="navMenu">
+      <ul class="navbar-nav ms-auto gap-md-2 mt-2 mt-md-0">
+        <li class="nav-item"><a class="nav-link" href="equipments_list.html">Equipments</a></li>
+        <li class="nav-item"><a class="nav-link" href="reservations.html">Reservations</a></li>
+        <li class="nav-item"><a class="nav-link" href="my_account.html">My Account</a></li>
+        <li class="nav-item"><a class="nav-link logout" href="logout.html">Logout</a></li>
+      </ul>
+    </div>
+  </nav>
 
     <!-- Page Title -->
-    <h2 class="section-title mb-4">
-        List of equipment
-    </h2>
+    <div class="container py-4" style="max-width: 1100px;">
+    <h1 class="page-title">List of Equipments</h1>
 
     <!-- Search -->
+<div class="container py-4">    
     <div class="search-wrapper mb-4">
         <div class="input-group">
             <span class="input-group-text bg-white">

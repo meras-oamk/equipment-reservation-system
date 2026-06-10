@@ -1,0 +1,117 @@
+body{
+    background:#f7f7f7;
+    font-family: "Segoe UI", sans-serif;
+}
+
+/* Container Card */
+.container{
+    background:white;
+    border-radius:30px;
+    padding:30px;
+    border:1px solid #e6e6e6;
+}
+
+/* Navbar */
+
+.custom-navbar{
+    border-bottom:1px solid #e9e9e9;
+    padding-bottom:15px;
+}
+
+.nav-link{
+    font-weight:500;
+    margin-left:20px;
+}
+
+.section-title{
+    font-weight:700;
+}
+
+/* Search */
+
+.input-group-text{
+    border-right:none;
+}
+
+.form-control{
+    border-left:none;
+    box-shadow:none !important;
+    height:50px;
+}
+
+/* Filter Buttons */
+
+.btn-category{
+    background:#efefef;
+    border:none;
+    border-radius:10px;
+    padding:10px 20px;
+    color:#333;
+    transition:all .3s ease;
+}
+
+.btn-category.active-category{
+    background:#f79a1e;
+    color:#fff;
+}
+
+/* Equipment Card */
+
+.equipment-card{
+    border-radius:12px;
+    overflow:hidden;
+    transition:.3s;
+    border:1px solid #e7e7e7;
+}
+
+.equipment-card:hover{
+    transform:translateY(-4px);
+    box-shadow:0 8px 20px rgba(0,0,0,.08);
+}
+
+.equipment-card img{
+    height:180px;
+    object-fit:cover;
+}
+
+.equipment-name{
+    font-size:15px;
+    font-weight:600;
+}
+
+.availability{
+    color:#444;
+    font-size:14px;
+}
+
+.availability i{
+    color:#f79a1e;
+    margin-right:5px;
+}
+
+/* Mobile */
+
+@media(max-width:768px){
+
+    .container{
+        border-radius:20px;
+        padding:20px;
+    }
+
+    .nav-link{
+        margin-left:0;
+    }
+
+    .equipment-card img{
+        height:130px;
+    }
+
+    .equipment-name{
+        font-size:13px;
+    }
+
+    .availability{
+        font-size:12px;
+    }
+
+}

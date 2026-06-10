@@ -1,4 +1,8 @@
+<<<<<<< HEAD
   :root {
+=======
+ :root {
+>>>>>>> origin/landing-page
       --orange: #F07D00;
       --orange-hover: #d96e00;
       --bg: #f5f3ef;
@@ -381,6 +385,7 @@
       }
 
       .product-title { font-size: 1.4rem; }
+<<<<<<< HEAD
     }
 
     /* ── SUCCESS MODAL ── */
@@ -520,3 +525,6 @@
     }
 
     .btn-modal-view:hover { background: var(--orange-hover); }
+=======
+    }
+>>>>>>> origin/landing-page

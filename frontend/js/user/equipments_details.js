@@ -1,4 +1,8 @@
+<<<<<<< HEAD
     // Location dropdown
+=======
+ // Location dropdown
+>>>>>>> origin/landing-page
     const locationBtn = document.getElementById('locationBtn');
     const locationDropdown = document.getElementById('locationDropdown');
     const pickupInput = document.getElementById('pickupInput');
@@ -50,6 +54,7 @@
       if (!locationDropdown.contains(e.target) && !locationBtn.contains(e.target) && !pickupInput.contains(e.target)) {
         closeLocationDropdown();
       }
+<<<<<<< HEAD
     });
 
     // ── CONFIRMATION MODAL ──
@@ -89,4 +94,6 @@
     // Close on overlay click
     successModal.addEventListener('click', function (e) {
       if (e.target === successModal) successModal.classList.remove('show');
+=======
+>>>>>>> origin/landing-page
     });

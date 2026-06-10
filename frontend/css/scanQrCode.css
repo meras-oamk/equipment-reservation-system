@@ -1,0 +1,147 @@
+    :root {
+      --orange: #F07D00;
+      --orange-hover: #d96e00;
+      --bg: #f5f3ef;
+      --border: #e0ddd8;
+      --muted: #888;
+      --card-bg: #ffffff;
+    }
+
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); min-height: 100vh; }
+
+    /* NAV */
+    .navbar { background: var(--card-bg) !important; border-bottom: 1px solid var(--border); }
+    .logo-icon { width:38px;height:38px;background:var(--bg);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.2rem; }
+    .logo-text { font-family:'Playfair Display',serif;font-size:0.85rem;line-height:1.15;color:#1a1a1a; }
+    .nav-link { font-size:0.9rem;font-weight:500;color:#555 !important; }
+    .nav-link:hover { color:#1a1a1a !important; }
+    .nav-link.logout { color:var(--orange) !important; }
+    .navbar-toggler { border:none;box-shadow:none !important; }
+
+    /* PAGE TITLE */
+    .page-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.75rem;
+      color: #1a1a1a;
+      text-align: center;
+      margin-bottom: 1.75rem;
+    }
+
+    /* CARD */
+    .scan-card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+      padding: 1.5rem;
+      max-width: 380px;
+      margin: 0 auto;
+    }
+
+    .scan-card-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #1a1a1a;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    /* QR VIEWFINDER */
+    .qr-frame {
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      aspect-ratio: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      background: #faf9f7;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 0.9rem;
+    }
+
+    /* Corner brackets */
+    .qr-frame::before,
+    .qr-frame::after {
+      content: '';
+      position: absolute;
+      width: 36px; height: 36px;
+      border-color: #1a1a1a;
+      border-style: solid;
+    }
+    .qr-frame::before { top: 14px; left: 14px; border-width: 3px 0 0 3px; border-radius: 4px 0 0 0; }
+    .qr-frame::after  { bottom: 14px; right: 14px; border-width: 0 3px 3px 0; border-radius: 0 0 4px 0; }
+
+    .qr-frame .corner-tr,
+    .qr-frame .corner-bl {
+      position: absolute;
+      width: 36px; height: 36px;
+      border-color: #1a1a1a;
+      border-style: solid;
+    }
+    .qr-frame .corner-tr { top: 14px; right: 14px; border-width: 3px 3px 0 0; border-radius: 0 4px 0 0; }
+    .qr-frame .corner-bl { bottom: 14px; left: 14px; border-width: 0 0 3px 3px; border-radius: 0 0 0 4px; }
+
+    /* Scan line animation */
+    .scan-line {
+      position: absolute;
+      left: 14px; right: 14px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--orange), transparent);
+      animation: scanMove 2s ease-in-out infinite;
+      border-radius: 1px;
+    }
+
+    @keyframes scanMove {
+      0%   { top: 20%; opacity: 0; }
+      10%  { opacity: 1; }
+      90%  { opacity: 1; }
+      100% { top: 80%; opacity: 0; }
+    }
+
+    /* Camera / QR icon */
+    .qr-icon { font-size: 4.5rem; color: #555; opacity: 0.6; }
+
+    .qr-hint {
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    /* OR DIVIDER */
+    .or-divider {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin: 1.25rem 0;
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+    }
+    .or-divider::before,
+    .or-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* CLOSE BUTTON */
+    .btn-close-page {
+      width: 100%;
+      padding: 0.8rem;
+      background: var(--orange);
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+    .btn-close-page:hover  { background: var(--orange-hover); }
+    .btn-close-page:active { transform: scale(0.99); }

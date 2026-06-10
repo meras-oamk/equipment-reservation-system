@@ -91,11 +91,18 @@ router.post('/units', authenticate, authorizeRole('admin'), async (req, res) => 
             return res.status(400).json({ error: 'Missing field!' })
         }
 
+        let finalStatus = status || 'available'
+        const finalCondition = condition || 'good'
+        const badConditions = ['damaged', 'malfunction', 'missing_parts']
+        if (badConditions.includes(finalCondition) && finalStatus === 'available') {
+            finalStatus = 'maintenance'
+        }
+
         const result = await db.query(`
             INSERT INTO equipment_units (type_id, qr_code, location, status, condition)
             VALUES ($1, $2, $3, $4, $5)
             RETURNING *;
-        `, [type_id, qr_code, location, status || 'available', condition || 'good'])
+        `, [type_id, qr_code, location, finalStatus, finalCondition])
 
         return res.status(201).json(result.rows[0])
     } catch (error) {
@@ -113,12 +120,19 @@ router.put('/units/:id', authenticate, authorizeRole('admin'), async (req, res) 
             return res.status(400).json({ error: 'Missing field!' })
         }
 
+        let finalStatus = status || 'available'
+        const finalCondition = condition || 'good'
+        const badConditions = ['damaged', 'malfunction', 'missing_parts']
+        if (badConditions.includes(finalCondition) && finalStatus === 'available') {
+            finalStatus = 'maintenance'
+        }
+
         const result = await db.query(`
             UPDATE equipment_units
             SET qr_code = $1, location = $2, status = $3, condition = $4, updated_at = NOW()
             WHERE id = $5
             RETURNING *;
-        `, [qr_code, location, status, condition, id])
+        `, [qr_code, location, finalStatus, finalCondition, id])
 
         if (result.rows.length === 0) {
             return res.status(404).json({ error: 'Unit not found.' })

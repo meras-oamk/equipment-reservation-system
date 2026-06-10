@@ -136,7 +136,7 @@ function formatStatus(s) {
 function formatCondition(c) {
     const map = {
         good: 'Good', scratched: 'Scratched', missing_parts: 'Missing Parts',
-        malfunction: 'Malfunction', damaged: 'Damaged', lost: 'Lost'
+        malfunction: 'Malfunction', damaged: 'Damaged'
     }
     return map[c] || c
 }
@@ -268,6 +268,8 @@ function openUnitModal(unitId = null, typeId) {
     document.getElementById('unitStatus').value = unit ? unit.status : 'available'
     document.getElementById('unitModalTitle').textContent = unit ? 'Edit Unit' : 'Add Unit'
 
+    syncStatusWithCondition()
+
     document.getElementById('qrPreviewWrap').style.display = 'none'
 
     document.getElementById('unitModal').classList.add('open')
@@ -275,6 +277,22 @@ function openUnitModal(unitId = null, typeId) {
 
 function closeUnitModal() {
     document.getElementById('unitModal').classList.remove('open')
+}
+
+function syncStatusWithCondition() {
+    const condition = document.getElementById('unitCondition').value
+    const statusSelect = document.getElementById('unitStatus')
+    const availableOption = statusSelect.querySelector('option[value="available"]')
+    const badConditions = ['damaged', 'malfunction', 'missing_parts']
+
+    if (badConditions.includes(condition)) {
+        availableOption.disabled = true
+        if (statusSelect.value === 'available') {
+            statusSelect.value = 'maintenance'
+        }
+    } else {
+        availableOption.disabled = false
+    }
 }
 
 async function saveUnit() {

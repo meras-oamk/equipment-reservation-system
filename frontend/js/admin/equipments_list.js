@@ -150,9 +150,61 @@ function badgeClass(status) {
 }
 
 // =====================
+// SEARCH & FILTER
+// =====================
+
+function populateSubcategoryFilter() {
+    const category = document.getElementById('categoryFilter').value
+    const subSelect = document.getElementById('subcategoryFilter')
+    const current = subSelect.value
+    subSelect.innerHTML = '<option value="">All Subcategories</option>'
+
+    const subs = category && subcategories[category]
+        ? subcategories[category]
+        : [...new Set(Object.values(subcategories).flat())].sort()
+
+    subs.forEach(sub => {
+        const opt = document.createElement('option')
+        opt.value = sub
+        opt.textContent = sub
+        subSelect.appendChild(opt)
+    })
+
+    if (subs.includes(current)) subSelect.value = current
+}
+
+function applyFilters() {
+    const search = document.getElementById('searchInput').value.trim().toLowerCase()
+    const category = document.getElementById('categoryFilter').value
+    const subcategory = document.getElementById('subcategoryFilter').value
+
+    const filtered = allTypes.filter(t => {
+        const matchesSearch = !search ||
+            t.name.toLowerCase().includes(search) ||
+            formatCategory(t.category).toLowerCase().includes(search) ||
+            (t.subcategory || '').toLowerCase().includes(search)
+
+        const matchesCategory = !category || t.category === category
+        const matchesSubcategory = !subcategory || t.subcategory === subcategory
+
+        return matchesSearch && matchesCategory && matchesSubcategory
+    })
+
+    renderEquipments(filtered)
+}
+
+document.getElementById('searchInput').addEventListener('input', applyFilters)
+document.getElementById('categoryFilter').addEventListener('change', () => {
+    populateSubcategoryFilter()
+    applyFilters()
+})
+document.getElementById('subcategoryFilter').addEventListener('change', applyFilters)
+
+// =====================
 // INIT
 // =====================
 
+populateSubcategoryFilter()
 loadEquipments()
 
 // Add types

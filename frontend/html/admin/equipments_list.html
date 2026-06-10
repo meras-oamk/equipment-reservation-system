@@ -148,13 +148,12 @@
 
     <div class="modal-field">
       <label>Condition<span class="req">*</span></label>
-      <select class="modal-select" id="unitCondition">
+      <select class="modal-select" id="unitCondition" onchange="syncStatusWithCondition()">
         <option value="good">Good</option>
         <option value="scratched">Scratched</option>
         <option value="missing_parts">Missing Parts</option>
         <option value="malfunction">Malfunction</option>
         <option value="damaged">Damaged</option>
-        <option value="lost">Lost</option>
       </select>
     </div>
 

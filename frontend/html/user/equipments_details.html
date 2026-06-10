@@ -196,7 +196,7 @@
 
           <!-- Submit -->
           <div class="col-12 mt-1">
-            <button class="btn-confirm">Confirm Reservation</button>
+            <button class="btn-confirm" id="confirmBtn">Confirm Reservation</button>
           </div>
 
         </div>
@@ -204,6 +204,48 @@
     </div>
 
   </div>
+
+  <!-- SUCCESS MODAL -->
+  <div class="modal-overlay" id="successModal">
+    <div class="success-modal">
+      <div class="success-badge">
+        <span>Successfully Reserved</span>
+        <strong id="modal-equipment-name">NewBeeDrone Replacement</strong>
+      </div>
+
+      <div class="modal-details">
+        <div class="modal-detail-row">
+          <div class="detail-icon"><i class="bi bi-calendar3"></i></div>
+          <div>
+            <div class="detail-label">Reservation Start</div>
+            <div class="detail-value" id="modal-start-time">12.00</div>
+            <div class="detail-value" id="modal-start-date">12/06/2026</div>
+          </div>
+        </div>
+        <div class="modal-detail-row">
+          <div class="detail-icon"><i class="bi bi-calendar3"></i></div>
+          <div>
+            <div class="detail-label">Reservation End</div>
+            <div class="detail-value" id="modal-end-time">18.00</div>
+            <div class="detail-value" id="modal-end-date">15/06/2026</div>
+          </div>
+        </div>
+        <div class="modal-detail-row">
+          <div class="detail-icon"><i class="bi bi-geo-alt"></i></div>
+          <div>
+            <div class="detail-label">Pickup Location</div>
+            <div class="detail-value" id="modal-location">Linnanmaa Kirjasto</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-modal-close" id="modalCloseBtn">Close</button>
+        <button class="btn-modal-view" id="modalViewBtn"> <a href="myReservation.html">View Reservation</a></button>
+      </div>
+    </div>
+  </div>
+
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="../../js/user/equipments_details.js" type="module"></script>

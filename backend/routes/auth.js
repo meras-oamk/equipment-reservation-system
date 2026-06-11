@@ -59,7 +59,9 @@ router.post('/login', async (req, res) => {
 
         return res.status(200).json({
             token: loginData.token,
-            role: loginData.role
+            role: loginData.role,
+            fullname: loginData.fullname,
+            email: loginData.email
         })
     } catch (error) {
         console.log('Error login: ' + error.message)

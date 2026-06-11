@@ -130,7 +130,12 @@ const authHelper = {
         if (!isMatch) throw new Error('Wrong password!')
 
         const token = authHelper.generateToken(user)
-        return { token, role: user.role }
+        return { 
+            token, 
+            role: user.role,
+            fullname: user.full_name,
+            email: user.email
+        }
     },
 
     changePassword: async (userId, newPassword) => {

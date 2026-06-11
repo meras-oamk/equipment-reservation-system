@@ -1,4 +1,8 @@
 const token = localStorage.getItem('token')
+const role = localStorage.getItem('role')
+const name = localStorage.getItem('fullname')
+const email = localStorage.getItem('email')
+console.log(`Name: ${name} \n Email: ${email}`)
 
 function copyCredentials() {
     const name = document.getElementById('successFullName').textContent

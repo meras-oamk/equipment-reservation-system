@@ -73,17 +73,17 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="../../js/user/myReservation.js" type="module"></script>
   <script>
-    const logoutBtn = document.getElementById('logoutBtn')
-    const token = localStorage.getItem('token')
-    
-    if (!token) window.location.href = '/index.html'
+  const logoutBtn = document.getElementById('logoutBtn');
+  const token = localStorage.getItem('token');
 
-    logoutBtn.addEventListener('click', () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('role');
+  if (!token) window.location.href = '../../index.html';
 
-        window.location.href = '/index.html'
-    })
-</script>
+  logoutBtn.addEventListener('click', (e) => {
+    e.preventDefault(); // prevent the href from firing too
+    localStorage.removeItem('token');
+    localStorage.removeItem('role');
+    window.location.href = '../../index.html';
+  });
+  </script>
   </body>
 </html>

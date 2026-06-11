@@ -1,0 +1,61 @@
+/* ── RESERVATION LIMITS TABLE ── */
+.policy-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.policy-table th {
+  font-size: 13px;
+  color: #888;
+  font-weight: 600;
+  text-align: left;
+  padding-bottom: 10px;
+}
+
+.policy-table td {
+  padding: 8px 8px;
+  border-top: 1px solid #eee;
+  vertical-align: middle;
+}
+
+.policy-input {
+  max-width: 100px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+/* ── RETURN & INSPECTION TOGGLES ── */
+.policy-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  margin-bottom: 12px;
+  cursor: pointer;
+}
+
+.policy-toggle input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--orange);
+  cursor: pointer;
+}
+
+.policy-toggle:last-child { margin-bottom: 0; }
+
+/* ── POLICY VIOLATION ESCALATION ── */
+.escalation-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #eee;
+  padding: 12px 0;
+  font-size: 14px;
+}
+
+.escalation-row:first-of-type { border-top: none; }
+
+.escalation-step { font-weight: 700; }
+
+.escalation-action { color: #888; }

@@ -60,7 +60,7 @@
     <!-- Action Buttons -->
     <div class="col-md-4">
       <button class="action-btn btn-add-equipment"onclick="openModal()"><i class="bi bi-plus-lg"></i> Add Equipment</button>
-      <button class="action-btn btn-add-admin">
+      <button class="action-btn btn-add-admin" onclick="openAdminModal()">
         <i class="bi bi-plus-lg"></i> Add Admin
       </button>
     </div>
@@ -218,77 +218,177 @@
       <label>Equipment Name<span class="req">*</span></label>
       <input class="modal-input" type="text" placeholder="" />
     </div>
+    
+    <form id="eqForm" name="eqForm">
+      <div class="modal-field">
+        <label>Category<span class="req">*</span></label>
+        <select class="modal-select">
+          <option value="">Select category</option>
+          <option value="vr_ar">VR/AR</option>
+          <option value="robotics">Robotics</option>
+          <option value="audio_video">Audio/Video</option>
+          <option value="laboratory">Laboratory</option>
+          <option value="computing">Computing</option>
+          <option value="iot_embedded">IoT/Embedded</option>
+        </select>
+      </div>
+  
+      <div class="modal-field">
+        <label>Serial number<span class="req">*</span></label>
+        <input class="modal-input" type="text" placeholder="" />
+      </div>
+  
+      <div class="modal-field">
+        <label>Location<span class="req">*</span></label>
+        <select class="modal-select">
+          <option value="">Select location</option>
+          <option>Campus A - Lab 101</option>
+          <option>Campus B - Room 202</option>
+          <option>Linnanmaa Kirjasto</option>
+        </select>
+      </div>
+  
+      <div class="modal-field">
+        <label>Status<span class="req">*</span></label>
+        <select class="modal-select">
+          <option value="available">Available</option>
+          <option value="maintenance">Maintenance</option>
+          <option value="broken">Broken</option>
+          <option value="lost">Lost</option>
+        </select>
+      </div>
+  
+      <div class="modal-field">
+        <label>Description</label>
+        <textarea class="modal-textarea" placeholder=""></textarea>
+      </div>
+  
+      <div class="modal-field">
+        <label>Image</label>
+        <div class="modal-upload">Upload image</div>
+      </div>
+  
+      <button class="btn-generate-qr">Generate QR Code</button>
+  
+      <div class="modal-footer">
+        <button class="btn-modal-cancel" onclick="closeModal()">Cancel</button>
+        <button class="btn-modal-save">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
 
-    <div class="modal-field">
-      <label>Category<span class="req">*</span></label>
-      <select class="modal-select">
-        <option value="">Select category</option>
-        <option value="vr_ar">VR/AR</option>
-        <option value="robotics">Robotics</option>
-        <option value="audio_video">Audio/Video</option>
-        <option value="laboratory">Laboratory</option>
-        <option value="computing">Computing</option>
-        <option value="iot_embedded">IoT/Embedded</option>
-      </select>
+<!-- ADD ADMIN ACCOUNT MODAL -->
+<div class="modal-overlay" id="addAdminModal">
+  <div class="modal-box">
+    <div class="modal-title">
+      Add Admin
+      <button type="button" class="btn-close ms-auto" onclick="closeAdminModal()"></button>
+    </div>
+
+    <form id="addAdmin" name="addAdminForm">
+      <div class="modal-field">
+        <label>Full name<span class="req">*</span></label>
+        <input id="adminAddFullname" class="modal-input" type="text" placeholder="" />
+      </div>
+  
+      <div class="modal-field">
+        <label>Email<span class="req">*</span></label>
+        <input id="adminAddEmail" class="modal-input" type="email" placeholder="" />
+      </div>
+
+      <div class="modal-field">
+        <label>Password<span class="req">*</span></label>
+        <input id="adminAddPassword" class="modal-input" type="password" placeholder=""></input>
+      </div>
+      
+      <p id="addAdminError" class="error-text"></p>
+      <div class="modal-footer">
+        <button type="button" class="btn-modal-cancel" onclick="closeAdminModal()">Cancel</button>
+        <button type="submit" class="btn-modal-save">Save</button>
+      </div>
+    </form>
+
+  </div>
+</div>  
+
+<!-- ADD ADMIN SUCCESS MODAL -->
+<div class="modal-overlay" id="addAdminSuccessModal">
+  <div class="modal-box">
+    <div class="modal-title">
+      Admin Created!
+      <button type="button" class="btn-close ms-auto" onclick="closeAdminSuccessModal()"></button>
     </div>
 
     <div class="modal-field">
-      <label>Serial number<span class="req">*</span></label>
-      <input class="modal-input" type="text" placeholder="" />
+      <p style="color: #2e7d32; background: #e8f5e9; padding: 10px; border-radius: 4px; font-size: 0.9rem; margin-bottom: 15px;">
+        Please copy these credentials. You will not be able to see them again once closed.
+      </p>
     </div>
 
     <div class="modal-field">
-      <label>Location<span class="req">*</span></label>
-      <select class="modal-select">
-        <option value="">Select location</option>
-        <option>Campus A - Lab 101</option>
-        <option>Campus B - Room 202</option>
-        <option>Linnanmaa Kirjasto</option>
-      </select>
+      <strong>Full Name:</strong> <span id="successFullName"></span>
+    </div>
+    
+    <div class="modal-field">
+      <strong>Email:</strong> <span id="successEmail"></span>
     </div>
 
     <div class="modal-field">
-      <label>Status<span class="req">*</span></label>
-      <select class="modal-select">
-        <option value="available">Available</option>
-        <option value="maintenance">Maintenance</option>
-        <option value="broken">Broken</option>
-        <option value="lost">Lost</option>
-      </select>
+      <strong>Password:</strong> <span id="successPassword"></span>
     </div>
-
-    <div class="modal-field">
-      <label>Description</label>
-      <textarea class="modal-textarea" placeholder=""></textarea>
-    </div>
-
-    <div class="modal-field">
-      <label>Image</label>
-      <div class="modal-upload">Upload image</div>
-    </div>
-
-    <button class="btn-generate-qr">Generate QR Code</button>
-
-    <div class="modal-footer">
-      <button class="btn-modal-cancel" onclick="closeModal()">Cancel</button>
-      <button class="btn-modal-save">Save</button>
+    
+    <p id="copyFeedback" style="color: #2e7d32; font-size: 0.85rem; min-height: 1.25rem; margin-top: 10px; margin-bottom: 0;"></p>
+    
+    <div class="modal-footer" style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+      <button type="button" class="btn-modal-cancel" onclick="closeAdminSuccessModal()">Close</button>
+      <button type="button" class="btn-modal-save" onclick="copyCredentials()">Copy to Clipboard</button>
     </div>
   </div>
 </div>
 
-<script>
+<!-- <script>
   const openModal  = () => document.getElementById("addEquipmentModal").classList.add("open");
-  const closeModal = () => document.getElementById("addEquipmentModal").classList.remove("open");
+  const closeModal = () => {
+    document.getElementById("addEquipmentModal").classList.remove("open")
+    const eqForm = document.querySelector("form#addEquipment");
+    if (eqForm) eqForm.reset();
+      
+    const eqError = document.getElementById("addEquipmentError"); 
+    if (eqError) eqError.textContent = "";
+  };
 
   document.getElementById("addEquipmentModal").addEventListener("click", function(e) {
     if (e.target === this) closeModal();
   });
-</script>
+
+  const openAdminModal  = () => document.getElementById("addAdminModal").classList.add("open");
+  const closeAdminModal = () => {
+    document.getElementById("addAdminModal").classList.remove("open")
+    const addAdminError = document.getElementById("addAdminError");
+    if (addAdminError) addAdminError.textContent = "";
+    
+    const addAdminForm = document.querySelector("form#addAdmin");
+    if (addAdminForm) addAdminForm.reset();
+  };
+
+
+  document.getElementById("addAdminModal").addEventListener("click", function(e) {
+    if (e.target === this) closeAdminModal();
+  });
+  
+  const closeAdminSuccessModal = () => {
+    document.getElementById("addAdminSuccessModal").classList.remove("open");
+    const feedback = document.getElementById('copyFeedback');
+    if (feedback) feedback.textContent = '';
+  };
+
+  document.getElementById("addAdminSuccessModal").addEventListener("click", function(e) {
+    if (e.target === this) closeAdminSuccessModal();
+  });
+</script> -->
+
 <script>
-  const token = localStorage.getItem('token')
-
-  if (!token) window.location.href = '../index.html'
-
   const logoutBtn = document.querySelector('.logout-btn')
 
   logoutBtn.addEventListener('click', () => {
@@ -298,5 +398,7 @@
       window.location.href = '../index.html'
   })
 </script>
+
+<script src="/js/admin/dashboard.js"></script>
 </body>
 </html>

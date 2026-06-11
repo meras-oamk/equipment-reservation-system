@@ -13,7 +13,7 @@ const storage = new CloudinaryStorage({
     cloudinary,
     params: {
         folder: 'meras/equipment',
-        allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'gif'],
+        allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'gif','avif'],
         transformation: [{ width: 500, crop: 'limit' }]
     }
 })

@@ -4,6 +4,7 @@ const path = require('path')
 const { connectDB } = require('./helpers/db')
 const authRoute = require('./routes/auth')
 const equipmentRoute = require('./routes/equipment')
+const settingsRoute = require('./routes/settings')
 require('dotenv').config()
 const app = express()
 
@@ -14,6 +15,7 @@ app.use(cors())
 
 app.use('/api/auth', authRoute)
 app.use('/api/equipment', equipmentRoute)
+app.use('/api/settings', settingsRoute)
 
 app.use(express.static(path.join(__dirname,'../frontend')))
 app.use(express.static(path.join(__dirname, '../frontend/html')))

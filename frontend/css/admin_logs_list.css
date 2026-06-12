@@ -1,0 +1,68 @@
+.table-header {
+  background: #F5C992;
+  border-radius: 10px;
+  padding: 12px 20px;
+  display: grid;
+  grid-template-columns: 80px 130px 150px 75px minmax(140px, auto) minmax(130px, auto) 2fr;
+  column-gap: 10px;
+  font-weight: 700;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.table-row {
+  display: grid;
+  grid-template-columns: 80px 130px 150px 75px minmax(140px, auto) minmax(130px, auto) 2fr;
+  column-gap: 10px;
+  align-items: start;
+  text-align: left;
+  padding: 14px 20px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 10px;
+}
+
+.table-header span { text-align: left; }
+
+.table-row:last-child { border-bottom: none; }
+
+.table-row:hover { background: #fafafa; }
+
+.table-wrap {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #eee;
+  overflow: hidden;
+}
+
+.eq-name { font-size: 10px; font-weight: 400; margin-bottom: 2px; text-align: left; }
+.eq-unit  { font-size: 10px; color: #888; text-align: left; }
+
+.user-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  overflow: hidden;
+}
+
+.user-name  { font-size: 10px; font-weight: 400; text-align: left; white-space: nowrap; }
+.user-email { font-size: 10px; color: #888; overflow: hidden; text-overflow: ellipsis; text-align: left; white-space: nowrap; max-width: 100%; }
+
+.date-time { font-size: 10px; line-height: 1.5; white-space: nowrap; text-align: left; }
+
+.notes-text { font-size: 10px; color: #212529; text-align: left; }
+
+.action-text { font-size: 10px; font-weight: 400; white-space: nowrap; text-align: left; }
+
+/* ── before/after change shown on a single line ── */
+.change-text {
+  font-size: 10px;
+  line-height: 1.5;
+  white-space: nowrap;
+  text-align: left;
+  color: #212529;
+}
+
+.change-text .from { color: #212529; }
+.change-text .arrow { color: #ccc; padding: 0 6px; }
+.change-text .to { font-weight: 400; color: #212529; }

@@ -177,6 +177,13 @@ CREATE TABLE equipment_logs (
     REFERENCES reservations(id)
     ON DELETE SET NULL
 );
+
+CREATE TABLE IF NOT EXISTS system_settings (
+  key        VARCHAR(50) PRIMARY KEY,
+  value      JSONB NOT NULL,
+  updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
 INSERT INTO equipment_types (name, category, subcategory, description, image_url) VALUES
 
 ('Microsoft HoloLens 2', 'vr_ar', 'AR Glasses',
@@ -301,3 +308,50 @@ SELECT
 FROM equipment_types et
 CROSS JOIN LATERAL generate_series(1, 3 + floor(random() * 3)::int) AS g
 ORDER BY et.id, g;
+
+-- Max reservation duration theo tung category (theo Equipment Reservation and Usage Policy)
+INSERT INTO system_settings (key, value) VALUES
+('category_rules', '{
+  "vr_ar":        { "duration": 24, "unit": "Hours" },
+  "robotics":     { "duration": 7,  "unit": "Days"  },
+  "audio_video":  { "duration": 72, "unit": "Hours" },
+  "laboratory":   { "duration": 2,  "unit": "Days"  },
+  "computing":    { "duration": 24, "unit": "Hours" },
+  "iot_embedded": { "duration": 24, "unit": "Hours" }
+}')
+ON CONFLICT (key) DO NOTHING;
+
+-- Buffer Time Between Bookings + Advance Booking Window
+INSERT INTO system_settings (key, value) VALUES
+('general_booking_settings', '{
+  "buffer_hours": 0.5,
+  "advance_booking_days": 30
+}')
+ON CONFLICT (key) DO NOTHING;
+
+-- ── Booking Policies page ──
+
+-- Max Active / Max Future Reservations theo role
+INSERT INTO system_settings (key, value) VALUES
+('reservation_limits', '{
+  "student": { "max_active": 3, "max_future": 5 },
+  "staff":   { "max_active": 5, "max_future": 8 }
+}')
+ON CONFLICT (key) DO NOTHING;
+
+-- Late Return Policy
+INSERT INTO system_settings (key, value) VALUES
+('late_return_policy', '{
+  "grace_period_hours": 0,
+  "restriction_days": 7,
+  "suspend_after": 3
+}')
+ON CONFLICT (key) DO NOTHING;
+
+-- Return & Inspection toggles
+INSERT INTO system_settings (key, value) VALUES
+('return_inspection', '{
+  "require_inspection": true,
+  "require_qr_scan": true
+}')
+ON CONFLICT (key) DO NOTHING;

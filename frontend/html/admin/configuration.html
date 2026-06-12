@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="/css/admin_shared.css" />
   <link rel="stylesheet" href="/css/admin_configuration.css" />
   <link rel="stylesheet" href="/css/admin_booking_policies.css" />
+  <script src="/js/admin/settings.js" defer></script>
 </head>
 <body>
 
@@ -18,7 +19,7 @@
     <small>alexander.smith@example.com</small>
   </div>
   <nav class="sidebar-nav">
-    <a class="nav-item" href="#"><i class="bi bi-grid"></i> Dashboard</a>
+    <a class="nav-item" href="./dashboard.html"><i class="bi bi-grid"></i> Dashboard</a>
     <a class="nav-item" href="./reservations_list.html"><i class="bi bi-calendar-check"></i> Reservations</a>
     <a class="nav-item" href="./equipments_list.html"><i class="bi bi-box-seam"></i> Equipments</a>
     <a class="nav-item active" href="./configuration.html"><i class="bi bi-gear"></i> Configuration</a>
@@ -38,7 +39,7 @@
   <div class="section-card">
     <div class="section-header">
       <div class="section-title">Equipment Categories &amp; Reservation Rules</div>
-      <button class="btn-edit-toggle" onclick="toggleEdit(this)"><i class="bi bi-pencil"></i> Edit</button>
+      <button class="btn-edit-toggle" onclick="toggleEdit(this, 'category_rules')"><i class="bi bi-pencil"></i> Edit</button>
     </div>
     <p class="cat-note">Categories are fixed and managed by the development team. Max reservation duration per category follows the Equipment Reservation and Usage Policy by default and can be adjusted below.</p>
 
@@ -55,9 +56,9 @@
         <tr>
           <td class="cat-name">VR/AR</td>
           <td class="text-center">19</td>
-          <td class="text-center"><input class="rule-input policy-input" type="number" value="24" disabled /></td>
+          <td class="text-center"><input class="rule-input policy-input" type="number" value="24" disabled data-setting="category_rules" data-cat="vr_ar" data-field="duration" /></td>
           <td class="text-center">
-            <select class="rule-select policy-input" disabled>
+            <select class="rule-select policy-input" disabled data-setting="category_rules" data-cat="vr_ar" data-field="unit">
               <option value="Hours" selected>Hours</option>
               <option value="Days">Days</option>
             </select>
@@ -66,9 +67,9 @@
         <tr>
           <td class="cat-name">Robotics</td>
           <td class="text-center">14</td>
-          <td class="text-center"><input class="rule-input policy-input" type="number" value="7" disabled /></td>
+          <td class="text-center"><input class="rule-input policy-input" type="number" value="7" disabled data-setting="category_rules" data-cat="robotics" data-field="duration" /></td>
           <td class="text-center">
-            <select class="rule-select policy-input" disabled>
+            <select class="rule-select policy-input" disabled data-setting="category_rules" data-cat="robotics" data-field="unit">
               <option value="Hours">Hours</option>
               <option value="Days" selected>Days</option>
             </select>
@@ -77,9 +78,9 @@
         <tr>
           <td class="cat-name">Audio/Video</td>
           <td class="text-center">11</td>
-          <td class="text-center"><input class="rule-input policy-input" type="number" value="72" disabled /></td>
+          <td class="text-center"><input class="rule-input policy-input" type="number" value="72" disabled data-setting="category_rules" data-cat="audio_video" data-field="duration" /></td>
           <td class="text-center">
-            <select class="rule-select policy-input" disabled>
+            <select class="rule-select policy-input" disabled data-setting="category_rules" data-cat="audio_video" data-field="unit">
               <option value="Hours" selected>Hours</option>
               <option value="Days">Days</option>
             </select>
@@ -88,9 +89,9 @@
         <tr>
           <td class="cat-name">Laboratory</td>
           <td class="text-center">12</td>
-          <td class="text-center"><input class="rule-input policy-input" type="number" value="2" disabled /></td>
+          <td class="text-center"><input class="rule-input policy-input" type="number" value="2" disabled data-setting="category_rules" data-cat="laboratory" data-field="duration" /></td>
           <td class="text-center">
-            <select class="rule-select policy-input" disabled>
+            <select class="rule-select policy-input" disabled data-setting="category_rules" data-cat="laboratory" data-field="unit">
               <option value="Hours">Hours</option>
               <option value="Days" selected>Days</option>
             </select>
@@ -99,9 +100,9 @@
         <tr>
           <td class="cat-name">Computing</td>
           <td class="text-center">12</td>
-          <td class="text-center"><input class="rule-input policy-input" type="number" value="24" disabled /></td>
+          <td class="text-center"><input class="rule-input policy-input" type="number" value="24" disabled data-setting="category_rules" data-cat="computing" data-field="duration" /></td>
           <td class="text-center">
-            <select class="rule-select policy-input" disabled>
+            <select class="rule-select policy-input" disabled data-setting="category_rules" data-cat="computing" data-field="unit">
               <option value="Hours" selected>Hours</option>
               <option value="Days">Days</option>
             </select>
@@ -110,9 +111,9 @@
         <tr>
           <td class="cat-name">IoT/Embedded</td>
           <td class="text-center">10</td>
-          <td class="text-center"><input class="rule-input policy-input" type="number" value="24" disabled /></td>
+          <td class="text-center"><input class="rule-input policy-input" type="number" value="24" disabled data-setting="category_rules" data-cat="iot_embedded" data-field="duration" /></td>
           <td class="text-center">
-            <select class="rule-select policy-input" disabled>
+            <select class="rule-select policy-input" disabled data-setting="category_rules" data-cat="iot_embedded" data-field="unit">
               <option value="Hours" selected>Hours</option>
               <option value="Days">Days</option>
             </select>
@@ -126,32 +127,21 @@
   <div class="section-card">
     <div class="rules-header">
       <div class="rules-title">General Booking Settings</div>
-      <button class="btn-edit-toggle" onclick="toggleEdit(this)"><i class="bi bi-pencil"></i> Edit</button>
+      <button class="btn-edit-toggle" onclick="toggleEdit(this, 'general_booking_settings')"><i class="bi bi-pencil"></i> Edit</button>
     </div>
     <p class="cat-note">Additional settings that apply across all categories.</p>
 
     <div class="row g-3">
       <div class="col-md-6 rule-field">
         <label>Buffer Time Between Bookings (hours)</label>
-        <input class="rule-input" type="number" placeholder="0.5" step="0.5" disabled />
+        <input class="rule-input" type="number" placeholder="0.5" step="0.5" disabled data-setting="general_booking_settings" data-field="buffer_hours" />
       </div>
       <div class="col-md-6 rule-field">
         <label>Advance Booking Window (days)</label>
-        <input class="rule-input" type="number" placeholder="30" disabled />
+        <input class="rule-input" type="number" placeholder="30" disabled data-setting="general_booking_settings" data-field="advance_booking_days" />
       </div>
     </div>
   </div>
-
-  <script>
-    function toggleEdit(btn) {
-      const card = btn.closest('.section-card')
-      const editing = btn.classList.toggle('is-editing')
-      card.querySelectorAll('input, select, textarea').forEach(el => el.disabled = !editing)
-      btn.innerHTML = editing
-        ? '<i class="bi bi-check-lg"></i> Save'
-        : '<i class="bi bi-pencil"></i> Edit'
-    }
-  </script>
 </main>
 
 </body>

@@ -19,7 +19,7 @@
         const currentPath = window.location.pathname;
 
         let html = `
-        <aside class="sidebar">
+        <aside class="sidebar text-center">
           <div class="sidebar-profile">
             <h6>${fullname}</h6>
             <small>${email}</small>

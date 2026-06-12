@@ -4,12 +4,9 @@ const path = require('path')
 const { connectDB } = require('./helpers/db')
 const authRoute = require('./routes/auth')
 const equipmentRoute = require('./routes/equipment')
-<<<<<<< HEAD
 const reservationsRoute = require('./routes/reservations')
-=======
 const settingsRoute = require('./routes/settings')
 const logsRoute = require('./routes/logs')
->>>>>>> origin/development
 require('dotenv').config()
 const app = express()
 
@@ -20,12 +17,9 @@ app.use(cors())
 
 app.use('/api/auth', authRoute)
 app.use('/api/equipment', equipmentRoute)
-<<<<<<< HEAD
 app.use('/api/reservation', reservationsRoute)
-=======
 app.use('/api/settings', settingsRoute)
 app.use('/api/logs', logsRoute)
->>>>>>> origin/development
 
 app.use(express.static(path.join(__dirname,'../frontend')))
 app.use(express.static(path.join(__dirname, '../frontend/html')))

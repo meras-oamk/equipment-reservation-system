@@ -61,59 +61,60 @@
     <div class="col-md-7">
       <div id="rightPanel" class="panel">
         <div class="panel-title">Requests Details</div>
-        <div class="detail-title" id="detailName"></div>
-
-        <div class="detail-row">
-          <span class="label">Request ID:</span>
-          <span class="value" id="detailId"></span>
+        
+        <div id="rightPanelPlaceholder" class="eq-meta" style="padding: 40px 15px; text-align: center; color: #888; display: none;">
+          No pending request
         </div>
-        <div class="detail-row">
-          <span class="label">Unit:</span>
-          <span class="value" id="detailUnit"></span>
+        
+        <div id="rightPanelDetails" style="display: none;">
+          <div class="detail-title" id="detailName"></div>
+  
+          <div class="detail-row">
+            <span class="label">Request ID:</span>
+            <span class="value" id="detailId"></span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Unit:</span>
+            <span class="value" id="detailUnit"></span>
+          </div>
+          <div class="detail-row">
+            <span class="label">User:</span>
+            <span class="value" id="detailUser"></span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Email:</span>
+            <span class="value" id="detailEmail"></span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Start Date:</span>
+            <span class="value" id="detailStart"></span>
+          </div>
+          <div class="detail-row">
+            <span class="label">End Date:</span>
+            <span class="value" id="detailEnd"></span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Location:</span>
+            <span class="value" id="detailLocation"></span>
+          </div>
+          <div class="detail-row mb-3">
+            <span class="label">Return At:</span>
+            <span class="value" id="detailReturn"></span>
+          </div>
+  
+          <div class="mb-3">
+            <label class="form-label fw-semibold" style="font-size:14px">Equipment's Condition:</label>
+            <select class="condition-select">
+            </select>
+          </div>
+  
+          <div class="mb-2">
+            <label class="form-label fw-semibold" style="font-size:14px">Inspection Note (Optional)</label>
+            <textarea class="inspection-note" placeholder="e.g. minor scratch on left side..."></textarea>
+          </div>
+  
+          <button class="confirm-btn">Confirm Return</button>
         </div>
-        <div class="detail-row">
-          <span class="label">User:</span>
-          <span class="value" id="detailUser"></span>
-        </div>
-        <div class="detail-row">
-          <span class="label">Email:</span>
-          <span class="value" id="detailEmail"></span>
-        </div>
-        <div class="detail-row">
-          <span class="label">Start Date:</span>
-          <span class="value" id="detailStart"></span>
-        </div>
-        <div class="detail-row">
-          <span class="label">End Date:</span>
-          <span class="value" id="detailEnd"></span>
-        </div>
-        <div class="detail-row">
-          <span class="label">Location:</span>
-          <span class="value" id="detailLocation"></span>
-        </div>
-        <div class="detail-row mb-3">
-          <span class="label">Return At:</span>
-          <span class="value" id="detailReturn"></span>
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label fw-semibold" style="font-size:14px">Equipment's Condition:</label>
-          <select class="condition-select">
-            <option>Good</option>
-            <option>Scratched</option>
-            <option>Missing Parts</option>
-            <option>Malfunction</option>
-            <option>Damaged</option>
-            <option>Lost</option>
-          </select>
-        </div>
-
-        <div class="mb-2">
-          <label class="form-label fw-semibold" style="font-size:14px">Inspection Note (Optional)</label>
-          <textarea class="inspection-note" placeholder="e.g. minor scratch on left side..."></textarea>
-        </div>
-
-        <button class="confirm-btn">Confirm Return</button>
       </div>
     </div>
   </div>

@@ -159,4 +159,58 @@ router.delete('/units/:id', authenticate, authorizeRole('admin'), async (req, re
     }
 })
 
+// User catalog endpoint
+router.get('/catalog', async (req, res) => {
+    try {
+
+        const { category, subcategory } = req.query;
+
+        let query = `
+            SELECT
+                et.id,
+                et.name,
+                et.category,
+                et.subcategory,
+                et.description,
+                et.image_url,
+                COUNT(eu.id) FILTER (
+                    WHERE eu.status = 'available'
+                ) AS available_count
+            FROM equipment_types et
+            LEFT JOIN equipment_units eu
+                ON eu.type_id = et.id
+        `;
+
+        const conditions = [];
+        const values = [];
+
+        if (category) {
+            conditions.push(`et.category = $${values.length + 1}`);
+            values.push(category);
+        }
+
+        if (subcategory) {
+            conditions.push(`LOWER(et.subcategory) = LOWER($${values.length + 1})`);
+            values.push(subcategory);
+        }
+
+        if (conditions.length > 0) {
+            query += ` WHERE ${conditions.join(' AND ')}`;
+        }
+
+        query += `
+            GROUP BY et.id
+            ORDER BY et.name
+        `;
+
+        const result = await db.query(query, values);
+
+        return res.status(200).json(result.rows);
+
+    } catch (error) {
+        return res.status(500).json({
+            error: error.message
+        });
+    }
+});
 module.exports = router

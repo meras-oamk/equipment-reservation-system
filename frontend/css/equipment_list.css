@@ -107,8 +107,11 @@
 }
 
 .equipment-card img{
-    height:180px;
-    object-fit:cover;
+    height:220px;
+    width:100%;
+    object-fit:contain;
+    background:#f8f9fa;
+    padding:10px;
 }
 
 .equipment-name{

@@ -8,6 +8,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="/css/admin_shared.css" />
   <link rel="stylesheet" href="/css/admin_logs_list.css" />
+  <script src="/js/admin/logs.js" defer></script>
 </head>
 <body>
 
@@ -35,23 +36,48 @@
 
   <!-- Stats -->
   <div class="row g-3 mb-4">
-    <div class="col"><div class="stat-card"><div class="stat-label">Total Logs</div><div class="stat-value">128</div></div></div>
-    <div class="col"><div class="stat-card"><div class="stat-label">Checkouts</div><div class="stat-value">52</div></div></div>
-    <div class="col"><div class="stat-card"><div class="stat-label">Returns Scan</div><div class="stat-value">47</div></div></div>
-    <div class="col"><div class="stat-card"><div class="stat-label">Returns</div><div class="stat-value">17</div></div></div>
-    <div class="col"><div class="stat-card"><div class="stat-label">Maintenance</div><div class="stat-value">6</div></div></div>
-    <div class="col"><div class="stat-card"><div class="stat-label">Transfers</div><div class="stat-value">3</div></div></div>
-        <div class="col"><div class="stat-card"><div class="stat-label">Cancel</div><div class="stat-value">3</div></div></div>
+    <div class="col"><div class="stat-card"><div class="stat-label">Total Logs</div><div class="stat-value" id="statTotal">0</div></div></div>
+    <div class="col"><div class="stat-card"><div class="stat-label">Checkouts</div><div class="stat-value" id="statCheckouts">0</div></div></div>
+    <div class="col"><div class="stat-card"><div class="stat-label">Return Scan</div><div class="stat-value" id="statReturnScan">0</div></div></div>
+    <div class="col"><div class="stat-card"><div class="stat-label">Return Confirmation</div><div class="stat-value" id="statReturnConfirm">0</div></div></div>
+    <div class="col"><div class="stat-card"><div class="stat-label">Cancellations</div><div class="stat-value" id="statCancellations">0</div></div></div>
+    <div class="col"><div class="stat-card"><div class="stat-label">Status Updates</div><div class="stat-value" id="statStatusUpdates">0</div></div></div>
+    <div class="col"><div class="stat-card"><div class="stat-label">Transfers</div><div class="stat-value" id="statTransfers">0</div></div></div>
   </div>
 
   <!-- Search + Filter -->
   <div class="d-flex gap-3 mb-4">
     <div class="position-relative flex-grow-1">
       <i class="bi bi-search position-absolute" style="left:14px;top:50%;transform:translateY(-50%);color:#aaa"></i>
-      <input class="search-bar ps-5" placeholder="Search by equipment, unit or user..." />
+      <input class="search-bar ps-5" id="searchInput" placeholder="Search by equipment, unit or user..." />
     </div>
-    <button class="filter-btn"><i class="bi bi-funnel"></i> All Actions</button>
-    <button class="filter-btn"><i class="bi bi-calendar3"></i> Date Range</button>
+
+    <div class="dropdown-wrap">
+      <button class="filter-btn" id="actionFilterBtn"><i class="bi bi-funnel"></i> <span id="actionFilterLabel">All Actions</span></button>
+      <div class="dropdown-menu-custom" id="actionFilterMenu">
+        <div class="dropdown-item-custom active" data-action="all">All Actions</div>
+        <div class="dropdown-item-custom" data-action="checkout">Checkout</div>
+        <div class="dropdown-item-custom" data-action="return_scan">Return Scan</div>
+        <div class="dropdown-item-custom" data-action="admin_confirm_return">Return Confirmation</div>
+        <div class="dropdown-item-custom" data-action="cancel">Cancel</div>
+        <div class="dropdown-item-custom" data-action="status_update">Status Update</div>
+        <div class="dropdown-item-custom" data-action="transfer">Transfer</div>
+      </div>
+    </div>
+
+    <div class="dropdown-wrap">
+      <button class="filter-btn" id="dateFilterBtn"><i class="bi bi-calendar3"></i> <span id="dateFilterLabel">Date Range</span></button>
+      <div class="dropdown-menu-custom dropdown-menu-date" id="dateFilterMenu">
+        <label for="dateFrom">From</label>
+        <input type="date" class="date-input" id="dateFrom" />
+        <label for="dateTo">To</label>
+        <input type="date" class="date-input" id="dateTo" />
+        <div class="dropdown-actions">
+          <button class="btn-clear" id="dateClearBtn">Clear</button>
+          <button class="btn-apply" id="dateApplyBtn">Apply</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Table -->
@@ -66,64 +92,8 @@
       <span>Notes</span>
     </div>
 
-    <div class="table-row">
-      <div class="date-time">14:32<br>12/06/2026</div>
-      <div><div class="eq-name">NewBeeDrone Replacement</div><div class="eq-unit">Unit: DR-01-001</div></div>
-      <div class="user-cell"><div class="user-name">Sarah Johnson</div><div class="user-email">sarah.johnson@example.com</div></div>
-      <div class="action-text">Checkout</div>
-      <div class="change-text"><span class="from">available</span><span class="arrow">→</span><span class="to">checked_out</span></div>
-      <div class="change-text"><span class="from">good</span><span class="arrow">→</span><span class="to">good</span></div>
-      <div class="notes-text">Picked up at front desk</div>
-    </div>
-
-    <div class="table-row">
-      <div class="date-time">09:10<br>13/06/2026</div>
-      <div><div class="eq-name">Meta Quest 3</div><div class="eq-unit">Unit: VR-02-001</div></div>
-      <div class="user-cell"><div class="user-name">James Johnson</div><div class="user-email">james.johnson@example.com</div></div>
-      <div class="action-text">Return Scan</div>
-      <div class="change-text"><span class="from">checked_out</span><span class="arrow">→</span><span class="to">pending_return</span></div>
-      <div class="change-text"><span class="from">good</span><span class="arrow">→</span><span class="to">scratched</span></div>
-      <div class="notes-text">Minor scratch on lens, self-reported</div>
-    </div>
-
-    <div class="table-row">
-      <div class="date-time">11:45<br>13/06/2026</div>
-      <div><div class="eq-name">Meta Quest 3</div><div class="eq-unit">Unit: VR-02-001</div></div>
-      <div class="user-cell"><div class="user-name">Alexander Smith</div><div class="user-email">alexander.smith@example.com</div></div>
-      <div class="action-text">Confirm Return</div>
-      <div class="change-text"><span class="from">pending_return</span><span class="arrow">→</span><span class="to">available</span></div>
-      <div class="change-text"><span class="from">scratched</span><span class="arrow">→</span><span class="to">scratched</span></div>
-      <div class="notes-text">Verified condition, approved</div>
-    </div>
-
-    <div class="table-row">
-      <div class="date-time">16:20<br>11/06/2026</div>
-      <div><div class="eq-name">DJI Mavic 3</div><div class="eq-unit">Unit: DR-03-002</div></div>
-      <div class="user-cell"><div class="user-name">Alexander Smith</div><div class="user-email">alexander.smith@example.com</div></div>
-      <div class="action-text">Maintenance</div>
-      <div class="change-text"><span class="from">available</span><span class="arrow">→</span><span class="to">maintenance</span></div>
-      <div class="change-text"><span class="from">scratched</span><span class="arrow">→</span><span class="to">malfunction</span></div>
-      <div class="notes-text">Sent for propeller repair</div>
-    </div>
-
-    <div class="table-row">
-      <div class="date-time">08:05<br>10/06/2026</div>
-      <div><div class="eq-name">Canon EOS R5</div><div class="eq-unit">Unit: CAM-01-004</div></div>
-      <div class="user-cell"><div class="user-name">Alexander Smith</div><div class="user-email">alexander.smith@example.com</div></div>
-      <div class="action-text">Transfer</div>
-      <div class="change-text"><span class="from">available</span><span class="arrow">→</span><span class="to">available</span></div>
-      <div class="change-text"><span class="from">good</span><span class="arrow">→</span><span class="to">good</span></div>
-      <div class="notes-text">Moved from Studio A to Studio B</div>
-    </div>
-
-    <div class="table-row">
-      <div class="date-time">17:50<br>09/06/2026</div>
-      <div><div class="eq-name">NewBeeDrone Replacement</div><div class="eq-unit">Unit: DR-01-002</div></div>
-      <div class="user-cell"><div class="user-name">Joe Johnson</div><div class="user-email">joe.johnson@example.com</div></div>
-      <div class="action-text">Cancel</div>
-      <div class="change-text"><span class="from">available</span><span class="arrow">→</span><span class="to">available</span></div>
-      <div class="change-text"><span class="from">good</span><span class="arrow">→</span><span class="to">good</span></div>
-      <div class="notes-text">Reservation cancelled before pickup</div>
+    <div id="logsContainer">
+      <div class="table-row" style="color:#aaa;">Loading...</div>
     </div>
   </div>
 </main>

@@ -67,7 +67,7 @@ CREATE TYPE log_action AS ENUM (
   'return_scan',
   'admin_confirm_return',
   'cancel',
-  'maintenance',
+  'status_update',
   'transfer'
 );
 

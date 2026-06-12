@@ -1,3 +1,20 @@
+/* ── stat cards (7 cards: override admin_shared defaults to fit) ── */
+.stat-card {
+  padding: 14px 8px;
+}
+
+.stat-label {
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 6px;
+}
+
+.stat-value {
+  font-size: 22px;
+}
+
 .table-header {
   background: #F5C992;
   border-radius: 10px;
@@ -66,3 +83,104 @@
 .change-text .from { color: #212529; }
 .change-text .arrow { color: #ccc; padding: 0 6px; }
 .change-text .to { font-weight: 400; color: #212529; }
+
+/* ── filter dropdowns ── */
+.dropdown-wrap {
+  position: relative;
+}
+
+.filter-btn {
+  cursor: pointer;
+}
+
+.dropdown-menu-custom {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  padding: 8px;
+  min-width: 180px;
+  z-index: 20;
+}
+
+.dropdown-menu-custom.open {
+  display: block;
+}
+
+.dropdown-item-custom {
+  padding: 8px 12px;
+  font-size: 13px;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  color: #212529;
+}
+
+.dropdown-item-custom:hover {
+  background: #f5f5f5;
+}
+
+.dropdown-item-custom.active {
+  background: #F5C992;
+  font-weight: 600;
+}
+
+.dropdown-menu-date {
+  padding: 14px;
+  min-width: 200px;
+}
+
+.dropdown-menu-date label {
+  display: block;
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 4px;
+  margin-top: 10px;
+}
+
+.dropdown-menu-date label:first-child {
+  margin-top: 0;
+}
+
+.date-input {
+  border: 1.5px solid #ddd;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 13px;
+  width: 100%;
+  outline: none;
+}
+
+.date-input:focus {
+  border-color: var(--orange);
+}
+
+.dropdown-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.btn-clear, .btn-apply {
+  border: none;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.btn-clear {
+  background: #f0f0f0;
+  color: #555;
+}
+
+.btn-apply {
+  background: #F5C992;
+  color: #212529;
+  font-weight: 600;
+}

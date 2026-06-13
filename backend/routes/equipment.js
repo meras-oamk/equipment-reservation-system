@@ -114,11 +114,18 @@ router.post('/units', authenticate, authorizeRole('admin'), async (req, res) => 
 router.put('/units/:id', authenticate, authorizeRole('admin'), async (req, res) => {
     try {
         const { id } = req.params
-        const { qr_code, location, status, condition } = req.body
+        const { qr_code, location, status, condition, notes } = req.body
 
         if (!qr_code || !location) {
             return res.status(400).json({ error: 'Missing field!' })
         }
+
+        // Snapshot current state to detect changes for logging
+        const current = await db.query('SELECT * FROM equipment_units WHERE id = $1;', [id])
+        if (current.rows.length === 0) {
+            return res.status(404).json({ error: 'Unit not found.' })
+        }
+        const before = current.rows[0]
 
         let finalStatus = status || 'available'
         const finalCondition = condition || 'good'
@@ -134,10 +141,37 @@ router.put('/units/:id', authenticate, authorizeRole('admin'), async (req, res) 
             RETURNING *;
         `, [qr_code, location, finalStatus, finalCondition, id])
 
-        if (result.rows.length === 0) {
-            return res.status(404).json({ error: 'Unit not found.' })
+        const after = result.rows[0]
+
+        // Auto-log maintenance / transfer actions triggered by this admin edit
+        const statusChanged = before.status !== after.status
+        const conditionChanged = before.condition !== after.condition
+        const locationChanged = before.location !== after.location
+
+        let logAction = null
+        let logNotes = notes || null
+
+        if (statusChanged || conditionChanged) {
+            logAction = 'status_update'
+            if (locationChanged && !logNotes) {
+                logNotes = `Location changed from ${before.location} to ${after.location}`
+            }
+        } else if (locationChanged) {
+            logAction = 'transfer'
+            if (!logNotes) {
+                logNotes = `Moved from ${before.location} to ${after.location}`
+            }
         }
-        return res.status(200).json(result.rows[0])
+
+        if (logAction) {
+            await db.query(`
+                INSERT INTO equipment_logs
+                    (unit_id, user_id, action, status_before, status_after, condition_before, condition_after, notes)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8);
+            `, [id, req.user.userId, logAction, before.status, after.status, before.condition, after.condition, logNotes])
+        }
+
+        return res.status(200).json(after)
     } catch (error) {
         return res.status(400).json({ error: error.message })
     }

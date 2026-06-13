@@ -130,7 +130,12 @@ const authHelper = {
         if (!isMatch) throw new Error('Wrong password!')
 
         const token = authHelper.generateToken(user)
-        return { token, role: user.role }
+        return { 
+            token, 
+            role: user.role,
+            fullname: user.full_name,
+            email: user.email
+        }
     },
 
     changePassword: async (userId, newPassword) => {
@@ -139,6 +144,7 @@ const authHelper = {
         const change = await db.query(`
             UPDATE users 
             SET password_hash = $1 
+                updated_at = NOW()
             WHERE id = $2;
         `, [newHashed, userId]
         )

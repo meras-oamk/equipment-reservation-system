@@ -90,6 +90,8 @@ if (loginForm) {
 
             localStorage.setItem('token', data.token)
             localStorage.setItem('role', data.role)
+            localStorage.setItem('fullname', data.fullname)
+            localStorage.setItem('email', email)
             
             if (data.role === 'student' || data.role === 'staff') {
                 window.location.href = '/user/equipments_list.html'

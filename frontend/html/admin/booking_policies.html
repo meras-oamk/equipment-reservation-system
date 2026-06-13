@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="/css/admin_shared.css" />
   <link rel="stylesheet" href="/css/admin_configuration.css" />
   <link rel="stylesheet" href="/css/admin_booking_policies.css" />
+  <script src="/js/admin/settings.js" defer></script>
 </head>
 <body>
 
@@ -38,7 +39,7 @@
   <div class="section-card">
     <div class="rules-header">
       <div class="rules-title"><i class="bi bi-list-ol"></i> Reservation Limits</div>
-      <button class="btn-edit-toggle" onclick="toggleEdit(this)"><i class="bi bi-pencil"></i> Edit</button>
+      <button class="btn-edit-toggle" onclick="toggleEdit(this, 'reservation_limits')"><i class="bi bi-pencil"></i> Edit</button>
     </div>
     <p class="cat-note">Maximum number of reservations a user can hold at once / schedule for the future.</p>
 
@@ -53,13 +54,13 @@
       <tbody>
         <tr>
           <td>Student</td>
-          <td class="text-center"><input class="rule-input policy-input" type="number" value="3" disabled /></td>
-          <td class="text-center"><input class="rule-input policy-input" type="number" value="5" disabled /></td>
+          <td class="text-center"><input class="rule-input policy-input" type="number" value="3" disabled data-setting="reservation_limits" data-cat="student" data-field="max_active" /></td>
+          <td class="text-center"><input class="rule-input policy-input" type="number" value="5" disabled data-setting="reservation_limits" data-cat="student" data-field="max_future" /></td>
         </tr>
         <tr>
           <td>Staff</td>
-          <td class="text-center"><input class="rule-input policy-input" type="number" value="5" disabled /></td>
-          <td class="text-center"><input class="rule-input policy-input" type="number" value="8" disabled /></td>
+          <td class="text-center"><input class="rule-input policy-input" type="number" value="5" disabled data-setting="reservation_limits" data-cat="staff" data-field="max_active" /></td>
+          <td class="text-center"><input class="rule-input policy-input" type="number" value="8" disabled data-setting="reservation_limits" data-cat="staff" data-field="max_future" /></td>
         </tr>
       </tbody>
     </table>
@@ -69,22 +70,22 @@
   <div class="section-card">
     <div class="rules-header">
       <div class="rules-title"><i class="bi bi-clock-history"></i> Late Return Policy</div>
-      <button class="btn-edit-toggle" onclick="toggleEdit(this)"><i class="bi bi-pencil"></i> Edit</button>
+      <button class="btn-edit-toggle" onclick="toggleEdit(this, 'late_return_policy')"><i class="bi bi-pencil"></i> Edit</button>
     </div>
     <p class="cat-note">Equipment must be physically returned before the reservation end time.</p>
 
     <div class="row g-3">
       <div class="col-md-6 rule-field">
         <label>Grace Period Before "Late" (hours)</label>
-        <input class="rule-input" type="number" placeholder="0" disabled />
+        <input class="rule-input" type="number" placeholder="0" disabled data-setting="late_return_policy" data-field="grace_period_hours" />
       </div>
       <div class="col-md-6 rule-field">
         <label>Booking Restriction After Late Return (days)</label>
-        <input class="rule-input" type="number" placeholder="7" disabled />
+        <input class="rule-input" type="number" placeholder="7" disabled data-setting="late_return_policy" data-field="restriction_days" />
       </div>
       <div class="col-md-6 rule-field">
         <label>Suspend Account After This Many Late Returns</label>
-        <input class="rule-input" type="number" placeholder="3" disabled />
+        <input class="rule-input" type="number" placeholder="3" disabled data-setting="late_return_policy" data-field="suspend_after" />
       </div>
     </div>
   </div>
@@ -93,16 +94,16 @@
   <div class="section-card">
     <div class="rules-header">
       <div class="rules-title"><i class="bi bi-clipboard-check"></i> Return &amp; Inspection</div>
-      <button class="btn-edit-toggle" onclick="toggleEdit(this)"><i class="bi bi-pencil"></i> Edit</button>
+      <button class="btn-edit-toggle" onclick="toggleEdit(this, 'return_inspection')"><i class="bi bi-pencil"></i> Edit</button>
     </div>
     <p class="cat-note">Equipment becomes Available again only after passing inspection.</p>
 
     <label class="policy-toggle">
-      <input type="checkbox" checked disabled />
-      Require admin inspection before status returns to Available
+      <input type="checkbox" checked disabled data-setting="return_inspection" data-field="require_inspection" />
+      Require staff/admin inspection before status returns to Available
     </label>
     <label class="policy-toggle">
-      <input type="checkbox" checked disabled />
+      <input type="checkbox" checked disabled data-setting="return_inspection" data-field="require_qr_scan" />
       Require QR-code scan at checkout and return
     </label>
   </div>
@@ -126,16 +127,6 @@
     </div>
   </div>
 
-  <script>
-    function toggleEdit(btn) {
-      const card = btn.closest('.section-card')
-      const editing = btn.classList.toggle('is-editing')
-      card.querySelectorAll('input, select, textarea').forEach(el => el.disabled = !editing)
-      btn.innerHTML = editing
-        ? '<i class="bi bi-check-lg"></i> Save'
-        : '<i class="bi bi-pencil"></i> Edit'
-    }
-  </script>
 </main>
 
 </body>

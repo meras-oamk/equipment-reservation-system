@@ -7,11 +7,15 @@ const db = new Pool({
         rejectUnauthorized: false,
     },
 })
+db.on('error', (err) => {
+    console.error('Unexpected error on idle PostgreSQL client:', err.message)
+})
 
 const connectDB = async () => {
     try {
-        await db.connect()
+        const client = await db.connect()
         console.log('Connected to database')
+        client.release()
     } catch (error) {
         console.error('Error connecting to database:', error.message)
     }

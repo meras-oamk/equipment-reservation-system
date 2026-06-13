@@ -11,27 +11,16 @@
 </head>
 <body>
 
-<aside class="sidebar">
-  <div class="sidebar-profile">
-    <h6>Alexander Smith</h6>
-    <small>alexander.smith@example.com</small>
-  </div>
-  <nav class="sidebar-nav">
-    <a class="nav-item" href="./dashboard.html"><i class="bi bi-grid"></i> Dashboard</a>
-    <a class="nav-item" href="./reservations_list.html"><i class="bi bi-calendar-check"></i> Reservations</a>
-    <a class="nav-item" href="./equipments_list.html"><i class="bi bi-box-seam"></i> Equipments</a>
-    <a class="nav-item" href="./configuration.html"><i class="bi bi-gear"></i> Configuration</a>
-    <a class="nav-item active" href="#"><i class="bi bi-people"></i> Manage Users</a>
-    <a class="nav-item" href="#"><i class="bi bi-journal-text"></i> Logs</a>
-    <a class="nav-item" href="#"><i class="bi bi-book"></i> Booking Policies</a>
-  </nav>
-  <div class="sidebar-footer">
-    <a href="#" class="logout-btn"><i class="bi bi-box-arrow-right"></i> Log out</a>
-  </div>
-</aside>
+<!-- REUSEABLE NAVBAR -->
+<div id="sidebar-container"></div>
 
 <main class="main">
-  <h4 class="fw-bold mb-4">Manage Users</h4>
+  <div class="page-header">
+    <h4 class="fw-bold mb-0">Manage Users</h4>
+    <button class="btn-add-admin" onclick="openAdminModal()">
+      <i class="bi bi-plus-lg"></i> Add Admin
+    </button>
+  </div>
 
   <!-- Stats -->
   <div class="row g-3 mb-4">
@@ -115,6 +104,75 @@
   </div>
 </main>
 
+<!-- ADD ADMIN ACCOUNT MODAL -->
+<div class="modal-overlay" id="addAdminModal">
+  <div class="modal-box">
+    <div class="modal-title">
+      Add Admin
+      <button type="button" class="btn-close ms-auto" onclick="closeAdminModal()"></button>
+    </div>
+
+    <form id="addAdmin" name="addAdminForm">
+      <div class="modal-field">
+        <label>Full name<span class="req">*</span></label>
+        <input id="adminAddFullname" class="modal-input" type="text" placeholder="" />
+      </div>
+  
+      <div class="modal-field">
+        <label>Email<span class="req">*</span></label>
+        <input id="adminAddEmail" class="modal-input" type="email" placeholder="" />
+      </div>
+
+      <div class="modal-field">
+        <label>Password<span class="req">*</span></label>
+        <input id="adminAddPassword" class="modal-input" type="password" placeholder=""></input>
+      </div>
+      
+      <p id="addAdminError" class="error-text"></p>
+      <div class="modal-footer">
+        <button type="button" class="btn-modal-cancel" onclick="closeAdminModal()">Cancel</button>
+        <button type="submit" class="btn-modal-save">Save</button>
+      </div>
+    </form>
+
+  </div>
+</div>  
+
+<!-- ADD ADMIN SUCCESS MODAL -->
+<div class="modal-overlay" id="addAdminSuccessModal">
+  <div class="modal-box">
+    <div class="modal-title">
+      Admin Created!
+      <button type="button" class="btn-close ms-auto" onclick="closeAdminSuccessModal()"></button>
+    </div>
+
+    <div class="modal-field">
+      <p style="color: #2e7d32; background: #e8f5e9; padding: 10px; border-radius: 4px; font-size: 0.9rem; margin-bottom: 15px;">
+        Please copy these credentials. You will not be able to see them again once closed.
+      </p>
+    </div>
+
+    <div class="modal-field">
+      <strong>Full Name:</strong> <span id="successFullName"></span>
+    </div>
+    
+    <div class="modal-field">
+      <strong>Email:</strong> <span id="successEmail"></span>
+    </div>
+
+    <div class="modal-field">
+      <strong>Password:</strong> <span id="successPassword"></span>
+    </div>
+    
+    <p id="copyFeedback" style="color: #2e7d32; font-size: 0.85rem; min-height: 1.25rem; margin-top: 10px; margin-bottom: 0;"></p>
+    
+    <div class="modal-footer" style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+      <button type="button" class="btn-modal-cancel" onclick="closeAdminSuccessModal()">Close</button>
+      <button type="button" class="btn-modal-save" onclick="copyCredentials()">Copy to Clipboard</button>
+    </div>
+  </div>
+</div>
+
 <script>
   const users = [
     { name: 'Sarah Johnson',  email: 'sarah.johnson@example.com',  id: '01003', join: '20/07/2025', total: 6,  active: 2, overdue: 0 },
@@ -135,6 +193,9 @@
     document.getElementById('dOverdue').textContent = u.overdue;
   };
 </script>
+
+<script src="/js/admin/navbar.js"></script>
+<script src="/js/admin/manageUsers.js"></script>
 
 </body>
 </html>

@@ -1,0 +1,229 @@
+:root {
+  --orange: #F5A623;
+  --sidebar-width: 240px;
+}
+
+body {
+  background: #f8f9fa;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: var(--sidebar-width);
+  min-height: 100vh;
+  background: #fff;
+  border-right: 1px solid #eee;
+  position: fixed;
+  top: 0; left: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 0;
+}
+
+.sidebar-profile {
+  padding: 0 20px 24px;
+  border-bottom: 1px solid #eee;
+}
+
+.sidebar-profile h6 {
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.sidebar-profile small {
+  color: #888;
+  font-size: 12px;
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 16px 12px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: #444;
+  text-decoration: none;
+  font-size: 15px;
+  margin-bottom: 4px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.nav-item:hover { background: #f5f5f5; color: #444; }
+.nav-item.active { background: var(--orange); color: #fff; font-weight: 600; }
+.nav-item.active i { color: #fff; }
+
+.sidebar-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #eee;
+}
+
+.logout-btn {
+  color: #e53935;
+  text-decoration: none;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── MAIN ── */
+.main {
+  margin-left: var(--sidebar-width);
+  padding: 32px;
+}
+
+/* ── STAT CARDS ── */
+.stat-card {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #eee;
+  padding: 20px 24px;
+  height: 100%;
+}
+
+.stat-label {
+  font-size: 13px;
+  color: #888;
+  margin-bottom: 8px;
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--orange);
+}
+
+.stat-sub {
+  font-size: 14px;
+  color: var(--orange);
+  font-weight: 600;
+}
+
+/* ── ACTION BUTTONS ── */
+.action-btn {
+  width: 100%;
+  border: none;
+  border-radius: 10px;
+  padding: 14px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  color: #fff;
+  margin-bottom: 10px;
+}
+
+.btn-add-equipment { background: var(--orange); }
+.btn-add-admin     { background: #1565C0; }
+.btn-scan-qr       { background: #2E7D32; }
+
+/* ── PANELS ── */
+.panel {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #eee;
+  padding: 24px;
+  height: 100%;
+}
+
+.panel-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+/* ── REQUEST CARD ── */
+.request-card {
+  border: 1.5px solid var(--orange);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+  background: #fff;
+}
+
+.request-card:hover  { background: #fff8ee; }
+.request-card.active { background: #fff3e0; }
+
+.request-card .eq-name {
+  font-weight: 700;
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.request-card .eq-meta {
+  font-size: 13px;
+  color: #666;
+  line-height: 1.6;
+}
+
+/* ── DETAIL PANEL ── */
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.detail-row .label { color: #888; }
+.detail-row .value { font-weight: 500; text-align: right; }
+
+.detail-title {
+  font-size: 17px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.condition-select {
+  width: 100%;
+  border: 1.5px solid #ddd;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 14px;
+  appearance: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23555' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E") no-repeat right 12px center;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+.inspection-note {
+  width: 100%;
+  border: 1.5px solid #ddd;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 14px;
+  resize: vertical;
+  min-height: 80px;
+}
+
+.confirm-btn {
+  width: 100%;
+  background: var(--orange);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 12px;
+}
+
+.confirm-btn:hover { opacity: 0.9; }
+
+.error-text {
+    color: #ff4d4f;
+    font-size: 0.9rem;
+    margin-top: 8px;
+    min-height: 18px;
+}

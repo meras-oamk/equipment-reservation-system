@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Equipment Details</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="../../css/equipments_details.css">
+  </head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar navbar-expand-md sticky-top px-3 px-md-4">
+    <a class="navbar-brand" href="equipments_list.html">
+      <div class="logo-icon"><img src="../../Assets/Logo.png" alt="Logo" width="60" height="60"/></div>
+    </a>
+
+    <button class="navbar-toggler ms-auto" type="button"
+      data-bs-toggle="collapse" data-bs-target="#navMenu"
+      aria-controls="navMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <i class="bi bi-list fs-4"></i>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navMenu">
+      <ul class="navbar-nav ms-auto gap-md-2 mt-2 mt-md-0">
+        <li class="nav-item"><a class="nav-link" href="equipments_list.html">Equipments</a></li>
+        <li class="nav-item"><a class="nav-link" href="myReservation.html">Reservations</a></li>
+        <li class="nav-item"><a class="nav-link" href="myAccount.html">My Account</a></li>
+        <li class="nav-item"><a class="nav-link logout" id="logoutBtn" href="index.html">Logout</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- PAGE CONTENT -->
+  <div class="container py-4" style="max-width: 1100px;">
+
+    <!-- Back link -->
+    <a href="equipments_list.html" class="back-link mb-3 d-inline-flex">
+      <i class="bi bi-arrow-left me-1"></i> Back to equipments
+    </a>
+
+    <!-- Product Section -->
+    <div class="product-card card mb-3">
+      <div class="card-body p-4 p-md-5">
+        <div class="row g-3 g-md-4 align-items-start">
+
+          <!-- Image -->
+          <div class="col-12 col-md-5">
+            <div class="product-img-wrap">
+              <img src="../../Assets/Equipment1.png" alt="Logo" width="60" height="60"/>
+            </div>
+          </div>
+
+          <!-- Info -->
+          <div class="col-12 col-md-7 d-flex flex-column gap-3">
+            <div>
+              <div class="product-category mb-1">Drones</div>
+              <h1 class="product-title mb-2">NewBeeDrone Replacement</h1>
+              <div class="avail-badge">
+                <div><img src="../../Assets/checkmark.svg" alt="Checkmark" width="20" height="20"></div>
+                <span>Available quantity: <strong>4</strong></span>
+              </div>
+            </div>
+
+            <div class="spec-box">
+              <h6>Specifications:</h6>
+              <ul>
+                <li>Pre-installed VRDrone V2 Flight Controller</li>
+                <li>Only compatible with the VRDrone BeeMote V2</li>
+                <li>Designed for the VRDrone V2 and V2.5 series</li>
+              </ul>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Reservation Section -->
+    <div class="reservation-card card">
+      <div class="card-body p-4 p-md-5">
+        <h5 class="mb-3">Reservation Details</h5>
+
+        <div class="row g-3">
+
+          <!-- Start Date -->
+          <div class="col-12 col-sm-6">
+            <label class="form-label" for="startDate">Start Date</label>
+            <div class="input-group">
+              <input type="date" id="startDate" class="form-control" placeholder="dd/mm/yyyy"/>
+              <span class="input-group-text cal-trigger" style="cursor:pointer;" onclick="document.getElementById('startDate').showPicker()">
+                <i class="bi bi-calendar3"></i>
+              </span>
+            </div>
+          </div>
+
+          <!-- End Date -->
+          <div class="col-12 col-sm-6">
+            <label class="form-label" for="endDate">End Date</label>
+            <div class="input-group">
+              <input type="date" id="endDate" class="form-control" placeholder="dd/mm/yyyy"/>
+              <span class="input-group-text cal-trigger" style="cursor:pointer;" onclick="document.getElementById('endDate').showPicker()">
+                <i class="bi bi-calendar3"></i>
+              </span>
+            </div>
+          </div>
+
+          <!-- Start Time -->
+          <div class="col-12 col-sm-6">
+            <label class="form-label">Start Time</label>
+            <div class="input-group select-group">
+              <select class="form-select" id="startTime">
+                <option>12:00</option>
+                <option>13:00</option>
+                <option>14:00</option>
+                <option>15:00</option>
+                <option>16:00</option>
+              </select>
+              <span class="input-group-text select-icon" onclick="document.getElementById('startTime').showPicker()">
+                <i class="bi bi-chevron-down"></i>
+              </span>
+            </div>
+          </div>
+
+          <!-- End Time -->
+          <div class="col-12 col-sm-6">
+            <label class="form-label">End Time</label>
+            <div class="input-group select-group">
+              <select class="form-select" id="endTime">
+                <option>13:00</option>
+                <option>14:00</option>
+                <option>15:00</option>
+                <option>16:00</option>
+                <option>17:00</option>
+              </select>
+              <span class="input-group-text select-icon" onclick="document.getElementById('endTime').showPicker()">
+                <i class="bi bi-chevron-down"></i>
+              </span>
+            </div>
+          </div>
+
+          <!-- Quantity -->
+          <div class="col-12 col-sm-6">
+            <label class="form-label">Quantity</label>
+            <div class="input-group select-group">
+              <select class="form-select" id="qtySelect">
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+              </select>
+              <span class="input-group-text select-icon" onclick="document.getElementById('qtySelect').showPicker()">
+                <i class="bi bi-chevron-down"></i>
+              </span>
+            </div>
+          </div>
+
+          <!-- Pickup Location -->
+          <div class="col-12">
+            <label class="form-label">Pickup Location</label>
+            <div class="position-relative">
+              <div class="input-group">
+                <input type="text" id="pickupInput" class="form-control" placeholder="Linnanmaa Kirjasto" readonly style="cursor:pointer;"/>
+                <span class="input-group-text cal-trigger" id="locationBtn" style="cursor:pointer;" title="Choose location">
+                  <i class="bi bi-geo-alt"></i>
+                </span>
+              </div>
+              <!-- Location Dropdown -->
+              <ul class="location-dropdown" id="locationDropdown">
+                <li class="location-header"><i class="bi bi-geo-alt-fill me-1"></i> Select Pickup Location</li>
+                <li class="location-item" data-value="Linnanmaa Kirjasto">
+                  <i class="bi bi-building me-2"></i>Linnanmaa Kirjasto
+                  <span class="location-sub">Linnanmaa, Oulu</span>
+                </li>
+                <li class="location-item" data-value="Oulu City Library">
+                  <i class="bi bi-building me-2"></i>Oulu City Library
+                  <span class="location-sub">Keskusta, Oulu</span>
+                </li>
+                <li class="location-item" data-value="Ritaharju Library">
+                  <i class="bi bi-building me-2"></i>Ritaharju Library
+                  <span class="location-sub">Ritaharju, Oulu</span>
+                </li>
+                <li class="location-item" data-value="Kontinkangas Library">
+                  <i class="bi bi-building me-2"></i>Kontinkangas Library
+                  <span class="location-sub">Kontinkangas, Oulu</span>
+                </li>
+                <li class="location-item" data-value="Kaukovainio Library">
+                  <i class="bi bi-building me-2"></i>Kaukovainio Library
+                  <span class="location-sub">Kaukovainio, Oulu</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Submit -->
+          <div class="col-12 mt-1">
+            <button class="btn-confirm" id="confirmBtn">Confirm Reservation</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SUCCESS MODAL -->
+  <div class="modal-overlay" id="successModal">
+    <div class="success-modal">
+      <div class="success-badge">
+        <span>Successfully Reserved</span>
+        <strong id="modal-equipment-name">NewBeeDrone Replacement</strong>
+      </div>
+
+      <div class="modal-details">
+        <div class="modal-detail-row">
+          <div class="detail-icon"><i class="bi bi-calendar3"></i></div>
+          <div>
+            <div class="detail-label">Reservation Start</div>
+            <div class="detail-value" id="modal-start-time">12.00</div>
+            <div class="detail-value" id="modal-start-date">12/06/2026</div>
+          </div>
+        </div>
+        <div class="modal-detail-row">
+          <div class="detail-icon"><i class="bi bi-calendar3"></i></div>
+          <div>
+            <div class="detail-label">Reservation End</div>
+            <div class="detail-value" id="modal-end-time">18.00</div>
+            <div class="detail-value" id="modal-end-date">15/06/2026</div>
+          </div>
+        </div>
+        <div class="modal-detail-row">
+          <div class="detail-icon"><i class="bi bi-geo-alt"></i></div>
+          <div>
+            <div class="detail-label">Pickup Location</div>
+            <div class="detail-value" id="modal-location">Linnanmaa Kirjasto</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-modal-close" id="modalCloseBtn">Close</button>
+        <button class="btn-modal-view" id="modalViewBtn"> <a href="myReservation.html">View Reservation</a></button>
+      </div>
+    </div>
+  </div>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/user/equipments_details.js" type="module"></script>
+  <script>
+  const logoutBtn = document.getElementById('logoutBtn');
+  const token = localStorage.getItem('token');
+
+  if (!token) window.location.href = '../../index.html';
+
+  logoutBtn.addEventListener('click', (e) => {
+    e.preventDefault(); // prevent the href from firing too
+    localStorage.removeItem('token');
+    localStorage.removeItem('role');
+    window.location.href = '../../index.html';
+  });
+  </script>
+  
+ </body>
+</html>

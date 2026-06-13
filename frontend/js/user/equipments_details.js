@@ -1,0 +1,169 @@
+    // Location dropdown
+    const locationBtn = document.getElementById('locationBtn');
+    const locationDropdown = document.getElementById('locationDropdown');
+    const pickupInput = document.getElementById('pickupInput');
+    const locationItems = document.querySelectorAll('.location-item');
+
+    function openLocationDropdown() {
+      locationDropdown.classList.add('show');
+      locationBtn.style.background  = 'var(--orange)';
+      locationBtn.style.borderColor = 'var(--orange)';
+      locationBtn.style.color       = 'white';
+    }
+
+    function closeLocationDropdown() {
+      locationDropdown.classList.remove('show');
+      locationBtn.style.background  = '';
+      locationBtn.style.borderColor = '';
+      locationBtn.style.color       = '';
+    }
+
+    function toggleLocationDropdown() {
+      locationDropdown.classList.contains('show') ? closeLocationDropdown() : openLocationDropdown();
+    }
+
+    // Open/close on icon click
+    locationBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      toggleLocationDropdown();
+    });
+
+    // Open/close on input click
+    pickupInput.addEventListener('click', function (e) {
+      e.stopPropagation();
+      toggleLocationDropdown();
+    });
+
+    // Select a location
+    locationItems.forEach(function (item) {
+      item.addEventListener('click', function (e) {
+        e.stopPropagation();
+        pickupInput.value = this.getAttribute('data-value');
+        locationItems.forEach(i => i.classList.remove('selected'));
+        this.classList.add('selected');
+        closeLocationDropdown();
+      });
+    });
+
+    // Close when clicking outside
+    document.addEventListener('click', function (e) {
+      if (!locationDropdown.contains(e.target) && !locationBtn.contains(e.target) && !pickupInput.contains(e.target)) {
+        closeLocationDropdown();
+      }
+    });
+    // ── CONFIRMATION MODAL ──
+    const confirmBtn   = document.getElementById('confirmBtn');
+    const successModal = document.getElementById('successModal');
+    const modalCloseBtn = document.getElementById('modalCloseBtn');
+
+    confirmBtn.addEventListener('click', function () {
+  // Read form values
+  const startDate = document.getElementById('startDate').value;
+  const endDate   = document.getElementById('endDate').value;
+  const startTime = document.getElementById('startTime').value;
+  const endTime   = document.getElementById('endTime').value;
+  const location  = document.getElementById('pickupInput').value;
+
+  // ── VALIDATION ──
+  const errors = [];
+
+  if (!startDate) errors.push('Start Date');
+  if (!endDate)   errors.push('End Date');
+  if (!startTime) errors.push('Start Time');
+  if (!endTime)   errors.push('End Time');
+  if (!location)  errors.push('Pickup Location');
+
+  // Date logic checks
+  if (startDate && endDate && endDate < startDate) {
+    errors.push('End Date cannot be before Start Date');
+  }
+  if (startDate && endDate && startDate === endDate && endTime <= startTime) {
+    errors.push('End Time must be after Start Time on the same day');
+  }
+
+  if (errors.length > 0) {
+    showValidationAlert(errors);
+    return; // Stop — don't open modal
+  }
+
+  // ── FORMAT & SHOW MODAL ──
+  function fmt(d) {
+    if (!d) return '—';
+    const [y, m, day] = d.split('-');
+    return `${day}/${m}/${y}`;
+  }
+
+  document.getElementById('modal-start-time').textContent = startTime;
+  document.getElementById('modal-start-date').textContent = fmt(startDate);
+  document.getElementById('modal-end-time').textContent   = endTime;
+  document.getElementById('modal-end-date').textContent   = fmt(endDate);
+  document.getElementById('modal-location').textContent   = location;
+
+  successModal.classList.add('show');
+});
+
+// ── VALIDATION ALERT HELPER ──
+function showValidationAlert(errors) {
+  // Remove any existing alert first
+  const existing = document.getElementById('validationAlert');
+  if (existing) existing.remove();
+
+  const isLogicError = errors.some(e => e.includes('cannot') || e.includes('must be'));
+  const missingFields = errors.filter(e => !e.includes('cannot') && !e.includes('must be'));
+  const logicErrors   = errors.filter(e =>  e.includes('cannot') ||  e.includes('must be'));
+
+  let messageHTML = '';
+  if (missingFields.length > 0) {
+    messageHTML += `Please fill in the following fields: <strong>${missingFields.join(', ')}</strong>.`;
+  }
+  if (logicErrors.length > 0) {
+    if (messageHTML) messageHTML += '<br>';
+    messageHTML += logicErrors.map(e => `⚠️ ${e}.`).join('<br>');
+  }
+
+  const alert = document.createElement('div');
+  alert.id = 'validationAlert';
+  alert.style.cssText = `
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: #fff4f4;
+    border: 1.5px solid #f28b82;
+    border-left: 4px solid #e53935;
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    font-size: 0.9rem;
+    color: #b71c1c;
+    animation: fadeInDown 0.25s ease;
+  `;
+
+  alert.innerHTML = `
+    <i class="bi bi-exclamation-circle-fill" style="font-size:1.1rem; margin-top:2px; flex-shrink:0;"></i>
+    <div>${messageHTML}</div>
+  `;
+
+  // Insert alert just above the Confirm button
+  const confirmBtn = document.getElementById('confirmBtn');
+  confirmBtn.parentElement.insertBefore(alert, confirmBtn);
+
+  // Auto-dismiss after 4 seconds
+  setTimeout(() => {
+    alert.style.transition = 'opacity 0.4s';
+    alert.style.opacity = '0';
+    setTimeout(() => alert.remove(), 400);
+  }, 4000);
+
+  // Scroll alert into view smoothly
+  alert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+    // Close on Close button
+    modalCloseBtn.addEventListener('click', function () {
+      successModal.classList.remove('show');
+    });
+
+    // Close on overlay click
+    successModal.addEventListener('click', function (e) {
+      if (e.target === successModal) successModal.classList.remove('show');
+    });

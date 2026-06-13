@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Equipment List</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="../../css/equipment_list.css">
+</head>
+<body>
+
+
+
+      <!-- NAVBAR -->
+  <nav class="navbar navbar-expand-md sticky-top px-3 px-md-4">
+    <a class="navbar-brand" href="equipments_list.html">
+      <div class="logo-icon"><img src="../../Assets/Logo.png" alt="Logo" width="60" height="60"/></div>
+    </a>
+
+    <button class="navbar-toggler ms-auto" type="button"
+      data-bs-toggle="collapse" data-bs-target="#navMenu"
+      aria-controls="navMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <i class="bi bi-list fs-4"></i>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navMenu">
+      <ul class="navbar-nav ms-auto gap-md-2 mt-2 mt-md-0">
+        <li class="nav-item"><a class="nav-link" href="equipments_list.html">Equipments</a></li>
+        <li class="nav-item"><a class="nav-link" href="myReservation.html">Reservations</a></li>
+        <li class="nav-item"><a class="nav-link" href="myAccount.html">My Account</a></li>
+        <li class="nav-item"><a class="nav-link logout" id="logoutBtn" href="index.html">Logout</a></li>
+      </ul>
+    </div>
+  </nav>
+
+    <!-- Page Title -->
+    <div class="container py-4" style="max-width: 1100px;">
+    <h1 class="page-title">List of Equipments</h1>
+
+    <!-- Search -->
+<div class="container py-4">    
+    <div class="search-wrapper mb-4">
+        <div class="input-group">
+            <span class="input-group-text bg-white">
+                <i class="bi bi-search"></i>
+            </span>
+
+            <input type="text"
+                   class="form-control"
+                   placeholder="Search by name or category...">
+        </div>
+    </div>
+
+    <!-- Categories -->
+<div class="d-flex flex-wrap gap-2 mb-3">
+
+   <div class="dropdown">
+    <button class="btn btn-category dropdown-toggle active-category"
+            type="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false">
+        VR/AR
+    </button>
+    <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="#" data-subcategory="ar glasses">AR Glasses</a></li>
+        <li><a class="dropdown-item" href="#" data-subcategory="base stations">Base Stations / Sensors</a></li>
+        <li><a class="dropdown-item" href="#" data-subcategory="haptic gloves">Haptic Gloves</a></li>
+        <li><a class="dropdown-item" href="#" data-subcategory="motion trackers">Motion Trackers</a></li>
+        <li><a class="dropdown-item" href="#" data-subcategory="vr controllers">VR Controllers</a></li>
+        <li><a class="dropdown-item" href="#" data-subcategory="vr headsets">VR Headset</a></li>
+        <li><a class="dropdown-item" href="#" data-subcategory="vr laptops">VR Ready Laptops</a></li>
+    </ul>
+</div>
+
+    <div class="dropdown">
+    <button class="btn btn-category dropdown-toggle active-category"
+            type="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false">
+        Robotics
+    </button>
+    <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="#" data-subcategory="drones">Drones</a></li>
+        <li><a class="dropdown-item" href="#" data-subcategory="educational robots">Educational Robots</a></li>
+        <li><a class="dropdown-item" href="#" data-subcategory="embedded boards">Embedded Boards</a></li>
+        <li><a class="dropdown-item" href="#" data-subcategory="mobile robots">Mobile Robots</a></li>
+        <li><a class="dropdown-item" href="#" data-subcategory="motor controllers">Motor Controllers</a></li>
+        <li><a class="dropdown-item" href="#" data-subcategory="robot arms">Robot Arms</a></li>
+        <li><a class="dropdown-item" href="#" data-subcategory="sensors">Sensors</a></li>
+    </ul>
+</div>
+
+    <div class="dropdown">
+    <button class="btn btn-category dropdown-toggle active-category"
+            type="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false">
+        Audio/Video
+    </button>
+    <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="#" data-subcategory="cameras">Cameras</a></li>
+        <li><a class="dropdown-item" href="#" data-subcategory="capture cards">Capture Cards</a></li>
+        <li><a class="dropdown-item" href="#" data-subcategory="lighting kits">Lighting Kits</a></li>
+        <li><a class="dropdown-item" href="#" data-subcategory="microphones">Microphones</a></li>
+        <li><a class="dropdown-item" href="#" data-subcategory="tripods">Tripods</a></li>
+        <li><a class="dropdown-item" href="#" data-subcategory="video switches">Video Switches</a></li>
+
+</div>
+<div class="dropdown">
+    <button class="btn btn-category dropdown-toggle active-category"
+            type="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false">
+        Laboratory
+    </button>
+    <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="#" data-subcategory="3d printers">3D Printers</a></li>
+        <li><a class="dropdown-item" href="#" data-subcategory="microscopes">Microscopes</a></li>
+        <li><a class="dropdown-item" href="#" data-subcategory="multimeters">Multimeters</a></li>
+        <li><a class="dropdown-item" href="#" data-subcategory="oscilloscopes">Oscilloscopes</a></li>
+        <li><a class="dropdown-item" href="#" data-subcategory="power supplies">Power Supplies</a></li>
+        <li><a class="dropdown-item" href="#" data-subcategory="signal generators">Signal Generators</a></li>
+
+</div>
+<div class="dropdown">
+    <button class="btn btn-category dropdown-toggle active-category"
+            type="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false">
+        Computing
+    </button>
+    <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="#" data-subcategory="gpus">GPUs</a></li>
+        <li><a class="dropdown-item" href="#" data-subcategory="laptops">Laptops</a></li>
+        <li><a class="dropdown-item" href="#" data-subcategory="networking-equipment">Networking Equipment</a></li>
+        <li><a class="dropdown-item" href="#" data-subcategory="raspberry-pi-kits">Raspberry Pi Kits</a></li>
+        <li><a class="dropdown-item" href="#" data-subcategory="tablets">Tablets</a></li>
+        <li><a class="dropdown-item" href="#" data-subcategory="workstations">Workstations</a></li>
+
+</div>
+<div class="dropdown">
+    <button class="btn btn-category dropdown-toggle active-category"
+            type="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false">
+        IoT and Embedded
+    </button>
+    <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="#" data-subcategory="fpga-boards">FPGA Boards</a></li>
+        <li><a class="dropdown-item" href="#" data-subcategory="lora-devices">LoRa Devices</a></li>
+        <li><a class="dropdown-item" href="#" data-subcategory="microcontrollers">Microcontrollers</a></li>
+        <li><a class="dropdown-item" href="#" data-subcategory="sensor-modules">Sensor Modules</a></li>
+        <li><a class="dropdown-item" href="#" data-subcategory="smart-home-kits">Smart Home Kits</a></li>
+
+</div>
+    <!-- Equipment Grid -->
+    <div class="row g-4">
+
+        <!-- Card -->
+        <div class="col-6 col-md-4">
+            <div class="card equipment-card h-100">
+
+                <a href="equipments_details.html"><img src="../../Assets/Equipment1.png" class="card-img-top" alt="Drone"></a>
+
+                <div class="card-body">
+ 
+                    <h6 class="equipment-name"> 
+                        NewBeeDrone Replacement 
+                    </h6>
+
+                    <small class="text-muted d-block mb-2">
+                        Drone
+                    </small>
+
+                    <div class="availability">
+                        <i class="bi bi-box-seam"></i>
+                        Available quantity:
+                        <strong>4</strong>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <!-- Repeat cards -->
+
+        <div class="col-6 col-md-4">
+            <div class="card equipment-card h-100">
+                <img src="../../Assets/Equipment1.png" class="card-img-top" alt="">
+                <div class="card-body">
+                    <h6 class="equipment-name">NewBeeDrone Replacement</h6>
+                    <small class="text-muted d-block mb-2">Drone</small>
+                    <div class="availability">
+                        <i class="bi bi-box-seam"></i>
+                        Available quantity:
+                        <strong>4</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-4">
+            <div class="card equipment-card h-100">
+                <img src="../../Assets/Equipment1.png" class="card-img-top" alt="">
+                <div class="card-body">
+                    <h6 class="equipment-name">NewBeeDrone Replacement</h6>
+                    <small class="text-muted d-block mb-2">Drone</small>
+                    <div class="availability">
+                        <i class="bi bi-box-seam"></i>
+                        Available quantity:
+                        <strong>4</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-4">
+            <div class="card equipment-card h-100">
+                <img src="../../Assets/Equipment1.png"
+                     class="card-img-top"
+                     alt="">
+                <div class="card-body">
+                    <h6 class="equipment-name">NewBeeDrone Replacement</h6>
+                    <small class="text-muted d-block mb-2">Drone</small>
+                    <div class="availability">
+                        <i class="bi bi-box-seam"></i>
+                        Available quantity:
+                        <strong>4</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-4">
+            <div class="card equipment-card h-100">
+                <img src="../../Assets/Equipment1.png" class="card-img-top" alt="">
+                <div class="card-body">
+                    <h6 class="equipment-name">NewBeeDrone Replacement</h6>
+                    <small class="text-muted d-block mb-2">Drone</small>
+                    <div class="availability">
+                        <i class="bi bi-box-seam"></i>
+                        Available quantity:
+                        <strong>4</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-4">
+            <div class="card equipment-card h-100">
+                <img src="../../Assets/Equipment1.png" class="card-img-top" alt="">
+                <div class="card-body">
+                    <h6 class="equipment-name">NewBeeDrone Replacement</h6>
+                    <small class="text-muted d-block mb-2">Drone</small>
+                    <div class="availability">
+                        <i class="bi bi-box-seam"></i>
+                        Available quantity:
+                        <strong>4</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../../js/equipments_list.js" type="module"></script>
+<script>
+  const logoutBtn = document.getElementById('logoutBtn');
+  const token = localStorage.getItem('token');
+
+  if (!token) window.location.href = '../../index.html';
+
+  logoutBtn.addEventListener('click', (e) => {
+    e.preventDefault(); // prevent the href from firing too
+    localStorage.removeItem('token');
+    localStorage.removeItem('role');
+    window.location.href = '../../index.html';
+  });
+  </script>
+
+</body>
+</html>

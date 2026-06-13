@@ -1,5 +1,15 @@
 const token = localStorage.getItem('token')
 
+new ListController({
+    searchInputSelector: '.search-bar',
+    dropdownSelector: '.filter-select',
+    itemSelector: '.table-row',
+    filterCallback: (row, value) => {
+        const status = row.getAttribute('data-status')
+        return status === value
+    }
+})
+
 document.addEventListener('DOMContentLoaded', () => {
     loadAllReservations()
 })
@@ -21,7 +31,8 @@ async function loadAllReservations() {
         const data = await res.json()
         const { reservationsData } = data
 
-        renderReservationsTable(reservationsData);
+        renderReservationsTable(reservationsData)
+        updateStatistics(reservationsData)
         
     } catch (error) {
         console.error('Error fetching reservations:', error)
@@ -34,9 +45,9 @@ function renderReservationsTable(reservations) {
 
     tableWrap.innerHTML = `
         <div class="table-header">
-          <span>Reservation ID</span>
-          <span>Equipment</span>
-          <span>User</span>
+          <span style="text-align: center;">Reservation ID</span>
+          <span style="padding-left: 20px;">Equipment</span>
+          <span style="padding-left: 20px;">User</span>
           <span>Start date</span>
           <span>End Date</span>
           <span>Status</span>
@@ -54,15 +65,15 @@ function renderReservationsTable(reservations) {
 
     reservations.forEach(r => {
         const rowHtml = `
-            <div class="table-row">
-                <span>${r.reservation_id}</span>
+            <div class="table-row" data-status="${r.status ? r.status.toLowerCase() : ''}">
+                <span style="display: flex; justify-content: center; align-items: center;">${r.reservation_id}</span>
                 <div>
-                    <div class="eq-name">${r.equipment_name || 'N/A'}</div>
-                    <div class="eq-unit">Unit: ${r.qr_code || 'N/A'}</div>
+                    <div class="eq-name" style="padding-left: 20px;">${r.equipment_name || 'N/A'}</div>
+                    <div class="eq-unit" style="padding-left: 20px;">Unit: ${r.qr_code || 'N/A'}</div>
                 </div>
                 <div>
-                    <div class="user-name">${r.full_name || 'N/A'}</div>
-                    <div class="user-email">${r.email || 'N/A'}</div>
+                    <div class="user-name" style="padding-left: 20px;">${r.full_name || 'N/A'}</div>
+                    <div class="user-email" style="padding-left: 20px;">${r.email || 'N/A'}</div>
                 </div>
                 <div class="date-time">${formatTableDate(r.start_time)}</div>
                 <div class="date-time">${formatTableDate(r.end_time)}</div>
@@ -88,7 +99,7 @@ function getStatusBadge(status) {
         case 'completed':
             return '<span class="badge-completed">Completed</span>'
         case 'cancelled':
-            return '<span class="badge-completed">Cancelled</span>'
+            return '<span class="badge-cancelled">Cancelled</span>'
         default:
             return `<span>${status}</span>`
     }
@@ -103,4 +114,46 @@ function formatTableDate(isoString) {
     const month = String(date.getMonth() + 1).padStart(2, '0')
     const year = date.getFullYear()
     return `${hours}:${minutes}<br>${day}/${month}/${year}`
+}
+
+function updateStatistics(reservations) {
+    let total = reservations.length
+    let active = 0
+    let overdue = 0
+    let cancelled = 0
+    let completed = 0
+
+    reservations.forEach(r => {
+        const status = r.status ? r.status.toLowerCase() : ''
+
+        if (status === 'active') {
+            active++
+        } else if (status === 'overdue') {
+            overdue++
+        } else if (status === 'cancelled') {
+            cancelled++
+        } else if (status === 'completed') {
+            completed++
+        }
+    })
+
+    setStatValue('Total', total);
+    setStatValue('Active', active);
+    setStatValue('Overdue', overdue);
+    setStatValue('Cancelled', cancelled);
+    setStatValue('Completed', completed);
+}
+
+function setStatValue(label, value) {
+    const cards = document.querySelectorAll('.stat-card')
+
+    cards.forEach(card => {
+        const labelEl = card.querySelector('.stat-label')
+        if (labelEl && labelEl.textContent.trim().toLowerCase() === label.toLowerCase()) {
+            const valueEl = card.querySelector('.stat-value')
+            if (valueEl) {
+                valueEl.textContent = value
+            }
+        }
+    })
 }

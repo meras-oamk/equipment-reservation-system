@@ -23,6 +23,29 @@ function copyCredentials() {
         })
 }
 
+new ListController({
+    searchInputSelector: '.search-bar',
+    dropdownSelector: '.filter-dropdown-container',
+    containerSelector: '.table-wrap',
+    itemSelector: '.table-row',
+    searchFields: ['.user-name', '.user-email'],
+    filterCallback: (row, value) => {
+        if (value === 'overdue') {
+            return row.getAttribute('data-overdue') === 'true'
+        }
+        return true
+    },
+    sortCallback: (a, b, value) => {
+        if (value === 'join_date') {
+            return new Date(b.getAttribute('data-joined')) - new Date(a.getAttribute('data-joined'))
+        }
+        if (value === 'total_reservations') {
+            return parseInt(b.getAttribute('data-reservations'), 10) - parseInt(a.getAttribute('data-reservations'), 10)
+        }
+        return 0
+    }
+});
+
 document.addEventListener("DOMContentLoaded", () => {
     const addAdminForm = document.querySelector('form#addAdmin')
     const addAdminError = document.getElementById('addAdminError')

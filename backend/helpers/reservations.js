@@ -27,7 +27,8 @@ const reservationsHelper = {
             LEFT JOIN equipment_types et 
                 ON r.type_id = et.id
 
-            WHERE r.status = 'pending_return';
+            WHERE r.status = 'pending_return'
+            ORDER BY r.return_time ASC;
         `)
 
         return pendingReturn.rows 

@@ -49,4 +49,15 @@ router.put('/:id/return', authenticate, authorizeRole('admin'), async (req, res)
     }
 })
 
+router.get('/reservations', authenticate, authorizeRole('admin'), async (req, res) => {
+    try {
+        const reservationsData = await reservationsHelper.reservations()
+
+        return res.status(200).json({ reservationsData })
+    } catch (error) {
+        console.log('Error get reservations: ', error.message)
+        return res.status(401).json({ error: error.message })
+    }
+})
+
 module.exports = router

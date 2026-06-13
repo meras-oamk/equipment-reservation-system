@@ -1,6 +1,6 @@
 .table-header {
   background: #F5C992;
-  border-radius: 10px;
+  border-radius: 0px 10px 0 0;
   padding: 14px 20px;
   display: grid;
   grid-template-columns: 140px 1fr 1fr 120px 120px 130px;

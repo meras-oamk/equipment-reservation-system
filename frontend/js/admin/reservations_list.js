@@ -4,6 +4,7 @@ new ListController({
     searchInputSelector: '.search-bar',
     dropdownSelector: '.filter-select',
     itemSelector: '.table-row',
+    searchFields: ['.user-name', '.eq-name'],
     filterCallback: (row, value) => {
         const status = row.getAttribute('data-status')
         return status === value

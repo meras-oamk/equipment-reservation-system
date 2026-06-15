@@ -3,7 +3,6 @@ const router = express.Router()
 const jwt = require('jsonwebtoken')
 const reservationsHelper = require('../helpers/reservations')
 const { authenticate, authorizeRole } = require('../helpers/role')
-require('dotenv').config()
 
 router.get('/return-requests', authenticate, authorizeRole('admin'), async (req, res) => {
     try {

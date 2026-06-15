@@ -43,20 +43,21 @@
   <div class="row g-3">
     <!-- Users List -->
     <div class="col-md-5">
-      <div class="panel">
+      <div id="leftPanel" class="panel">
         <div class="panel-title">Users</div>
-
-        <div class="user-card active" onclick="selectUser(this, 0)">
+        
+        <div class="user-card" onclick="selectUser(this, 0)">
           <div class="uname">Sarah Johnson</div>
           <div class="uemail">sarah.johnson@example.com</div>
           <div class="umeta">6 total reservations</div>
         </div>
-
+      
+      </div>
     </div>
 
     <!-- User Detail -->
     <div class="col-md-7">
-      <div class="panel">
+      <div id="rightPanel" class="panel">
         <div class="panel-title">Users Details</div>
 
         <div class="detail-name" id="dName">Sarah Johnson</div>
@@ -72,21 +73,23 @@
 
         <div class="history-title">Reservation History</div>
 
-        <div class="history-card">
+        <div id="dHistoryContainer"></div>
+
+        <!-- <div class="history-card">
           <div class="history-info">
             <div class="h-name">VR → Meta Quest 3</div>
             <div class="h-dates">20/02/2026 → 24/02/2026</div>
           </div>
           <span class="badge-active">Active</span>
-        </div>
+        </div> -->
 
-        <div class="history-card">
+        <!-- <div class="history-card">
           <div class="history-info">
             <div class="h-name">VR → Meta Quest 3</div>
             <div class="h-dates">20/02/2026 → 24/02/2026</div>
           </div>
           <span class="badge-completed">Returned</span>
-        </div>
+        </div> -->
       </div>
     </div>
   </div>
@@ -183,8 +186,9 @@
 </script>
 
 <script src="/js/admin/navbar.js"></script>
-<script src="/js/admin/manageUsers.js"></script>
 <script src="/js/admin/search_sort.js"></script>
+<script src="/js/admin/detailsController.js"></script>
+<script src="/js/admin/manageUsers.js"></script>
 
 </body>
 </html>

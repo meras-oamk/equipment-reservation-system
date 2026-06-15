@@ -7,6 +7,8 @@ const equipmentRoute = require('./routes/equipment')
 const reservationsRoute = require('./routes/reservations')
 const settingsRoute = require('./routes/settings')
 const logsRoute = require('./routes/logs')
+const userRoutes = require('./routes/users');
+
 require('dotenv').config()
 const app = express()
 
@@ -20,6 +22,7 @@ app.use('/api/equipment', equipmentRoute)
 app.use('/api/reservation', reservationsRoute)
 app.use('/api/settings', settingsRoute)
 app.use('/api/logs', logsRoute)
+app.use('/api/users', userRoutes);
 
 app.use(express.static(path.join(__dirname,'../frontend')))
 app.use(express.static(path.join(__dirname, '../frontend/html')))

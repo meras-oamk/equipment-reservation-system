@@ -14,4 +14,21 @@ router.get('/users', authenticate, authorizeRole('admin'), async (req, res) => {
     }
 })
 
+router.put('/:id/status', authenticate, authorizeRole('admin'), async (req, res) => {
+    try {
+        const userId = parseInt(req.params.id, 10)
+        const { status } = req.body
+
+        if (!status) {
+            return res.status(400).json({ error: 'Missing status' })
+        }
+
+        await manageUsersHelper.restrictUser(userId, status)
+
+        return res.status(200).json({ message: 'User status updated successfully' })
+    } catch (error) {
+        return res.status(500).json({ error: error.message })
+    }
+})
+
 module.exports = router

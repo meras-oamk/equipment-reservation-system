@@ -45,12 +45,6 @@
     <div class="col-md-5">
       <div id="leftPanel" class="panel">
         <div class="panel-title">Users</div>
-        
-        <div class="user-card" onclick="selectUser(this, 0)">
-          <div class="uname">Sarah Johnson</div>
-          <div class="uemail">sarah.johnson@example.com</div>
-          <div class="umeta">6 total reservations</div>
-        </div>
       
       </div>
     </div>
@@ -60,36 +54,31 @@
       <div id="rightPanel" class="panel">
         <div class="panel-title">Users Details</div>
 
-        <div class="detail-name" id="dName">Sarah Johnson</div>
-        <div class="detail-email" id="dEmail">sarah.johnson@example.com</div>
+        <div id="rightPanelPlaceholder" class="eq-meta" style="padding: 40px 15px; text-align: center; color: #888; display: none;">
+          Select a user
+        </div>
 
-        <div class="detail-meta">User ID: <span id="dId">01003</span></div>
-        <div class="detail-meta">Join Date: <span id="dJoin">20/07/2025</span></div>
-        <div class="detail-meta">Total: <span id="dTotal">6</span></div>
-        <div class="detail-meta">Active: <span id="dActive">2</span></div>
-        <div class="detail-meta">Overdue: <span id="dOverdue">0</span></div>
+        <div id="rightPanelDetails" style="display: none;">
 
-        <div class="divider"></div>
-
-        <div class="history-title">Reservation History</div>
-
-        <div id="dHistoryContainer"></div>
-
-        <!-- <div class="history-card">
-          <div class="history-info">
-            <div class="h-name">VR → Meta Quest 3</div>
-            <div class="h-dates">20/02/2026 → 24/02/2026</div>
-          </div>
-          <span class="badge-active">Active</span>
-        </div> -->
-
-        <!-- <div class="history-card">
-          <div class="history-info">
-            <div class="h-name">VR → Meta Quest 3</div>
-            <div class="h-dates">20/02/2026 → 24/02/2026</div>
-          </div>
-          <span class="badge-completed">Returned</span>
-        </div> -->
+          <div class="detail-name" id="dName"></div>
+          <div class="detail-email" id="dEmail"></div>
+          
+          <div class="detail-meta">User ID: <span id="dId"></span></div>
+          <div class="detail-meta">Join Date: <span id="dJoin"></span></div>
+          <div class="detail-meta">Status: <span id="dStatus"></span></div>
+          <div class="detail-meta">Total: <span id="dTotal"></span></div>
+          <div class="detail-meta">Active: <span id="dActive"></span></div>
+          <div class="detail-meta">Overdue: <span id="dOverdue"></span></div>
+          
+          <div class="divider"></div>
+          
+          <div class="history-title">Reservation History</div>
+          
+          <div id="dHistoryContainer"></div>
+          
+          <div id="dUserActionsContainer" style="margin-top: 20px; display: flex; gap: 10px;"></div>
+          
+        </div>
       </div>
     </div>
   </div>

@@ -7,8 +7,8 @@ const manageUsersHelper = {
                 u.id,
                 u.full_name,
                 u.email,
+                u.status AS user_status,
                 u.created_at,
-                u.is_active,
 
                 r.id AS reservation_id,
                 r.start_time,
@@ -38,10 +38,11 @@ const manageUsersHelper = {
 
             if (!grouped[userId]) {
                 grouped[userId] = {
-                id: row.id,
+                user_id: row.id,
                 full_name: row.full_name,
                 email: row.email,
-                is_active: row.is_active,
+                status: row.user_status,
+                overdue: 0,
                 created_at: row.created_at,
                 reservations: []
                 }
@@ -58,12 +59,30 @@ const manageUsersHelper = {
                         name: row.equipment_name
                     }
                 })
+
+                if (row.status === 'overdue') grouped[userId].overdue++
             }
         }
 
         const users = Object.values(grouped)
 
         return users
+    },
+
+    restrictUser: async (userId, status) => {
+        const changeStatus = await db.query(`
+            UPDATE users
+            SET status = $1,
+                updated_at = NOW()
+            WHERE id = $2;
+        `, [status, userId]
+        )
+
+        if (changeStatus.rowCount === 0) {
+            throw new Error('No account found.')
+        }
+
+        return true
     }
 }
 

@@ -108,6 +108,7 @@ CREATE TABLE equipment_units (
   id               SERIAL PRIMARY KEY,
   type_id          INT                 NOT NULL,
   qr_code          VARCHAR(100)        UNIQUE NOT NULL,
+  qr_code_url      TEXT,
   location         VARCHAR(100),
   status           equipment_status    DEFAULT 'available',
   condition        equipment_condition DEFAULT 'good',

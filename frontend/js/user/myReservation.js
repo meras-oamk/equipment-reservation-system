@@ -1,4 +1,4 @@
-    let reservations = { inactive: [], active: [], expired: [] };
+let reservations = { inactive: [], active: [], overdue: [], completed: [] };
 let currentTab = 'inactive';
 
 function fmt(datetimeStr) {
@@ -16,7 +16,7 @@ async function loadReservations() {
         });
         const data = await res.json();
 
-        reservations = { inactive: [], active: [], expired: [] };
+        reservations = { inactive: [], active: [], overdue: [], completed: [] };
 
         const now = new Date();
 
@@ -35,7 +35,7 @@ async function loadReservations() {
               const dbStatus = r.status;
 
                 if (dbStatus === 'completed' || dbStatus === 'cancelled' || dbStatus === 'overdue') {
-                    status = 'expired';
+                    status = 'completed';
                 } else if (dbStatus === 'active' || dbStatus === 'pending_return') {
                     status = 'active';
                 } else {
@@ -67,7 +67,7 @@ async function loadReservations() {
 window.addEventListener('DOMContentLoaded', loadReservations);
 
     function badgeHtml(status) {
-      const map = { inactive: 'badge-inactive', active: 'badge-active', expired: 'badge-expired' };
+      const map = { inactive: 'badge-inactive', active: 'badge-active', overdue: 'badge-overdue', completed: 'badge-completed' };
       const label = status.charAt(0).toUpperCase() + status.slice(1);
       return `<span class="badge-status ${map[status]}">${label}</span>`;
     }
@@ -170,7 +170,7 @@ window.addEventListener('DOMContentLoaded', loadReservations);
         return;
     }
 
-    for (const tab in reservations) {
+     for (const tab in reservations) {
         reservations[tab] = reservations[tab].filter(r => r.id !== id);
     }
     updateTabCounts();
@@ -197,5 +197,3 @@ window.addEventListener('DOMContentLoaded', loadReservations);
       });
     });
 
-    // Initial render
-    renderTable(currentTab);

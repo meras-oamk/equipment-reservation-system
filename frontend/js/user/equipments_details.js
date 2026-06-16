@@ -1,3 +1,46 @@
+    // ── LOAD EQUIPMENT DETAILS FROM URL PARAM ──
+async function loadEquipmentDetails() {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+
+    if (!id) {
+        document.getElementById('detail-name').textContent = 'Equipment not found.';
+        return;
+    }
+
+    try {
+        const res = await fetch(`/api/equipment/types/${id}`);
+        if (!res.ok) throw new Error('Not found');
+        const item = await res.json();
+
+        document.getElementById('detail-image').src        = item.image_url || '';
+        document.getElementById('detail-image').alt        = item.name;
+        document.getElementById('detail-subcategory').textContent = item.subcategory;
+        document.getElementById('detail-name').textContent         = item.name;
+        document.getElementById('detail-available').textContent    = item.available_count;
+        document.getElementById('detail-description').textContent  = item.description || 'No description available.';
+        document.getElementById('modal-equipment-name').textContent = item.name;
+
+        // Populate quantity dropdown up to available_count
+        const qtySelect = document.getElementById('qtySelect');
+        qtySelect.innerHTML = '';
+        const max = Math.max(1, parseInt(item.available_count) || 1);
+        for (let i = 1; i <= max; i++) {
+            const opt = document.createElement('option');
+            opt.value = i;
+            opt.textContent = i;
+            qtySelect.appendChild(opt);
+        }
+
+    } catch (err) {
+        console.error(err);
+        document.getElementById('detail-name').textContent = 'Failed to load equipment.';
+    }
+}
+
+loadEquipmentDetails();
+    
+    
     // Location dropdown
     const locationBtn = document.getElementById('locationBtn');
     const locationDropdown = document.getElementById('locationDropdown');

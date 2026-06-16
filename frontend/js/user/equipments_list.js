@@ -121,46 +121,28 @@ function renderEquipment(equipments) {
     }
 
     equipments.forEach(item => {
-
-        equipmentGrid.innerHTML += `
-            <div class="col-6 col-md-4">
-
+    equipmentGrid.innerHTML += `
+        <div class="col-6 col-md-4">
+            <a href="equipments_details.html?id=${item.id}" class="text-decoration-none">
                 <div class="card equipment-card h-100">
-
-                    <img
-                        src="${item.image_url}"
-                        class="card-img-top"
-                        alt="${item.name}"
-                    >
-
+                    <img src="${item.image_url}" class="card-img-top" alt="${item.name}">
                     <div class="card-body">
-
-                        <h6 class="equipment-name">
-                            ${item.name}
-                        </h6>
-
-                        <small class="text-muted d-block mb-2">
-                            ${item.subcategory}
-                        </small>
-
-                        <p class="small">
-                            ${item.description}
-                        </p>
-
+                        <h6 class="equipment-name">${item.name}</h6>
+                        <small class="text-muted d-block mb-2">${item.subcategory}</small>
+                        <p class="small">${item.description}</p>
                         <div class="availability">
                             <i class="bi bi-box-seam"></i>
                             Available quantity:
                             <strong>${item.available_count}</strong>
                         </div>
-
                     </div>
-
                 </div>
-
-            </div>
-        `;
-    });
+            </a>
+        </div>
+    `;
+});
 }
+
 document.querySelectorAll('.btn-category')
 .forEach(button => {
 

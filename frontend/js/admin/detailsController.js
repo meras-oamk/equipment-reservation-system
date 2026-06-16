@@ -74,7 +74,7 @@ class DetailsController {
     renderLeftPanel() {
         this.leftPanel.innerHTML = `<div class="panel-title">${this.leftPanelTitle}</div>`
 
-        if (!this.items || !this.items.length === 0) {
+        if (!this.items || this.items.length === 0) {
             this.leftPanel.insertAdjacentHTML('beforeend', '<div class="eq-meta" style="padding: 15px;">No items found.</div>')
             this.updateRightPanel(null)
             return
@@ -84,6 +84,12 @@ class DetailsController {
             const cardHtml = this.renderCardHTML(item, index)
             this.leftPanel.insertAdjacentHTML('beforeend', cardHtml)
         })
+
+        if (window.listController) {
+            window.listController.apply();
+        }
+
+
     }
 
     setupListeners() {

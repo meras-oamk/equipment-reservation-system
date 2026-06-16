@@ -8,43 +8,137 @@ const userController = new DetailsController({
     leftPanelTitle: 'Registered Users',
     idProperty: 'user_id',
 
+    onInit: async () => {
+        window.listController = new ListController({
+            searchInputSelector: '.search-bar',
+            dropdownSelector: '.filter-select',
+            containerSelector: '#leftPanel', 
+            itemSelector: '.user-card',   
+            searchFields: ['.uname', '.search-payload'], 
+    
+            filterCallback: (card, value) => {
+                const status = card.getAttribute('data-status')
+                return status === value
+            },
+    
+            // sortCallback: (a, b, value) => {
+            //     if (value === 'newest') {
+            //         return new Date(b.getAttribute('data-joined')) - new Date(a.getAttribute('data-joined'))
+            //     }
+            //     if (value === 'oldest') {
+            //         return new Date(a.getAttribute('data-joined')) - new Date(b.getAttribute('data-joined'))
+            //     }
+            //     return 0
+            // }
+
+            sortCallback: (a, b, value) => {
+                // Parse safe timestamps instead of raw strings
+                const timeA = parseInt(a.getAttribute('data-joined'), 10) || 0;
+                const timeB = parseInt(b.getAttribute('data-joined'), 10) || 0;
+                
+                if (value === 'newest') return timeB - timeA;
+                if (value === 'oldest') return timeA - timeB;
+                return 0;
+            }
+        })
+    },
+
+
     // Render left card list attaches the filtering attributes
     renderCardHTML: (user, index) => {
-        const joinedDate = user.created_at || user.joined_date || new Date().toISOString()
-        const totalReservations = user.total_reservations || 0
+        const joinedDate = user.created_at
+        const totalReservations = user.reservations.length || 0
         const overdue = user.overdue || 0
+        const status = (user.status || 'active')
 
+        // Create hidden search payload
+        // const reservations = user.reservations || []
+        // const searchPayloadText = reservations.map(r => r.equipment?.category || '').join(' ')
+
+        const reservations = user.reservations || [];
+        const searchPayloadText = reservations.map(r => r.equipment?.category || '').join(' ');
+        
+        // Convert joined date to a reliable millisecond timestamp integer
+        const joinedTimestamp = user.created_at ? new Date(user.created_at).getTime() : 0;
+        
         const overdueDisplay = overdue > 0 ? '' : 'display: none'
+        let statusFlagDisplay = 'display: none'
+        let statusFlagColor = ''
+
+        if (status === 'banned') {
+            statusFlagDisplay = ''
+            statusFlagColor = '#dc3545'
+        } else if (status === 'suspended') {
+            statusFlagDisplay = ''
+            statusFlagColor = '#ffc107'
+        } else {
+            statusFlagDisplay = 'display: none'
+        }
+
 
         return `
             <div class="user-card" 
                  data-index="${index}" 
                  data-overdue="${overdue > 0}" 
-                 data-joined="${joinedDate}" 
-                 data-reservations="${totalReservations}">
-                <div class="uname">${user.full_name}</div>
+                 data-joined="${joinedTimestamp}"
+                 data-reservations="${totalReservations}"
+                 data-status="${user.status}">
+                <div class="uname">${user.full_name}
+                    <span class="overdue-tag" style="${statusFlagDisplay}">
+                        <i class="bi bi-flag-fill" style="color: ${statusFlagColor};"></i>
+                    </span>
+                </div>
                 <div class="uemail">${user.email}</div>
                 <div class="umeta">${totalReservations} total reservations 
-                    <span class="overdue-tag" style="${overdueDisplay}">${overdue} overdue</span>
+                    <span class="overdue-tag" style="${overdueDisplay}"><i class="bi bi-exclamation-triangle"></i> ${overdue} overdue</span>
                 </div>
+                <div class="search-payload" style="display: none;">${searchPayloadText}</div>
             </div>
         `
     },
 
     populatedDetails: (user) => {
         document.getElementById('dName').textContent = user.full_name
+        const statusFlag = document.getElementById('dStatusFlag')
+        if (statusFlag) {
+            const status = (user.status || 'active')
+            const flagIcon = statusFlag.querySelector('i')
+
+            if (status === 'banned' || status === 'suspended') {
+                statusFlag.style.display = 'inline-block'
+
+                if (status === 'banned') {
+                    flagIcon.style.color = '#dc3545'
+                    statusFlag.title = 'Banned Account'
+                } else if (status === 'suspended') {
+                    flagIcon.style.color = '#f5a623'
+                    statusFlag.title = 'Suspended Account'
+                }
+            } else {
+                statusFlag.style.display = 'none'
+            }
+        }
+
         document.getElementById('dEmail').textContent = user.email
         document.getElementById('dId').textContent = user.user_id
         document.getElementById('dJoin').textContent = formatDate(user.created_at)
-        document.getElementById('dStatus').textContent = user.status
+
+        const statusEl = document.getElementById('dStatus')
+        if (statusEl) {
+            const status = (user.status || 'active').toLowerCase()
+
+            statusEl.textContent = status.charAt(0).toUpperCase() + status.slice(1)
+
+            if (status === 'banned') {
+                statusEl.style.color = '#dc3545'
+            } else if (status === 'suspended') {
+                statusEl.style.color = '#f5a623'
+            } else {
+                statusEl.style.color = '#28a745'
+            }
+        }
 
         const history = user.reservations || []
-        const activeCount = history.filter(r => r.status?.toLowerCase() === 'active').length
-        const overdueCount = history.filter(r => r.status?.toLowerCase() === 'overdue').length
-
-        document.getElementById('dTotal').textContent = history.length
-        document.getElementById('dActive').textContent = activeCount
-        document.getElementById('dOverdue').textContent = overdueCount
 
         const historyContainer = document.getElementById('dHistoryContainer')
         if (historyContainer) {    
@@ -52,27 +146,27 @@ const userController = new DetailsController({
 
             if (history.length === 0) {
                 historyContainer.innerHTML = '<div class="eq-meta" style="padding: 10px 0; color: #888;">No reservation history found.</div>'
-                return
+            } else {
+                history.forEach(item => {
+                    const category = (item.equipment.category).toUpperCase()
+                    const eqName = item.equipment?.name || 'N/A'
+                    const startDate = formatDate(item.start_time)
+                    const endDate = formatDate(item.end_time)
+                    const statusBadge = getHistoryStatusBadge(item.status)
+                    
+                    const cardHtml = `
+                        <div class="history-card">
+                            <div class="history-info">
+                                <div class="h-name"> ${eqName}  -  ${category}</div>
+                                <div class="h-dates">${startDate} → ${endDate}</div>
+                            </div>
+                            ${statusBadge}
+                        </div>
+                    `
+                    historyContainer.insertAdjacentHTML('beforeend', cardHtml)
+                })
             }
             
-            history.forEach(item => {
-                const category = (item.equipment.category).toUpperCase()
-                const eqName = item.equipment?.name || 'N/A'
-                const startDate = formatDate(item.start_time)
-                const endDate = formatDate(item.end_time)
-                const statusBadge = getHistoryStatusBadge(item.status)
-                
-                const cardHtml = `
-                    <div class="history-card">
-                        <div class="history-info">
-                            <div class="h-name"> ${eqName} → ${category}</div>
-                            <div class="h-dates">${endDate} → ${startDate}</div>
-                        </div>
-                        ${statusBadge}
-                    </div>
-                `
-                historyContainer.insertAdjacentHTML('beforeend', cardHtml)
-            })
         }
 
         const actionsContainer = document.getElementById('dUserActionsContainer')
@@ -84,17 +178,17 @@ const userController = new DetailsController({
     
             if (status === 'active') {
                 buttonsHtml = `
-                    <button class="suspend-btn" style="background-color: #ffc107; color: #212529; border: none; padding: 10px 15px; border-radius: 8px; font-weight: 600; cursor: pointer;">Suspend User</button>
-                    <button class="ban-btn" style="background-color: #dc3545; color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: 600; cursor: pointer;">Ban User</button>
+                    <button class="user-action-btn suspend-btn">Suspend User</button>
+                    <button class="user-action-btn ban-btn">Ban User</button>
                 `
             } else if (status === 'suspended') {
                 buttonsHtml = `
-                    <button class="active-btn" style="background-color: #28a745; color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: 600; cursor: pointer;">Activate User</button>
-                    <button class="ban-btn" style="background-color: #dc3545; color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: 600; cursor: pointer;">Ban User</button>
+                    <button class="user-action-btn active-btn">Activate User</button>
+                    <button class="user-action-btn ban-btn">Ban User</button>
                 `
             } else if (status === 'banned') {
                 buttonsHtml = `
-                    <button class="active-btn" style="background-color: #28a745; color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: 600; cursor: pointer;">Activate User</button>
+                    <button class="user-action-btn active-btn">Activate User</button>
                 `
             }
     
@@ -130,36 +224,21 @@ async function updateUserStatus(userId, newStatus) {
 
         if (!res.ok) throw new Error('Failed to update status.')
         
-        userController.refresh()
+        await userController.refresh()
+
+        const index = userController.items.findIndex(user => user.user_id === userId)
+        if (index !== -1) {
+            userController.updateRightPanel(index)
+            const card = document.querySelector(`#leftPanel [data-index="${index}"]`)
+            if (card) {
+                card.classList.add('active')
+            }
+        }
+
     } catch (error) {
         console.error('Error updating status:', error)
     }
 }
-
-const userFilter = new ListController({
-    searchInputSelector: '.search-bar',
-    dropdownSelector: '.filter-dropdown-container',
-    containerSelector: '#leftPanel', 
-    itemSelector: '.request-card',   
-    searchFields: ['.user-name', '.user-meta', 'eq-name', 'eq-type'], 
-
-    filterCallback: (card, value) => {
-        if (value === 'overdue') {
-            return card.getAttribute('data-overdue') === 'true'
-        }
-        return true
-    },
-
-    sortCallback: (a, b, value) => {
-        if (value === 'join_date') {
-            return new Date(b.getAttribute('data-joined')) - new Date(a.getAttribute('data-joined'))
-        }
-        if (value === 'total_reservations') {
-            return parseInt(b.getAttribute('data-reservations'), 10) - parseInt(a.getAttribute('data-reservations'), 10)
-        }
-        return 0
-    }
-})
 
 function copyCredentials() {
     const name = document.getElementById('successFullName').textContent
@@ -188,6 +267,7 @@ async function initManageUsers() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+
     const addAdminForm = document.querySelector('form#addAdmin')
     const addAdminError = document.getElementById('addAdminError')
     const addAdminModal = document.getElementById("addAdminModal")

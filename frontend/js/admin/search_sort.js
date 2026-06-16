@@ -71,7 +71,7 @@ class ListController {
 
             const matchesFilter = this.activeFilter === 'all' || this.filterCallback(item, this.activeFilter)
 
-            if ( matchesSearch & matchesFilter) {
+            if ( matchesSearch && matchesFilter) {
                 item.style.display = ''
             } else {
                 item.style.display = 'none'

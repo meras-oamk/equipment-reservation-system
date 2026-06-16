@@ -28,28 +28,30 @@ const manageUsersHelper = {
 
             WHERE u.role IN ('student', 'staff')
 
-            ORDER BY u.id, r.start_time DESC;
+            ORDER BY u.id DESC, r.start_time DESC;
         `)
 
-        const grouped = {}
+        const grouped = new Map()
 
         for (const row of result.rows) {
             const userId = row.id
 
-            if (!grouped[userId]) {
-                grouped[userId] = {
-                user_id: row.id,
-                full_name: row.full_name,
-                email: row.email,
-                status: row.user_status,
-                overdue: 0,
-                created_at: row.created_at,
-                reservations: []
-                }
+            if (!grouped.has(userId)) {
+                grouped.set(userId, {
+                    user_id: row.id,
+                    full_name: row.full_name,
+                    email: row.email,
+                    status: row.user_status,
+                    overdue: 0,
+                    created_at: row.created_at,
+                    reservations: []
+                })
             }
 
             if (row.reservation_id) {
-                grouped[userId].reservations.push({
+                const user = grouped.get(userId)
+
+                user.reservations.push({
                     id: row.reservation_id,
                     start_time: row.start_time,
                     end_time: row.end_time,
@@ -60,11 +62,10 @@ const manageUsersHelper = {
                     }
                 })
 
-                if (row.status === 'overdue') grouped[userId].overdue++
+                if (row.status === 'overdue') user.overdue++
             }
         }
-
-        const users = Object.values(grouped)
+        const users = Array.from(grouped.values())
 
         return users
     },

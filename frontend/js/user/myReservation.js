@@ -1,20 +1,70 @@
-    const reservations = {
-      inactive: [
-        { id: 1, device: 'NewBeeDrone Replacement', start: '12:00\n12/06/2026', end: '18:00\n15/06/2026', duration: '4 days', location: 'Linnanmaa Kirjasto', status: 'inactive' },
-        { id: 2, device: 'NewBeeDrone Replacement', start: '12:00\n12/06/2026', end: '18:00\n15/06/2026', duration: '4 days', location: 'Linnanmaa Kirjasto', status: 'inactive' },
-        { id: 3, device: 'NewBeeDrone Replacement', start: '12:00\n12/06/2026', end: '18:00\n15/06/2026', duration: '4 days', location: 'Linnanmaa Kirjasto', status: 'inactive' },
-        { id: 4, device: 'NewBeeDrone Replacement', start: '12:00\n12/06/2026', end: '18:00\n15/06/2026', duration: '4 days', location: 'Linnanmaa Kirjasto', status: 'inactive' },
-      ],
-      active: [
-        { id: 5, device: 'NewBeeDrone Replacement', start: '09:00\n10/06/2026', end: '18:00\n12/06/2026', duration: '2 days', location: 'Oulu City Library', status: 'active' },
-      ],
-      expired: [
-        { id: 6, device: 'NewBeeDrone Replacement', start: '08:00\n01/06/2026', end: '18:00\n03/06/2026', duration: '2 days', location: 'Ritaharju Library', status: 'expired' },
-        { id: 7, device: 'NewBeeDrone Replacement', start: '10:00\n05/06/2026', end: '17:00\n07/06/2026', duration: '2 days', location: 'Linnanmaa Kirjasto', status: 'expired' },
-      ],
-    };
+    let reservations = { inactive: [], active: [], expired: [] };
+let currentTab = 'inactive';
 
-    let currentTab = 'inactive';
+function fmt(datetimeStr) {
+    const d = new Date(datetimeStr);
+    const time = d.toTimeString().slice(0, 5);
+    const date = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+    return { time, date };
+}
+
+async function loadReservations() {
+    const token = localStorage.getItem('token');
+    try {
+        const res = await fetch('/api/reservation/my', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+
+        reservations = { inactive: [], active: [], expired: [] };
+
+        const now = new Date();
+
+        data.forEach(r => {
+            const start = new Date(r.start_time);
+            const end   = new Date(r.end_time);
+
+            const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+            const duration = diffDays === 1 ? '1 day' : `${diffDays} days`;
+
+            const s = fmt(r.start_time);
+            const e = fmt(r.end_time);
+
+            // Determine display status based on time
+            let status;
+              const dbStatus = r.status;
+
+                if (dbStatus === 'completed' || dbStatus === 'cancelled' || dbStatus === 'overdue') {
+                    status = 'expired';
+                } else if (dbStatus === 'active' || dbStatus === 'pending_return') {
+                    status = 'active';
+                } else {
+              // 'approved' — not started yet
+                  status = 'inactive';
+}                   
+
+            const entry = {
+                id:       r.id,
+                device:   r.device,
+                start:    `${s.time}\n${s.date}`,
+                end:      `${e.time}\n${e.date}`,
+                duration,
+                location: r.pickup_location,
+                status
+            };
+
+            reservations[status].push(entry);
+        });
+
+        updateTabCounts();
+        renderTable(currentTab);
+
+    } catch (err) {
+        console.error('Failed to load reservations:', err);
+    }
+}
+
+window.addEventListener('DOMContentLoaded', loadReservations);
 
     function badgeHtml(status) {
       const map = { inactive: 'badge-inactive', active: 'badge-active', expired: 'badge-expired' };
@@ -102,15 +152,30 @@
       window.location.href = `reservationDetails.html?id=${id}&status=${status}`;
     }
 
-    function deleteRow(id, deviceName) {
-      if (!confirm(`Remove the reservation for "${deviceName}"?\nThis cannot be undone.`)) return;
-      for (const tab in reservations) {
-        reservations[tab] = reservations[tab].filter(r => r.id !== id);
-      }
-      // Update tab counts
-      updateTabCounts();
-      renderTable(currentTab);
+    async function deleteRow(id, deviceName) {
+    if (!confirm(`Remove the reservation for "${deviceName}"?\nThis cannot be undone.`)) return;
+
+    const token = localStorage.getItem('token');
+    try {
+        const res = await fetch(`/api/reservation/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) {
+            alert('Failed to cancel reservation.');
+            return;
+        }
+    } catch (err) {
+        alert('Network error.');
+        return;
     }
+
+    for (const tab in reservations) {
+        reservations[tab] = reservations[tab].filter(r => r.id !== id);
+    }
+    updateTabCounts();
+    renderTable(currentTab);
+}
 
     function updateTabCounts() {
       document.querySelectorAll('.tab-btn').forEach(btn => {

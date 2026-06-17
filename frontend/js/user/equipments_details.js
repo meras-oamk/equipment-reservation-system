@@ -1,3 +1,87 @@
+    // ── LOAD EQUIPMENT DETAILS FROM URL PARAM ──
+async function loadEquipmentDetails() {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+
+    if (!id) {
+        document.getElementById('detail-name').textContent = 'Equipment not found.';
+        return;
+    }
+
+    try {
+        // Fetch equipment and settings in parallel
+        const [equipRes, settingsRes] = await Promise.all([
+            fetch(`/api/equipment/types/${id}`),
+            fetch('/api/settings')
+        ]);
+
+        if (!equipRes.ok) throw new Error('Not found');
+        const item     = await equipRes.json();
+        const settings = await settingsRes.json();
+
+        // ── Parse booking policy ──
+        const general = settings.general_booking_settings || {};
+        window.advanceBookingDays = general.advance_booking_days ?? 30;
+
+        const categoryRules = settings.category_rules || {};
+        const categoryRule  = categoryRules[item.category] || null;
+        window.maxDuration     = categoryRule ? categoryRule.duration : null;
+        window.maxDurationUnit = categoryRule ? categoryRule.unit.toLowerCase() : 'days';
+
+        // ── Populate UI ──
+        document.getElementById('detail-image').src                 = item.image_url || '';
+        document.getElementById('detail-image').alt                 = item.name;
+        document.getElementById('detail-subcategory').textContent   = item.subcategory;
+        document.getElementById('detail-name').textContent          = item.name;
+        document.getElementById('detail-available').textContent     = item.available_count;
+        document.getElementById('detail-description').textContent   = item.description || 'No description available.';
+        document.getElementById('modal-equipment-name').textContent = item.name;
+
+        // Set max allowed start date based on advance booking window
+        const maxStartDate = new Date();
+        maxStartDate.setDate(maxStartDate.getDate() + window.advanceBookingDays);
+        document.getElementById('startDate').max = maxStartDate.toISOString().split('T')[0];
+
+        // Populate quantity dropdown up to available_count
+        const qtySelect = document.getElementById('qtySelect');
+        qtySelect.innerHTML = '';
+        const max = Math.max(1, parseInt(item.available_count) || 1);
+        for (let i = 1; i <= max; i++) {
+            const opt = document.createElement('option');
+            opt.value = i;
+            opt.textContent = i;
+            qtySelect.appendChild(opt);
+        }
+
+    } catch (err) {
+        console.error(err);
+        document.getElementById('detail-name').textContent = 'Failed to load equipment.';
+    }
+}
+
+loadEquipmentDetails();
+
+    // ── RESTRICT DATES TO TODAY OR FUTURE ──
+const today = new Date().toISOString().split('T')[0]; // format: YYYY-MM-DD
+
+const startDateInput = document.getElementById('startDate');
+const endDateInput   = document.getElementById('endDate');
+
+    // Set minimum date to today for both
+startDateInput.min = today;
+endDateInput.min   = today;
+
+    // When start date changes, end date minimum updates to match
+startDateInput.addEventListener('change', function () {
+    endDateInput.min = this.value;
+
+    // If end date is now before the new start date, reset it
+    if (endDateInput.value && endDateInput.value < this.value) {
+        endDateInput.value = '';
+    }
+});
+    
+    
     // Location dropdown
     const locationBtn = document.getElementById('locationBtn');
     const locationDropdown = document.getElementById('locationDropdown');
@@ -56,7 +140,7 @@
     const successModal = document.getElementById('successModal');
     const modalCloseBtn = document.getElementById('modalCloseBtn');
 
-    confirmBtn.addEventListener('click', function () {
+    confirmBtn.addEventListener('click', async function () {
   // Read form values
   const startDate = document.getElementById('startDate').value;
   const endDate   = document.getElementById('endDate').value;
@@ -83,7 +167,77 @@
 
   if (errors.length > 0) {
     showValidationAlert(errors);
-    return; // Stop — don't open modal
+    return;
+  }
+
+  // ── POLICY VALIDATION ──
+  const policyErrors = [];
+
+  if (startDate) {
+    const todayMs  = new Date().setHours(0, 0, 0, 0);
+    const startMs  = new Date(startDate).getTime();
+    const diffDays = Math.round((startMs - todayMs) / (1000 * 60 * 60 * 24));
+
+    if (diffDays > window.advanceBookingDays) {
+      policyErrors.push(
+        `You can only book up to ${window.advanceBookingDays} days in advance`
+      );
+    }
+  }
+
+  if (startDate && endDate && startTime && endTime && window.maxDuration) {
+    const start     = new Date(`${startDate}T${startTime}:00`);
+    const end       = new Date(`${endDate}T${endTime}:00`);
+    const diffHours = (end - start) / (1000 * 60 * 60);
+    const diffDays  = diffHours / 24;
+
+    const exceeded = window.maxDurationUnit === 'hours'
+      ? diffHours > window.maxDuration
+      : diffDays  > window.maxDuration;
+
+    if (exceeded) {
+      policyErrors.push(
+        `Maximum reservation duration for this category is ${window.maxDuration} ${window.maxDurationUnit}`
+      );
+    }
+  }
+
+    if (policyErrors.length > 0) {
+      showValidationAlert(policyErrors);
+      return;
+  }
+
+  // ── POST TO BACKEND ──
+  const token   = localStorage.getItem('token');
+  const params  = new URLSearchParams(window.location.search);
+  const type_id = params.get('id');
+
+  const start_time = `${startDate}T${startTime}:00`;
+  const end_time   = `${endDate}T${endTime}:00`;
+
+  try {
+    const res = await fetch('/api/reservation', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        type_id,
+        start_time,
+        end_time,
+        quantity: document.getElementById('qtySelect').value
+      })
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      showValidationAlert([err.error || 'Reservation failed. Please try again.']);
+      return;
+    }
+  } catch (err) {
+    showValidationAlert(['Network error. Please try again.']);
+    return;
   }
 
   // ── FORMAT & SHOW MODAL ──

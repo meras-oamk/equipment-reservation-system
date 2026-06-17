@@ -3,6 +3,7 @@ const router = express.Router()
 const { db } = require('../helpers/db')
 const { authenticate, authorizeRole } = require('../helpers/role')
 const { upload } = require('../helpers/upload')
+const { generateAndUploadQR } = require('../helpers/qr')
 // Get all types
 router.get('/types', async (req, res) => {
     try {
@@ -82,7 +83,7 @@ router.put('/types/:id', authenticate, authorizeRole('admin'), upload.single('im
         return res.status(400).json({ error: error.message })
     }
 })
-// Add unit
+// Add unit — qr_code required; backend generates QR image and uploads to Cloudinary
 router.post('/units', authenticate, authorizeRole('admin'), async (req, res) => {
     try {
         const { type_id, qr_code, location, status, condition } = req.body
@@ -97,12 +98,15 @@ router.post('/units', authenticate, authorizeRole('admin'), async (req, res) => 
         if (badConditions.includes(finalCondition) && finalStatus === 'available') {
             finalStatus = 'maintenance'
         }
+        
+        // Generate QR image from qr_code text and upload to Cloudinary
+        const qrCodeUrl = await generateAndUploadQR(qr_code)
 
         const result = await db.query(`
-            INSERT INTO equipment_units (type_id, qr_code, location, status, condition)
-            VALUES ($1, $2, $3, $4, $5)
+            INSERT INTO equipment_units (type_id, qr_code, qr_code_url, location, status, condition)
+            VALUES ($1, $2, $3, $4, $5, $6)
             RETURNING *;
-        `, [type_id, qr_code, location, finalStatus, finalCondition])
+        `, [type_id, qr_code, qrCodeUrl, location, finalStatus, finalCondition])
 
         return res.status(201).json(result.rows[0])
     } catch (error) {
@@ -177,6 +181,34 @@ router.put('/units/:id', authenticate, authorizeRole('admin'), async (req, res) 
     }
 })
 
+// QR print data — returns unit info + type name + qr_code_url
+router.get('/units/:id/qr-print', authenticate, authorizeRole('admin'), async (req, res) => {
+    try {
+        const { id } = req.params
+        const result = await db.query(`
+            SELECT
+                eu.id,
+                eu.qr_code,
+                eu.qr_code_url,
+                eu.location,
+                eu.status,
+                eu.condition,
+                et.name  AS type_name,
+                et.category
+            FROM equipment_units eu
+            JOIN equipment_types et ON et.id = eu.type_id
+            WHERE eu.id = $1;
+        `, [id])
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Unit not found.' })
+        }
+        return res.status(200).json(result.rows[0])
+    } catch (error) {
+        return res.status(500).json({ error: error.message })
+    }
+})
+
 // Delete unit
 router.delete('/units/:id', authenticate, authorizeRole('admin'), async (req, res) => {
     try {
@@ -188,6 +220,85 @@ router.delete('/units/:id', authenticate, authorizeRole('admin'), async (req, re
             return res.status(404).json({ error: 'Unit not found.' })
         }
         return res.status(200).json({ message: 'Unit deleted.' })
+    } catch (error) {
+        return res.status(400).json({ error: error.message })
+    }
+})
+
+// User catalog endpoint
+router.get('/catalog', async (req, res) => {
+    try {
+
+        const { category, subcategory } = req.query;
+
+        let query = `
+            SELECT
+                et.id,
+                et.name,
+                et.category,
+                et.subcategory,
+                et.description,
+                et.image_url,
+                COUNT(eu.id) FILTER (
+                    WHERE eu.status = 'available'
+                ) AS available_count
+            FROM equipment_types et
+            LEFT JOIN equipment_units eu
+                ON eu.type_id = et.id
+        `;
+
+        const conditions = [];
+        const values = [];
+
+        if (category) {
+            conditions.push(`et.category = $${values.length + 1}`);
+            values.push(category);
+        }
+
+        if (subcategory) {
+            conditions.push(`LOWER(et.subcategory) = LOWER($${values.length + 1})`);
+            values.push(subcategory);
+        }
+
+        if (conditions.length > 0) {
+            query += ` WHERE ${conditions.join(' AND ')}`;
+        }
+
+        query += `
+            GROUP BY et.id
+            ORDER BY et.name
+        `;
+
+        const result = await db.query(query, values);
+
+        return res.status(200).json(result.rows);
+
+    } catch (error) {
+        return res.status(500).json({
+            error: error.message
+        });
+    }
+});
+
+// Get single type by ID
+router.get('/types/:id', async (req, res) => {
+    try {
+        const { id } = req.params
+        const result = await db.query(`
+            SELECT
+                et.*,
+                COUNT(eu.id) FILTER (WHERE eu.status = 'available') AS available_count,
+                COUNT(eu.id) AS total_units
+            FROM equipment_types et
+            LEFT JOIN equipment_units eu ON eu.type_id = et.id
+            WHERE et.id = $1
+            GROUP BY et.id;
+        `, [id])
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Equipment not found.' })
+        }
+        return res.status(200).json(result.rows[0])
     } catch (error) {
         return res.status(400).json({ error: error.message })
     }

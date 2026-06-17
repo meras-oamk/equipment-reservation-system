@@ -10,6 +10,13 @@ async function populatedConditionOptions() {
             }
         })
 
+        if (res.status === 401) {
+            localStorage.removeItem('token')
+            alert('Your token is expired or invatid. Please login again!')
+            window.location.replace('../../loginOrRegister.html')
+            return []
+        }
+
         if (!res.ok) {
             throw new Error('Failed to fetch conditions')
         }

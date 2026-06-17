@@ -52,7 +52,7 @@ function renderCard(t) {
           <button class="btn-add-unit" onclick="openUnitModal(null, ${t.id})"><i class="bi bi-plus-lg"></i> Add Unit</button>
         </div>
         <div class="units-header">
-          <span>Serial Number</span><span>Status</span><span>Condition</span><span>Location</span><span>Actions</span>
+          <span>Serial Number</span><span>Status</span><span>Condition</span><span>Location</span><span>Actions</span><span></span>
         </div>
         <div id="units-${t.id}"></div>
       </div>
@@ -108,6 +108,9 @@ function renderUnits(typeId, units) {
           <div class="unit-actions">
             <button class="icon-edit" onclick="openUnitModal(${u.id}, ${typeId})"><i class="bi bi-pencil"></i></button>
             <button class="icon-delete" onclick="deleteUnit(${u.id}, ${typeId})"><i class="bi bi-trash"></i></button>
+          </div>
+          <div>
+            <button class="icon-edit" title="Print QR" onclick="printUnitQR(${u.id})"><i class="bi bi-qr-code"></i></button>
           </div>
         </div>
     `).join('')
@@ -322,7 +325,9 @@ function openUnitModal(unitId = null, typeId) {
 
     syncStatusWithCondition()
 
-    document.getElementById('qrPreviewWrap').style.display = 'none'
+    // Reset to form view (in case previous add showed QR success)
+    document.getElementById('unitFormSection').style.display = 'block'
+    document.getElementById('qrSuccessSection').style.display = 'none'
 
     document.getElementById('unitModal').classList.add('open')
 }
@@ -364,6 +369,10 @@ async function saveUnit() {
         return
     }
 
+    const btn = document.getElementById('unitSaveBtn')
+    btn.disabled = true
+    btn.textContent = 'Saving...'
+
     const url = id ? `/api/equipment/units/${id}` : '/api/equipment/units'
     const method = id ? 'PUT' : 'POST'
 
@@ -377,13 +386,74 @@ async function saveUnit() {
     })
 
     const data = await res.json()
+    btn.disabled = false
+    btn.textContent = 'Save'
+
     if (res.ok) {
-        closeUnitModal()
         await loadUnits(typeId)
         await loadEquipments()
+        if (!id) {
+            showQRSuccess(data)
+        } else {
+            closeUnitModal()
+        }
     } else {
         alert(data.error)
     }
+}
+
+function showQRSuccess(unit) {
+    document.getElementById('unitFormSection').style.display = 'none'
+    document.getElementById('qrSuccessSection').style.display = 'block'
+    document.getElementById('qrSuccessImg').src = unit.qr_code_url || ''
+    document.getElementById('qrSuccessCode').textContent = unit.qr_code
+    document.getElementById('qrPrintUnitId').value = unit.id
+}
+
+function finishAddUnit() {
+    closeUnitModal()
+}
+
+async function triggerPrintQR() {
+    const unitId = document.getElementById('qrPrintUnitId').value
+    await printUnitQR(unitId)
+}
+
+async function printUnitQR(unitId) {
+    const res = await fetch(`/api/equipment/units/${unitId}/qr-print`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    })
+    if (!res.ok) { alert('Failed to load QR data.'); return }
+    const unit = await res.json()
+    openPrintWindow(unit)
+}
+
+function openPrintWindow(unit) {
+    const w = window.open('', '_blank', 'width=420,height=520')
+    w.document.write(`<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8"/>
+  <title>QR — ${unit.qr_code}</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; padding: 32px 24px; margin: 0; }
+    img  { width: 200px; height: 200px; border: 1px solid #eee; border-radius: 8px; }
+    h2   { font-size: 15px; font-weight: 700; margin: 14px 0 4px; }
+    p    { font-size: 12px; color: #666; margin: 3px 0; }
+    .print-btn { margin-top: 20px; padding: 8px 24px; font-size: 13px;
+                 background: #111; color: #fff; border: none; border-radius: 6px; cursor: pointer; }
+    @media print { .print-btn { display: none; } }
+  </style>
+</head>
+<body>
+  <img src="${unit.qr_code_url}" alt="QR Code" />
+  <h2>${unit.qr_code}</h2>
+  <p>${unit.type_name}</p>
+  <p>${unit.location || ''}</p>
+  <button class="print-btn" onclick="window.print()">Print</button>
+</body>
+</html>`)
+    w.document.close()
 }
 
 async function deleteUnit(unitId, typeId) {
@@ -403,28 +473,3 @@ async function deleteUnit(unitId, typeId) {
     }
 }
 
-// =====================
-// QR CODE
-// =====================
-
-function generateQR() {
-    const typeId = document.getElementById('unitTypeId').value
-    const random = Math.floor(100 + Math.random() * 900)
-    const code = `MERAS-T${typeId}-${random}`
-    document.getElementById('unitQrCode').value = code
-
-    const url = `${window.location.origin}/scan?code=${code}`
-    const canvas = document.getElementById('qrCanvas')
-    QRCode.toCanvas(canvas, url, { width: 180 }, (error) => {
-        if (error) console.error(error)
-    })
-    document.getElementById('qrPreviewWrap').style.display = 'block'
-}
-
-function downloadQR() {
-    const canvas = document.getElementById('qrCanvas')
-    const link = document.createElement('a')
-    link.download = `${document.getElementById('unitQrCode').value}.png`
-    link.href = canvas.toDataURL('image/png')
-    link.click()
-}

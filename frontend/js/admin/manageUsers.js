@@ -1,4 +1,8 @@
 const token = localStorage.getItem('token')
+if (!token) {
+    window.location.replace('../loginOrRegister.html')
+}
+
 const role = localStorage.getItem('role')
 const name = localStorage.getItem('fullname')
 const email = localStorage.getItem('email')

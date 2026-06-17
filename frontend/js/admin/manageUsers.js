@@ -8,7 +8,7 @@ const userController = new DetailsController({
     leftPanelTitle: 'Registered Users',
     idProperty: 'user_id',
 
-    onInit: async () => {
+    onInit: async function() {
         window.listController = new ListController({
             searchInputSelector: '.search-bar',
             dropdownSelector: '.filter-select',
@@ -21,26 +21,22 @@ const userController = new DetailsController({
                 return status === value
             },
     
-            // sortCallback: (a, b, value) => {
-            //     if (value === 'newest') {
-            //         return new Date(b.getAttribute('data-joined')) - new Date(a.getAttribute('data-joined'))
-            //     }
-            //     if (value === 'oldest') {
-            //         return new Date(a.getAttribute('data-joined')) - new Date(b.getAttribute('data-joined'))
-            //     }
-            //     return 0
-            // }
-
             sortCallback: (a, b, value) => {
-                // Parse safe timestamps instead of raw strings
-                const timeA = parseInt(a.getAttribute('data-joined'), 10) || 0;
-                const timeB = parseInt(b.getAttribute('data-joined'), 10) || 0;
+                const timeA = new Date(a.getAttribute('data-joined')).getTime() || 0
+                const timeB = new Date(b.getAttribute('data-joined')).getTime() || 0
                 
-                if (value === 'newest') return timeB - timeA;
-                if (value === 'oldest') return timeA - timeB;
-                return 0;
-            }
+                if (value === 'newest') return timeB - timeA
+                if (value === 'oldest') return timeA - timeB
+
+                return 0
+            }          
         })
+
+        const originalRender = this.renderLeftPanel
+        this.renderLeftPanel = function() {
+            originalRender.call(this)
+            updateUserStatistics(this.items)
+        }
     },
 
 
@@ -51,15 +47,8 @@ const userController = new DetailsController({
         const overdue = user.overdue || 0
         const status = (user.status || 'active')
 
-        // Create hidden search payload
-        // const reservations = user.reservations || []
-        // const searchPayloadText = reservations.map(r => r.equipment?.category || '').join(' ')
-
-        const reservations = user.reservations || [];
-        const searchPayloadText = reservations.map(r => r.equipment?.category || '').join(' ');
-        
-        // Convert joined date to a reliable millisecond timestamp integer
-        const joinedTimestamp = user.created_at ? new Date(user.created_at).getTime() : 0;
+        const reservations = user.reservations || []
+        const searchPayloadText = reservations.map(r => r.equipment?.category || '').join(' ')
         
         const overdueDisplay = overdue > 0 ? '' : 'display: none'
         let statusFlagDisplay = 'display: none'
@@ -80,9 +69,9 @@ const userController = new DetailsController({
             <div class="user-card" 
                  data-index="${index}" 
                  data-overdue="${overdue > 0}" 
-                 data-joined="${joinedTimestamp}"
+                 data-joined="${joinedDate}"
                  data-reservations="${totalReservations}"
-                 data-status="${user.status}">
+                 data-status="${status}">
                 <div class="uname">${user.full_name}
                     <span class="overdue-tag" style="${statusFlagDisplay}">
                         <i class="bi bi-flag-fill" style="color: ${statusFlagColor};"></i>
@@ -238,6 +227,46 @@ async function updateUserStatus(userId, newStatus) {
     } catch (error) {
         console.error('Error updating status:', error)
     }
+}
+
+function updateUserStatistics(users) {
+    if (!users) return
+
+    let total = users.length
+    let active = 0
+    let suspended = 0
+    let banned = 0
+
+    users.forEach(user => {
+        const status = (user.status || 'active')
+
+        if (status === 'active') {
+            active++
+        } else if (status === 'suspended') {
+            suspended++
+        } else if (status === 'banned') {
+            banned++
+        }
+    })
+
+    setStatValue('Total', total)
+    setStatValue('Active', active)
+    setStatValue('Suspended', suspended)
+    setStatValue('Banned', banned)
+
+}
+
+function setStatValue(label, value) {
+    const cards = document.querySelectorAll('.stat-card')
+    cards.forEach(card => {
+        const labelEl = card.querySelector('.stat-label')
+        if (labelEl && labelEl.textContent.trim().toLowerCase() === label.toLowerCase()) {
+            const valueEl = card.querySelector('.stat-value')
+            if (valueEl) {
+                valueEl.textContent = value
+            }
+        }
+    })
 }
 
 function copyCredentials() {

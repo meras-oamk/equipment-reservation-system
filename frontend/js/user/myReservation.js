@@ -78,10 +78,10 @@ window.addEventListener('DOMContentLoaded', loadReservations);
       const mobileList = document.getElementById('mobileList');
 
       if (!rows || rows.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><i class="bi bi-calendar-x"></i><p>No reservations found.</p></div></td></tr>`;
-        mobileList.innerHTML = `<div class="empty-state"><i class="bi bi-calendar-x"></i><p>No reservations found.</p></div>`;
-        return;
-      }
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><i class="bi bi-calendar-x"></i><p>No reservations found.</p></div></td></tr>`;
+    mobileList.innerHTML = `<div class="empty-state"><i class="bi bi-calendar-x"></i><p>No reservations found.</p></div>`;
+    return;
+}
 
       // Desktop rows — every row navigates to detail on click
       tbody.innerHTML = rows.map(r => {
@@ -172,7 +172,7 @@ window.addEventListener('DOMContentLoaded', loadReservations);
         return;
     }
 
-     for (const tab in reservations) {
+    for (const tab in reservations) {
         reservations[tab] = reservations[tab].filter(r => r.id !== id);
     }
     updateTabCounts();
@@ -199,3 +199,5 @@ window.addEventListener('DOMContentLoaded', loadReservations);
       });
     });
 
+    window.deleteRow = deleteRow;
+    window.goToDetail = goToDetail;

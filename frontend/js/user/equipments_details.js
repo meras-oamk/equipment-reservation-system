@@ -241,6 +241,8 @@ document.addEventListener('click', function (e) {
   const start_time = `${startDate}T${startTime}:00`;
   const end_time   = `${endDate}T${endTime}:00`;
 
+  let reservationData;
+
   try {
     const res = await fetch('/api/reservation', {
       method: 'POST',
@@ -261,6 +263,9 @@ document.addEventListener('click', function (e) {
       showValidationAlert([err.error || 'Reservation failed. Please try again.']);
       return;
     }
+
+    reservationData = await res.json();
+    console.log('Reservation response:', reservationData);
   } catch (err) {
     showValidationAlert(['Network error. Please try again.']);
     return;
@@ -278,6 +283,10 @@ document.addEventListener('click', function (e) {
   document.getElementById('modal-end-time').textContent   = endTime;
   document.getElementById('modal-end-date').textContent   = fmt(endDate);
   document.getElementById('modal-location').textContent   = location;
+
+  // reservationData is an array (one row per unit) — show the first one's ID
+  const firstReservation = Array.isArray(reservationData) ? reservationData[0] : reservationData;
+  document.getElementById('modal-reservation-id').textContent = firstReservation?.id ?? '—';
 
   successModal.classList.add('show');
 });

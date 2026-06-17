@@ -82,10 +82,11 @@ router.post('/', authenticate, async (req, res) => {
         const inserted = []
         for (const unit of available.rows) {
             const result = await db.query(`
-                INSERT INTO reservations (user_id, unit_id, type_id, start_time, end_time, status)
-                VALUES ($1, $2, $3, $4, $5, 'approved')
-                `, [user_id, unit.id, type_id, start_time, end_time])
-            inserted.push(result.rows[0])
+    INSERT INTO reservations (user_id, unit_id, type_id, start_time, end_time, status)
+    VALUES ($1, $2, $3, $4, $5, 'approved')
+    RETURNING *;
+`, [user_id, unit.id, type_id, start_time, end_time])
+inserted.push(result.rows[0])
         }
 
         return res.status(201).json(inserted)

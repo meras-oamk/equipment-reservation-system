@@ -10,14 +10,33 @@ async function loadEquipmentDetails() {
 
     try {
         // Fetch equipment and settings in parallel
-        const [equipRes, settingsRes] = await Promise.all([
-            fetch(`/api/equipment/types/${id}`),
-            fetch('/api/settings')
-        ]);
+        const [equipRes, settingsRes, locationsRes] = await Promise.all([
+    fetch(`/api/equipment/types/${id}`),
+    fetch('/api/settings'),
+    fetch(`/api/equipment/types/${id}/locations`)
+]);
 
-        if (!equipRes.ok) throw new Error('Not found');
-        const item     = await equipRes.json();
-        const settings = await settingsRes.json();
+if (!equipRes.ok) throw new Error('Not found');
+const item      = await equipRes.json();
+const settings  = await settingsRes.json();
+const locations = await locationsRes.json();
+
+// ── Populate location dropdown ──
+const locationDropdown = document.getElementById('locationDropdown');
+locationDropdown.innerHTML = `<li class="location-header"><i class="bi bi-geo-alt-fill me-1"></i> Select Pickup Location</li>`;
+
+if (locations.length === 0) {
+    locationDropdown.innerHTML += `<li class="location-item disabled">No locations available</li>`;
+} else {
+    locations.forEach(loc => {
+        locationDropdown.innerHTML += `
+            <li class="location-item" data-value="${loc.location}">
+                <i class="bi bi-building me-2"></i>${loc.location}
+                <span class="location-sub">${loc.available_count} available</span>
+            </li>
+        `;
+    });
+}
 
         // ── Parse booking policy ──
         const general = settings.general_booking_settings || {};
@@ -83,51 +102,58 @@ startDateInput.addEventListener('change', function () {
     
     
     // Location dropdown
-    const locationBtn = document.getElementById('locationBtn');
-    const locationDropdown = document.getElementById('locationDropdown');
-    const pickupInput = document.getElementById('pickupInput');
-    const locationItems = document.querySelectorAll('.location-item');
+const locationBtn = document.getElementById('locationBtn');
+const locationDropdown = document.getElementById('locationDropdown');
+const pickupInput = document.getElementById('pickupInput');
 
-    function openLocationDropdown() {
-      locationDropdown.classList.add('show');
-      locationBtn.style.background  = 'var(--orange)';
-      locationBtn.style.borderColor = 'var(--orange)';
-      locationBtn.style.color       = 'white';
-    }
+function openLocationDropdown() {
+  locationDropdown.classList.add('show');
+  locationBtn.style.background  = 'var(--orange)';
+  locationBtn.style.borderColor = 'var(--orange)';
+  locationBtn.style.color       = 'white';
+}
 
-    function closeLocationDropdown() {
-      locationDropdown.classList.remove('show');
-      locationBtn.style.background  = '';
-      locationBtn.style.borderColor = '';
-      locationBtn.style.color       = '';
-    }
+function closeLocationDropdown() {
+  locationDropdown.classList.remove('show');
+  locationBtn.style.background  = '';
+  locationBtn.style.borderColor = '';
+  locationBtn.style.color       = '';
+}
 
-    function toggleLocationDropdown() {
-      locationDropdown.classList.contains('show') ? closeLocationDropdown() : openLocationDropdown();
-    }
+function toggleLocationDropdown() {
+  locationDropdown.classList.contains('show') ? closeLocationDropdown() : openLocationDropdown();
+}
 
-    // Open/close on icon click
-    locationBtn.addEventListener('click', function (e) {
-      e.stopPropagation();
-      toggleLocationDropdown();
-    });
+// Open/close on icon click
+locationBtn.addEventListener('click', function (e) {
+  e.stopPropagation();
+  toggleLocationDropdown();
+});
 
-    // Open/close on input click
-    pickupInput.addEventListener('click', function (e) {
-      e.stopPropagation();
-      toggleLocationDropdown();
-    });
+// Open/close on input click
+pickupInput.addEventListener('click', function (e) {
+  e.stopPropagation();
+  toggleLocationDropdown();
+});
 
-    // Select a location
-    locationItems.forEach(function (item) {
-      item.addEventListener('click', function (e) {
-        e.stopPropagation();
-        pickupInput.value = this.getAttribute('data-value');
-        locationItems.forEach(i => i.classList.remove('selected'));
-        this.classList.add('selected');
-        closeLocationDropdown();
-      });
-    });
+// Select a location — use event delegation since items are added dynamically
+locationDropdown.addEventListener('click', function (e) {
+  const item = e.target.closest('.location-item');
+  if (!item || item.classList.contains('disabled')) return;
+
+  e.stopPropagation();
+  pickupInput.value = item.getAttribute('data-value');
+  locationDropdown.querySelectorAll('.location-item').forEach(i => i.classList.remove('selected'));
+  item.classList.add('selected');
+  closeLocationDropdown();
+});
+
+// Close when clicking outside
+document.addEventListener('click', function (e) {
+  if (!locationDropdown.contains(e.target) && !locationBtn.contains(e.target) && !pickupInput.contains(e.target)) {
+    closeLocationDropdown();
+  }
+});
 
     // Close when clicking outside
     document.addEventListener('click', function (e) {

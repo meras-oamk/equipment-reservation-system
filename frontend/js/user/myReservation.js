@@ -85,47 +85,49 @@ window.addEventListener('DOMContentLoaded', loadReservations);
 
       // Desktop rows — every row navigates to detail on click
       tbody.innerHTML = rows.map(r => {
-        const startLines = r.start.split('\n');
-        const endLines   = r.end.split('\n');
-        return `
-          <tr class="clickable" onclick="goToDetail(${r.id})">
-            <td><span class="device-name">${r.device}</span></td>
-            <td>${startLines[0]}<br><span style="color:var(--muted);font-size:0.8rem;">${startLines[1]||''}</span></td>
-            <td>${endLines[0]}<br><span style="color:var(--muted);font-size:0.8rem;">${endLines[1]||''}</span></td>
-            <td>${r.duration}</td>
-            <td>${r.location}</td>
-            <td>${badgeHtml(r.status)}</td>
-            <td>
-              <div class="action-btns">
-                <a href="reservationDetails.html?id=${r.id}&status=${r.status}" class="btn-view-icon" onclick="event.stopPropagation()" title="View">
-                  <i class="bi bi-eye"></i>
-                </a>
-                <button class="btn-delete-icon" onclick="event.stopPropagation(); deleteRow(${r.id}, '${r.device}')" title="Remove">
-                  <i class="bi bi-x-lg"></i>
-                </button>
-              </div>
-            </td>
-          </tr>`;
-      }).join('');
+  const startLines = r.start.split('\n');
+  const endLines   = r.end.split('\n');
+  return `
+    <tr class="clickable" onclick="goToDetail(${r.id})">
+      <td><span class="device-name">${r.device}</span></td>
+      <td><span class="device-name">#${r.id}</span></td>
+      <td>${startLines[0]}<br><span style="color:var(--muted);font-size:0.8rem;">${startLines[1]||''}</span></td>
+      <td>${endLines[0]}<br><span style="color:var(--muted);font-size:0.8rem;">${endLines[1]||''}</span></td>
+      <td>${r.duration}</td>
+      <td>${r.location}</td>
+      <td>${badgeHtml(r.status)}</td>
+      <td>
+        <div class="action-btns">
+          <a href="reservationDetails.html?id=${r.id}&status=${r.status}" class="btn-view-icon" onclick="event.stopPropagation()" title="View">
+            <i class="bi bi-eye"></i>
+          </a>
+          <button class="btn-delete-icon" onclick="event.stopPropagation(); deleteRow(${r.id}, '${r.device}')" title="Remove">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+      </td>
+    </tr>`;
+}).join('');
 
       // Mobile cards
       mobileList.innerHTML = rows.map(r => {
-        const startLines = r.start.split('\n');
-        const endLines   = r.end.split('\n');
-        return `
-          <div class="mobile-res-card" onclick="goToDetail(${r.id})">
-            <div class="d-flex justify-content-between align-items-start mb-2">
-              <span class="device-name">${r.device}</span>
-              ${badgeHtml(r.status)}
-            </div>
-            <div class="mobile-meta">
-              <span>Start: <strong>${startLines[0]} ${startLines[1]||''}</strong></span>
-              <span>End: <strong>${endLines[0]} ${endLines[1]||''}</strong></span>
-              <span>Duration: <strong>${r.duration}</strong></span>
-              <span>Location: <strong>${r.location}</strong></span>
-            </div>
-          </div>`;
-      }).join('');
+  const startLines = r.start.split('\n');
+  const endLines   = r.end.split('\n');
+  return `
+    <div class="mobile-res-card" onclick="goToDetail(${r.id})">
+      <div class="d-flex justify-content-between align-items-start mb-2">
+        <span class="device-name">${r.device}</span>
+        ${badgeHtml(r.status)}
+      </div>
+      <div class="mobile-meta">
+        <span>Reservation ID: <strong>#${r.id}</strong></span>
+        <span>Start: <strong>${startLines[0]} ${startLines[1]||''}</strong></span>
+        <span>End: <strong>${endLines[0]} ${endLines[1]||''}</strong></span>
+        <span>Duration: <strong>${r.duration}</strong></span>
+        <span>Location: <strong>${r.location}</strong></span>
+      </div>
+    </div>`;
+}).join('');
 
     // Attach touch + click listeners to each mobile card
       mobileList.querySelectorAll('.mobile-res-card').forEach(card => {

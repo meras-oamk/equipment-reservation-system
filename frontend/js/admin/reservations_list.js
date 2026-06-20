@@ -25,6 +25,12 @@ async function loadAllReservations() {
             }
         })
 
+        if (res.status === 401) {
+            localStorage.removeItem('token')
+            window.location.replace('../../loginOrRegister.html')
+            return
+        }
+
         if (!res.ok) {
             throw new Error(`HTTP error! Status: ${res.status}`)
         }

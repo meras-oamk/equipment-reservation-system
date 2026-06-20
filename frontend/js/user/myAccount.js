@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 })
             });
 
-            const data = await res.json();
+            const data = await res.json()
 
             if (!res.ok) {
                 throw new Error(data.error);

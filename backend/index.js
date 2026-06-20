@@ -9,6 +9,7 @@ const settingsRoute = require('./routes/settings')
 const logsRoute = require('./routes/logs')
 const manageUsersRoute = require('./routes/manageUsers')
 const userRoutes = require('./routes/users')
+const adminStatisticsRoute = require('./routes/adminStatistics')
 
 require('dotenv').config()
 const app = express()
@@ -25,6 +26,7 @@ app.use('/api/reservation', reservationsRoute)
 app.use('/api/settings', settingsRoute)
 app.use('/api/logs', logsRoute)
 app.use('/api/manageUsers', manageUsersRoute)
+app.use('/api/stats', adminStatisticsRoute)
 
 // User route prefixes
 app.use('/api/users', userRoutes)

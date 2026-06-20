@@ -40,7 +40,7 @@ if (registerForm) {
                 })
             })
 
-            const data = await res.json();
+            const data = await res.json()
 
             if (!res.ok) {
                 registerError.textContent = data.error

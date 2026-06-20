@@ -215,6 +215,12 @@ async function updateUserStatus(userId, newStatus) {
             body: JSON.stringify({ status: newStatus })
         })
 
+        if (res.status === 401) {
+            localStorage.removeItem('token')
+            window.location.replace('../../loginOrRegister.html')
+            return
+        }
+
         if (!res.ok) throw new Error('Failed to update status.')
         
         await userController.refresh()
@@ -359,7 +365,13 @@ document.addEventListener("DOMContentLoaded", () => {
                     },
                     body: JSON.stringify({ fullname, email, password })
                 })
-
+                
+                if (res.status === 401) {
+                    localStorage.removeItem('token')
+                    window.location.replace('../../loginOrRegister.html')
+                    return
+                }
+                
                 const data = await res.json()
 
                 if (!res.ok) {

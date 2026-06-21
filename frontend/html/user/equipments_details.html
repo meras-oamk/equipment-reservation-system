@@ -80,80 +80,7 @@
         <h5 class="mb-3">Reservation Details</h5>
 
         <div class="row g-3">
-
-          <!-- Start Date -->
-          <div class="col-12 col-sm-6">
-            <label class="form-label" for="startDate">Start Date</label>
-            <div class="input-group">
-              <input type="date" id="startDate" class="form-control" placeholder="dd/mm/yyyy"/>
-              <span class="input-group-text cal-trigger" style="cursor:pointer;" onclick="document.getElementById('startDate').showPicker()">
-                <i class="bi bi-calendar3"></i>
-              </span>
-            </div>
-          </div>
-
-          <!-- End Date -->
-          <div class="col-12 col-sm-6">
-            <label class="form-label" for="endDate">End Date</label>
-            <div class="input-group">
-              <input type="date" id="endDate" class="form-control" placeholder="dd/mm/yyyy"/>
-              <span class="input-group-text cal-trigger" style="cursor:pointer;" onclick="document.getElementById('endDate').showPicker()">
-                <i class="bi bi-calendar3"></i>
-              </span>
-            </div>
-          </div>
-
-          <!-- Start Time -->
-          <div class="col-12 col-sm-6">
-            <label class="form-label">Start Time</label>
-            <div class="input-group select-group">
-              <select class="form-select" id="startTime">
-                <option>12:00</option>
-                <option>13:00</option>
-                <option>14:00</option>
-                <option>15:00</option>
-                <option>16:00</option>
-              </select>
-              <span class="input-group-text select-icon" onclick="document.getElementById('startTime').showPicker()">
-                <i class="bi bi-chevron-down"></i>
-              </span>
-            </div>
-          </div>
-
-          <!-- End Time -->
-          <div class="col-12 col-sm-6">
-            <label class="form-label">End Time</label>
-            <div class="input-group select-group">
-              <select class="form-select" id="endTime">
-                <option>13:00</option>
-                <option>14:00</option>
-                <option>15:00</option>
-                <option>16:00</option>
-                <option>17:00</option>
-              </select>
-              <span class="input-group-text select-icon" onclick="document.getElementById('endTime').showPicker()">
-                <i class="bi bi-chevron-down"></i>
-              </span>
-            </div>
-          </div>
-
-          <!-- Quantity -->
-          <div class="col-12 col-sm-6">
-            <label class="form-label">Quantity</label>
-            <div class="input-group select-group">
-              <select class="form-select" id="qtySelect">
-                <option>1</option>
-                <option>2</option>
-                <option>3</option>
-                <option>4</option>
-              </select>
-              <span class="input-group-text select-icon" onclick="document.getElementById('qtySelect').showPicker()">
-                <i class="bi bi-chevron-down"></i>
-              </span>
-            </div>
-          </div>
-
-          <!-- Pickup Location -->
+    <!-- Pickup Location -->
           <div class="col-12">
             <label class="form-label">Pickup Location</label>
             <div class="position-relative">
@@ -187,6 +114,78 @@
                   <span class="location-sub">Linnanmaa, Oulu</span>
                 </li>
               </ul>
+            </div>
+          </div>
+
+          <!-- Start Date -->
+          <div class="col-12 col-sm-6">
+            <label class="form-label" for="startDate">Pickup Date</label>
+            <div class="input-group">
+              <input type="date" id="startDate" class="form-control" placeholder="dd/mm/yyyy"/>
+              <span class="input-group-text cal-trigger" style="cursor:pointer;" onclick="document.getElementById('startDate').showPicker()">
+                <i class="bi bi-calendar3"></i>
+              </span>
+            </div>
+          </div>
+
+          <!-- End Date -->
+          <div class="col-12 col-sm-6">
+            <label class="form-label" for="endDate">Return Date</label>
+            <div class="input-group">
+              <input type="date" id="endDate" class="form-control" placeholder="dd/mm/yyyy"/>
+              <span class="input-group-text cal-trigger" style="cursor:pointer;" onclick="document.getElementById('endDate').showPicker()">
+                <i class="bi bi-calendar3"></i>
+              </span>
+            </div>
+          </div>
+
+          <!-- Start Time -->
+          <div class="col-12 col-sm-6">
+            <label class="form-label">Pickup Time</label>
+            <div class="input-group select-group">
+              <select class="form-select" id="startTime">
+                <option>12:00</option>
+                <option>13:00</option>
+                <option>14:00</option>
+                <option>15:00</option>
+                <option>16:00</option>
+              </select>
+              <span class="input-group-text select-icon" onclick="document.getElementById('startTime').showPicker()">
+                <i class="bi bi-chevron-down"></i>
+              </span>
+            </div>
+          </div>
+
+          <!-- End Time -->
+          <div class="col-12 col-sm-6">
+            <label class="form-label">Return Time</label>
+            <div class="input-group select-group">
+              <select class="form-select" id="endTime">
+                <option>13:00</option>
+                <option>14:00</option>
+                <option>15:00</option>
+                <option>16:00</option>
+                <option>17:00</option>
+              </select>
+              <span class="input-group-text select-icon" onclick="document.getElementById('endTime').showPicker()">
+                <i class="bi bi-chevron-down"></i>
+              </span>
+            </div>
+          </div>
+
+          <!-- Quantity -->
+          <div class="col-12 col-sm-6">
+            <label class="form-label">Quantity</label>
+            <div class="input-group select-group">
+              <select class="form-select" id="qtySelect">
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+              </select>
+              <span class="input-group-text select-icon" onclick="document.getElementById('qtySelect').showPicker()">
+                <i class="bi bi-chevron-down"></i>
+              </span>
             </div>
           </div>
 

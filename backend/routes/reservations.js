@@ -122,6 +122,38 @@ router.get('/my', authenticate, async (req, res) => {
     }
 })
 
+// Get single reservation by ID (user)
+router.get('/:id', authenticate, async (req, res) => {
+    try {
+        const { id } = req.params
+        const user_id = req.user.userId
+
+        const result = await db.query(`
+            SELECT
+                r.id,
+                r.start_time,
+                r.end_time,
+                r.status,
+                et.name        AS device,
+                et.category,
+                et.image_url,
+                eu.location    AS pickup_location
+            FROM reservations r
+            JOIN equipment_types et ON et.id = r.type_id
+            LEFT JOIN equipment_units eu ON eu.id = r.unit_id
+            WHERE r.id = $1 AND r.user_id = $2;
+        `, [id, user_id])
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Reservation not found.' })
+        }
+
+        return res.status(200).json(result.rows[0])
+    } catch (error) {
+        return res.status(500).json({ error: error.message })
+    }
+})
+
 // Cancel a reservation (user)
 router.delete('/:id', authenticate, async (req, res) => {
     try {

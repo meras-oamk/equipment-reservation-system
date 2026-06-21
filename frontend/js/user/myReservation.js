@@ -12,15 +12,26 @@ async function loadReservations() {
     const token = localStorage.getItem('token');
     try {
         const res = await fetch('/api/reservation/my', {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const data = await res.json();
+    headers: { 'Authorization': `Bearer ${token}` }
+});
+const data = await res.json();
+console.log('Raw /my response:', data);
 
-        reservations = { inactive: [], active: [], overdue: [], completed: [] };
+if (!res.ok || !Array.isArray(data)) {
+    console.error('Failed to load reservations:', data.error || data);
+    if (data.error === 'Invalid or expired token.') {
+        alert('Your session has expired. Please log in again.');
+        localStorage.removeItem('token');
+        window.location.href = '../../index.html';
+    }
+    return;
+}
 
-        const now = new Date();
+reservations = { inactive: [], active: [], overdue: [], completed: [] };
 
-        data.forEach(r => {
+const now = new Date();
+
+data.forEach(r => {
             const start = new Date(r.start_time);
             const end   = new Date(r.end_time);
 
@@ -78,7 +89,7 @@ window.addEventListener('DOMContentLoaded', loadReservations);
       const mobileList = document.getElementById('mobileList');
 
       if (!rows || rows.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><i class="bi bi-calendar-x"></i><p>No reservations found.</p></div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><i class="bi bi-calendar-x"></i><p>No reservations found.</p></div></td></tr>`;
     mobileList.innerHTML = `<div class="empty-state"><i class="bi bi-calendar-x"></i><p>No reservations found.</p></div>`;
     return;
 }
@@ -94,6 +105,7 @@ window.addEventListener('DOMContentLoaded', loadReservations);
       <td>${startLines[0]}<br><span style="color:var(--muted);font-size:0.8rem;">${startLines[1]||''}</span></td>
       <td>${endLines[0]}<br><span style="color:var(--muted);font-size:0.8rem;">${endLines[1]||''}</span></td>
       <td>${r.duration}</td>
+      <td>1</td>
       <td>${r.location}</td>
       <td>${badgeHtml(r.status)}</td>
       <td>
@@ -114,7 +126,7 @@ window.addEventListener('DOMContentLoaded', loadReservations);
   const startLines = r.start.split('\n');
   const endLines   = r.end.split('\n');
   return `
-    <div class="mobile-res-card" onclick="goToDetail(${r.id})">
+     <div class="mobile-res-card" data-id="${r.id}" onclick="goToDetail(${r.id})">
       <div class="d-flex justify-content-between align-items-start mb-2">
         <span class="device-name">${r.device}</span>
         ${badgeHtml(r.status)}
@@ -124,6 +136,7 @@ window.addEventListener('DOMContentLoaded', loadReservations);
         <span>Start: <strong>${startLines[0]} ${startLines[1]||''}</strong></span>
         <span>End: <strong>${endLines[0]} ${endLines[1]||''}</strong></span>
         <span>Duration: <strong>${r.duration}</strong></span>
+        <span>Quantity: <strong>1</strong></span>
         <span>Location: <strong>${r.location}</strong></span>
       </div>
     </div>`;

@@ -50,7 +50,18 @@ router.put('/:id/return', authenticate, authorizeRole('admin'), async (req, res)
     }
 })
 
-// Create a reservation (user)
+router.get('/reservations', authenticate, authorizeRole('admin'), async (req, res) => {
+    try {
+        const reservationsData = await reservationsHelper.reservations()
+
+        return res.status(200).json({ reservationsData })
+    } catch (error) {
+        console.log('Error get reservations: ', error.message)
+        return res.status(401).json({ error: error.message })
+    }
+}),
+
+        // Create a reservation (user)
 router.post('/', authenticate, async (req, res) => {
     try {
         const { type_id, start_time, end_time, quantity, pickup_location } = req.body
@@ -93,7 +104,7 @@ inserted.push(result.rows[0])
     } catch (error) {
         return res.status(500).json({ error: error.message })
     }
-})
+}),
 
 // Get current user's reservations
 router.get('/my', authenticate, async (req, res) => {
@@ -120,7 +131,7 @@ router.get('/my', authenticate, async (req, res) => {
     } catch (error) {
         return res.status(500).json({ error: error.message })
     }
-})
+}),
 
 // Get single reservation by ID (user)
 router.get('/:id', authenticate, async (req, res) => {

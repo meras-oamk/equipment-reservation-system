@@ -24,80 +24,81 @@
 
   <!-- Stats -->
   <div class="row g-3 mb-4">
-    <div class="col"><div class="stat-card"><div class="stat-label">Total</div><div class="stat-value">9</div></div></div>
-    <div class="col"><div class="stat-card"><div class="stat-label">Active</div><div class="stat-value">5</div></div></div>
-    <div class="col"><div class="stat-card"><div class="stat-label">Flagged</div><div class="stat-value">3</div></div></div>
-    <div class="col"><div class="stat-card"><div class="stat-label">Banned</div><div class="stat-value">1</div></div></div>
+    <div class="col"><div class="stat-card"><div class="stat-label">Total</div><div class="stat-value"></div></div></div>
+    <div class="col"><div class="stat-card"><div class="stat-label">Active</div><div class="stat-value"></div></div></div>
+    <div class="col"><div class="stat-card"><div class="stat-label">Suspended</div><div class="stat-value"></div></div></div>
+    <div class="col"><div class="stat-card"><div class="stat-label">Banned</div><div class="stat-value"></div></div></div>
   </div>
 
   <!-- Search + Filter -->
   <div class="d-flex gap-3 mb-4">
     <div class="position-relative flex-grow-1">
       <i class="bi bi-search position-absolute" style="left:14px;top:50%;transform:translateY(-50%);color:#aaa"></i>
-      <input class="search-bar ps-5" placeholder="Search by name or category..." />
+      <input class="search-bar ps-5" placeholder="Search by user name or equipment category..." />
     </div>
-    <button class="filter-btn"><i class="bi bi-funnel"></i> All Users</button>
+
+    <select class="form-select filter-select px-3 py-2" style="font-weight: 600; cursor: pointer; width: auto; min-width: 180px;">
+      <option value="all" data-type="filter">All Users</option>
+      
+      <optgroup label="Filter by Status">
+        <option value="active" data-type="filter">Active</option>
+        <option value="suspended" data-type="filter">Suspended</option>
+        <option value="banned" data-type="filter">Banned</option>
+      </optgroup>
+      
+      <optgroup label="Sort By">
+        <option value="newest" data-type="sort">Join Date (Newest first)</option>
+        <option value="oldest" data-type="sort">Join Date (Oldest first)</option>
+      </optgroup>
+    </select>
+
   </div>
 
   <!-- Panels -->
   <div class="row g-3">
     <!-- Users List -->
     <div class="col-md-5">
-      <div class="panel">
+      <div id="leftPanel" class="panel">
         <div class="panel-title">Users</div>
-
-        <div class="user-card active" onclick="selectUser(this, 0)">
-          <div class="uname">Sarah Johnson</div>
-          <div class="uemail">sarah.johnson@example.com</div>
-          <div class="umeta">6 total reservations</div>
-        </div>
-
-        <div class="user-card" onclick="selectUser(this, 1)">
-          <div class="uname">James Johnson</div>
-          <div class="uemail">james.johnson@example.com</div>
-          <div class="umeta">10 total reservations</div>
-        </div>
-
-        <div class="user-card" onclick="selectUser(this, 2)">
-          <div class="uname">Joe Johnson</div>
-          <div class="uemail">joe.johnson@example.com</div>
-          <div class="umeta">2 total reservations <span class="overdue-tag">2 overdue</span></div>
-        </div>
+      
       </div>
     </div>
 
     <!-- User Detail -->
     <div class="col-md-7">
-      <div class="panel">
+      <div id="rightPanel" class="panel">
         <div class="panel-title">Users Details</div>
 
-        <div class="detail-name" id="dName">Sarah Johnson</div>
-        <div class="detail-email" id="dEmail">sarah.johnson@example.com</div>
-
-        <div class="detail-meta">User ID: <span id="dId">01003</span></div>
-        <div class="detail-meta">Join Date: <span id="dJoin">20/07/2025</span></div>
-        <div class="detail-meta">Total: <span id="dTotal">6</span></div>
-        <div class="detail-meta">Active: <span id="dActive">2</span></div>
-        <div class="detail-meta">Overdue: <span id="dOverdue">0</span></div>
-
-        <div class="divider"></div>
-
-        <div class="history-title">Reservation History</div>
-
-        <div class="history-card">
-          <div class="history-info">
-            <div class="h-name">VR → Meta Quest 3</div>
-            <div class="h-dates">20/02/2026 → 24/02/2026</div>
-          </div>
-          <span class="badge-active">Active</span>
+        <div id="rightPanelPlaceholder" class="eq-meta" style="padding: 40px 15px; text-align: center; color: #888; display: none;">
+          Select a user
         </div>
 
-        <div class="history-card">
-          <div class="history-info">
-            <div class="h-name">VR → Meta Quest 3</div>
-            <div class="h-dates">20/02/2026 → 24/02/2026</div>
+        <div id="rightPanelDetails" style="display: none;">
+
+          <div style="display: flex; align-items: center;">
+            <div class="detail-name" id="dName" style="margin: 0;"></div> 
+            
+            <span id="dStatusFlag" style="display: none; margin-left: 8px;" title="">
+                <i class="bi bi-flag-fill"></i>
+            </span>
           </div>
-          <span class="badge-completed">Returned</span>
+
+          <div class="detail-email" id="dEmail"></div>
+          
+          <div class="detail-meta">User ID: <span id="dId"></span></div>
+          <div class="detail-meta">Join Date: <span id="dJoin"></span></div>
+          <div class="detail-meta">Status: <span id="dStatus"></span></div>
+          
+          <div class="divider"></div>
+          
+          <div class="history-title">Reservation History</div>
+          
+          <div id="dHistoryContainer"></div>
+
+          <div class="divider"></div>
+          
+          <div id="dUserActionsContainer" style="margin-top: 20px; display: flex; gap: 10px;"></div>
+          
         </div>
       </div>
     </div>
@@ -173,28 +174,9 @@
   </div>
 </div>
 
-<script>
-  const users = [
-    { name: 'Sarah Johnson',  email: 'sarah.johnson@example.com',  id: '01003', join: '20/07/2025', total: 6,  active: 2, overdue: 0 },
-    { name: 'James Johnson',  email: 'james.johnson@example.com',  id: '01004', join: '15/03/2025', total: 10, active: 3, overdue: 1 },
-    { name: 'Joe Johnson',    email: 'joe.johnson@example.com',    id: '01005', join: '01/01/2026', total: 2,  active: 0, overdue: 2 }
-  ];
-
-  const selectUser = (el, i) => {
-    document.querySelectorAll('.user-card').forEach(c => c.classList.remove('active'));
-    el.classList.add('active');
-    const u = users[i];
-    document.getElementById('dName').textContent    = u.name;
-    document.getElementById('dEmail').textContent   = u.email;
-    document.getElementById('dId').textContent      = u.id;
-    document.getElementById('dJoin').textContent    = u.join;
-    document.getElementById('dTotal').textContent   = u.total;
-    document.getElementById('dActive').textContent  = u.active;
-    document.getElementById('dOverdue').textContent = u.overdue;
-  };
-</script>
-
 <script src="/js/admin/navbar.js"></script>
+<script src="/js/admin/search_sort.js"></script>
+<script src="/js/admin/detailsController.js"></script>
 <script src="/js/admin/manageUsers.js"></script>
 
 </body>

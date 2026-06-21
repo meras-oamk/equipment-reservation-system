@@ -35,6 +35,29 @@ router.get('/types/:id/units', authenticate, authorizeRole('admin'), async (req,
         return res.status(400).json({ error: error.message })
     }
 })
+
+// Get available unit locations for a given equipment type
+router.get('/types/:id/locations', async (req, res) => {
+    try {
+        const { id } = req.params
+        const result = await db.query(`
+            SELECT
+                location,
+                COUNT(*) AS available_count
+            FROM equipment_units
+            WHERE type_id = $1
+              AND status = 'available'
+              AND location IS NOT NULL
+            GROUP BY location
+            ORDER BY location;
+        `, [id])
+
+        return res.status(200).json(result.rows)
+    } catch (error) {
+        return res.status(400).json({ error: error.message })
+    }
+})
+
 // Add type
 router.post('/types', authenticate, authorizeRole('admin'), upload.single('image'), async (req, res) => {
     try {

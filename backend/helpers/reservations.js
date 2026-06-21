@@ -67,6 +67,37 @@ const reservationsHelper = {
         )
 
         return updateReservationResult.rows[0];
+    },
+
+    reservations: async () => {
+        const reservations = await db.query(`
+            SELECT 
+                u.full_name,
+                u.email,
+
+                r.id AS reservation_id,
+                r.start_time,
+                r.end_time,
+                r.status,
+
+                et.name AS equipment_name,
+                eu.qr_code
+
+            FROM reservations r
+
+            JOIN users u 
+                ON r.user_id = u.id
+
+            LEFT JOIN equipment_units eu 
+                ON r.unit_id = eu.id
+
+            LEFT JOIN equipment_types et 
+                ON r.type_id = et.id
+
+            ORDER BY r.id ASC;
+        `)
+
+        return reservations.rows
     }
 }
 

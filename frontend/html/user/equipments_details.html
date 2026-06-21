@@ -90,29 +90,10 @@
                   <i class="bi bi-geo-alt"></i>
                 </span>
               </div>
-              <!-- Location Dropdown -->
+              <!-- Location Dropdown (populated dynamically) -->
               <ul class="location-dropdown" id="locationDropdown">
                 <li class="location-header"><i class="bi bi-geo-alt-fill me-1"></i> Select Pickup Location</li>
-                <li class="location-item" data-value="Linnanmaa Kirjasto">
-                  <i class="bi bi-building me-2"></i>Linnanmaa Kirjasto
-                  <span class="location-sub">Linnanmaa, Oulu</span>
-                </li>
-                <li class="location-item" data-value="Oulu City Library">
-                  <i class="bi bi-building me-2"></i>Linnanmaa, OAMK
-                  <span class="location-sub">Linnanmaa, Oulu</span>
-                </li>
-                <li class="location-item" data-value="Kontinkangas 5a">
-                  <i class="bi bi-building me-2"></i>Kontinkangas 5a
-                  <span class="location-sub">Kontinkangas 5a, Oulu</span>
-                </li>
-                <li class="location-item" data-value="Kontinkangas SOTE">
-                  <i class="bi bi-building me-2"></i>Kontinkangas SOTE
-                  <span class="location-sub">Kontinkangas, Oulu</span>
-                </li>
-                <li class="location-item" data-value="Linnanmaa Keskusaula">
-                  <i class="bi bi-building me-2"></i>Linnanmaa Keskusaula
-                  <span class="location-sub">Linnanmaa, Oulu</span>
-                </li>
+                <!-- location items injected by JS -->
               </ul>
             </div>
           </div>
@@ -204,9 +185,17 @@
   <div class="modal-overlay" id="successModal">
     <div class="success-modal">
       <div class="success-badge">
-        <span>Successfully Reserved</span>
-        <strong id="modal-equipment-name">—</strong>
-      </div>
+  <span>Successfully Reserved</span>
+  <strong id="modal-equipment-name">—</strong>
+</div>
+
+<div class="modal-detail-row">
+  <div class="detail-icon"><i class="bi bi-hash"></i></div>
+  <div>
+    <div class="detail-label">Reservation ID</div>
+    <div class="detail-value" id="modal-reservation-id">—</div>
+  </div>
+</div>
 
       <div class="modal-details">
         <div class="modal-detail-row">

@@ -50,7 +50,18 @@ router.put('/:id/return', authenticate, authorizeRole('admin'), async (req, res)
     }
 })
 
-// Create a reservation (user)
+router.get('/reservations', authenticate, authorizeRole('admin'), async (req, res) => {
+    try {
+        const reservationsData = await reservationsHelper.reservations()
+
+        return res.status(200).json({ reservationsData })
+    } catch (error) {
+        console.log('Error get reservations: ', error.message)
+        return res.status(401).json({ error: error.message })
+    }
+}),
+
+        // Create a reservation (user)
 router.post('/', authenticate, async (req, res) => {
     try {
         const { type_id, start_time, end_time, quantity, pickup_location } = req.body
@@ -82,17 +93,18 @@ router.post('/', authenticate, async (req, res) => {
         const inserted = []
         for (const unit of available.rows) {
             const result = await db.query(`
-                INSERT INTO reservations (user_id, unit_id, type_id, start_time, end_time, status)
-                VALUES ($1, $2, $3, $4, $5, 'approved')
-                `, [user_id, unit.id, type_id, start_time, end_time])
-            inserted.push(result.rows[0])
+    INSERT INTO reservations (user_id, unit_id, type_id, start_time, end_time, status)
+    VALUES ($1, $2, $3, $4, $5, 'approved')
+    RETURNING *;
+`, [user_id, unit.id, type_id, start_time, end_time])
+inserted.push(result.rows[0])
         }
 
         return res.status(201).json(inserted)
     } catch (error) {
         return res.status(500).json({ error: error.message })
     }
-})
+}),
 
 // Get current user's reservations
 router.get('/my', authenticate, async (req, res) => {
@@ -116,6 +128,38 @@ router.get('/my', authenticate, async (req, res) => {
             `, [user_id])
 
         return res.status(200).json(result.rows)
+    } catch (error) {
+        return res.status(500).json({ error: error.message })
+    }
+}),
+
+// Get single reservation by ID (user)
+router.get('/:id', authenticate, async (req, res) => {
+    try {
+        const { id } = req.params
+        const user_id = req.user.userId
+
+        const result = await db.query(`
+            SELECT
+                r.id,
+                r.start_time,
+                r.end_time,
+                r.status,
+                et.name        AS device,
+                et.category,
+                et.image_url,
+                eu.location    AS pickup_location
+            FROM reservations r
+            JOIN equipment_types et ON et.id = r.type_id
+            LEFT JOIN equipment_units eu ON eu.id = r.unit_id
+            WHERE r.id = $1 AND r.user_id = $2;
+        `, [id, user_id])
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Reservation not found.' })
+        }
+
+        return res.status(200).json(result.rows[0])
     } catch (error) {
         return res.status(500).json({ error: error.message })
     }

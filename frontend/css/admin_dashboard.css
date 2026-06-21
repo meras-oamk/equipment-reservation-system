@@ -80,30 +80,91 @@ body {
 }
 
 /* ── STAT CARDS ── */
+
+/* Base card styles */
 .stat-card {
   background: #fff;
   border-radius: 12px;
   border: 1px solid #eee;
   padding: 20px 24px;
+  height: 320px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-top: 0;
+  margin-bottom: 12px;
+}
+
+.chart-container {
+  position: relative;
+  flex-grow: 1;
+  width: 100%;
+  height: calc(100% - 30px);
+}
+
+/* STATS GRAPHS */
+
+.grade-card-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
   height: 100%;
 }
 
-.stat-label {
-  font-size: 13px;
-  color: #888;
-  margin-bottom: 8px;
+.radial-container {
+  position: relative;
+  width: 160px;
+  height: 160px;
 }
 
-.stat-value {
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--orange);
+.radial-svg {
+  transform: rotate(-90deg);
+  width: 100%;
+  height: 100%;
 }
 
-.stat-sub {
-  font-size: 14px;
-  color: var(--orange);
+.radial-track {
+  fill: none;
+  stroke: #f0f0f0;
+  stroke-width: 8;
+}
+
+.radial-progress {
+  fill: none;
+  stroke: #28a745; 
+  stroke-width: 8;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.5s ease-in-out;
+}
+
+.radial-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.grade-percent {
+  font-size: 38px;
   font-weight: 600;
+  color: #28a745;
+  line-height: 1;
+}
+
+.grade-subtext {
+  font-size: 13px;
+  color: #777;
+  text-align: center;
+  margin: 10px 0 0 0;
+  line-height: 1.4;
 }
 
 /* ── ACTION BUTTONS ── */

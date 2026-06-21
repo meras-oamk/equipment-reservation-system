@@ -20,6 +20,15 @@ document.addEventListener('DOMContentLoaded', async function () {
     splitBtn.style.display = 'none';
   }
 
+  // ── DISABLE "RETURN" OPTION FOR INACTIVE RESERVATIONS ──
+  if (status === 'inactive') {
+    const returnOption = document.querySelector('.action-option[data-href="reservationAction_checkout.html"]');
+    if (returnOption) {
+      returnOption.classList.add('disabled');
+      returnOption.removeAttribute('data-href');
+    }
+  }
+
   // ── FETCH AND POPULATE RESERVATION DETAILS ──
   if (id) {
     const token = localStorage.getItem('token');
@@ -74,7 +83,8 @@ document.getElementById('detail-end-date').textContent              = end.date;
   document.querySelectorAll('.action-option').forEach(opt => {
     opt.addEventListener('click', function (e) {
       e.stopPropagation();
-      window.location.href = this.dataset.href;
+      if (this.classList.contains('disabled') || !this.dataset.href) return;
+      window.location.href = `${this.dataset.href}?id=${id}`;
     });
   });
 

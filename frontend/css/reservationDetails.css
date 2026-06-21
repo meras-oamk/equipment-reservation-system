@@ -212,3 +212,9 @@
     }
 
     .action-option:hover { background: rgba(240,125,0,0.08); color: var(--orange); }
+
+    .action-option.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      pointer-events: none;
+    }

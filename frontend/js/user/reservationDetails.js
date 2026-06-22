@@ -29,6 +29,15 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
   }
 
+  // ── DISABLE "PICKUP" OPTION FOR ACTIVE RESERVATIONS ──
+  if (status === 'active') {
+    const pickupOption = document.querySelector('.action-option[data-href="reservationAction_checkin.html"]');
+    if (pickupOption) {
+      pickupOption.classList.add('disabled');
+      pickupOption.removeAttribute('data-href');
+    }
+  }
+
   // ── FETCH AND POPULATE RESERVATION DETAILS ──
   if (id) {
     const token = localStorage.getItem('token');

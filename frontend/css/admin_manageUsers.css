@@ -72,3 +72,39 @@
 
 .history-info .h-name  { font-weight: 600; font-size: 14px; margin-bottom: 2px; }
 .history-info .h-dates { font-size: 12px; color: #888; }
+
+/* Base styling for all user action buttons */
+.user-action-btn {
+  flex: 1;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  color: white;
+  transition: background-color 0.15s ease-in-out;
+}
+
+/* Activate Button */
+.active-btn {
+  background-color: #28a745;
+}
+.active-btn:hover {
+  background-color: #218838;
+}
+
+/* Suspend Button */
+.suspend-btn {
+  background-color: var(--orange);
+}
+.suspend-btn:hover {
+  background-color: #efb60a;
+}
+
+/* Ban Button */
+.ban-btn {
+  background-color: #dc3545;
+}
+.ban-btn:hover {
+  background-color: #c82333;
+}

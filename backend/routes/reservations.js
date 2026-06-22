@@ -253,9 +253,37 @@ await db.query(`
     WHERE id = $1
 `, [reservationId]);
 
-        return res.json({
-            message: 'QR code verified successfully'
-        });
+        if (reservation.status === 'approved') {
+
+    await db.query(`
+        UPDATE reservations
+        SET status = 'active'
+        WHERE id = $1
+    `, [reservationId]);
+
+    return res.json({
+        message: 'Equipment picked up successfully',
+        status: 'active'
+    });
+}
+
+if (reservation.status === 'active') {
+
+    await db.query(`
+        UPDATE reservations
+        SET status = 'pending_return'
+        WHERE id = $1
+    `, [reservationId]);
+
+    return res.json({
+        message: 'Return request submitted',
+        status: 'pending_return'
+    });
+}
+
+return res.json({
+    message: 'QR code verified successfully'
+});
 
     } catch (error) {
         return res.status(500).json({

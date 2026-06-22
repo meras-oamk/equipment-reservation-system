@@ -80,6 +80,11 @@
       font-size: 0.82rem; font-weight: 600;
     }
 
+    .badge-pending-approval {
+    background: #fff3cd;
+    color: #856404;
+}
+
     /* BODY */
     .detail-body { padding: 1.75rem; }
 

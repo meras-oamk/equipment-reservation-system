@@ -6,37 +6,8 @@ document.addEventListener('DOMContentLoaded', async function () {
   // ── READ ID AND STATUS FROM URL ──
   const params = new URLSearchParams(window.location.search);
   const id     = params.get('id');
-  const status = params.get('status') || 'inactive';
-
-  // ── UPDATE STATUS BADGE ──
-  const badgeEl = document.querySelector('.status-banner span');
-  if (badgeEl) {
-    badgeEl.className   = `badge-${status}`;
-    badgeEl.textContent = status.charAt(0).toUpperCase() + status.slice(1);
-  }
-
-  // ── HIDE "SELECT YOUR ACTION" FOR EXPIRED ──
-  if (splitBtn && status === 'expired') {
-    splitBtn.style.display = 'none';
-  }
-
-  // ── DISABLE "RETURN" OPTION FOR INACTIVE RESERVATIONS ──
-  if (status === 'inactive') {
-    const returnOption = document.querySelector('.action-option[data-href="reservationAction_checkout.html"]');
-    if (returnOption) {
-      returnOption.classList.add('disabled');
-      returnOption.removeAttribute('data-href');
-    }
-  }
-
-  // ── DISABLE "PICKUP" OPTION FOR ACTIVE RESERVATIONS ──
-  if (status === 'active') {
-    const pickupOption = document.querySelector('.action-option[data-href="reservationAction_checkin.html"]');
-    if (pickupOption) {
-      pickupOption.classList.add('disabled');
-      pickupOption.removeAttribute('data-href');
-    }
-  }
+  
+  
 
   // ── FETCH AND POPULATE RESERVATION DETAILS ──
   if (id) {
@@ -48,6 +19,64 @@ document.addEventListener('DOMContentLoaded', async function () {
 
       if (res.ok) {
         const r = await res.json();
+
+        let displayStatus;
+
+if (r.status === 'approved') {
+    displayStatus = 'inactive';
+}
+else if (r.status === 'active') {
+    displayStatus = 'active';
+}
+else if (r.status === 'pending_return') {
+    displayStatus = 'pending approval';
+}
+else if (r.status === 'overdue') {
+    displayStatus = 'overdue';
+}
+else {
+    displayStatus = 'completed';
+}
+
+        const status = r.status;
+
+const badgeEl = document.getElementById('detail-status-badge');
+
+if (displayStatus === 'pending approval') {
+    badgeEl.className = 'badge-pending-approval';
+} else {
+    badgeEl.className = `badge-${displayStatus}`;
+}
+
+badgeEl.textContent =
+    displayStatus
+        .split(' ')
+        .map(word =>
+            word.charAt(0).toUpperCase() + word.slice(1)
+        )
+        .join(' ');
+
+    if (displayStatus === 'inactive') {
+    const returnOption = document.querySelector(
+        '.action-option[data-href="reservationAction_checkout.html"]'
+    );
+
+    if (returnOption) {
+        returnOption.classList.add('disabled');
+        returnOption.removeAttribute('data-href');
+    }
+}
+
+if (displayStatus === 'active') {
+    const pickupOption = document.querySelector(
+        '.action-option[data-href="reservationAction_checkin.html"]'
+    );
+
+    if (pickupOption) {
+        pickupOption.classList.add('disabled');
+        pickupOption.removeAttribute('data-href');
+    }
+}
 
         function fmt(datetimeStr) {
           const d = new Date(datetimeStr);

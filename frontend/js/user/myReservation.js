@@ -45,14 +45,24 @@ data.forEach(r => {
             let status;
               const dbStatus = r.status;
 
-                if (dbStatus === 'completed' || dbStatus === 'cancelled' || dbStatus === 'overdue') {
-                    status = 'completed';
-                } else if (dbStatus === 'active' || dbStatus === 'pending_return') {
-                    status = 'active';
-                } else {
-              // 'approved' — not started yet
-                  status = 'inactive';
-}                   
+                if (
+    dbStatus === 'completed' ||
+    dbStatus === 'cancelled'
+) {
+    status = 'completed';
+}
+else if (dbStatus === 'pending_return') {
+    status = 'completed';
+}
+else if (dbStatus === 'active') {
+    status = 'active';
+}
+else if (dbStatus === 'overdue') {
+    status = 'overdue';
+}
+else {
+    status = 'inactive';
+}                  
 
             const entry = {
                 id:       r.id,

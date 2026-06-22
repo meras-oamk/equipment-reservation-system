@@ -71,7 +71,45 @@ router.post('/', authenticate, async (req, res) => {
             return res.status(400).json({ error: 'Missing required fields.' })
         }
 
-        // Find available units not already booked in this time slot
+        // =========================
+        // RESERVATION LIMIT CHECK
+        // =========================
+
+        const userResult = await db.query(`
+            SELECT role
+            FROM users
+            WHERE id = $1
+        `, [user_id])
+
+        const role = userResult.rows[0].role
+
+        const reservationLimit = role === 'staff' ? 5 : 3
+
+        const reservationCountResult = await db.query(`
+            SELECT COUNT(*) AS total
+            FROM reservations
+            WHERE user_id = $1
+              AND status IN (
+                  'approved',
+                  'active',
+                  'overdue',
+                  'pending_return'
+              )
+        `, [user_id])
+
+        const currentReservations =
+            parseInt(reservationCountResult.rows[0].total, 10)
+
+        if (currentReservations >= reservationLimit) {
+            return res.status(400).json({
+                error: `You have reached your reservation limit (${reservationLimit}). Please complete or return an existing reservation first.`
+            })
+        }
+
+        // =========================
+        // YOUR EXISTING AVAILABILITY CHECK
+        // =========================
+
         const available = await db.query(`
             SELECT eu.id FROM equipment_units eu
             WHERE eu.type_id = $1
@@ -86,25 +124,36 @@ router.post('/', authenticate, async (req, res) => {
         `, [type_id, start_time, end_time, quantity])
 
         if (available.rows.length < quantity) {
-            return res.status(400).json({ error: 'Not enough units available for the selected time.' })
+            return res.status(400).json({
+                error: 'Not enough units available for the selected time.'
+            })
         }
 
-        // Insert one reservation per unit
         const inserted = []
+
         for (const unit of available.rows) {
             const result = await db.query(`
-    INSERT INTO reservations (user_id, unit_id, type_id, start_time, end_time, status)
-    VALUES ($1, $2, $3, $4, $5, 'approved')
-    RETURNING *;
-`, [user_id, unit.id, type_id, start_time, end_time])
-inserted.push(result.rows[0])
+                INSERT INTO reservations (
+                    user_id,
+                    unit_id,
+                    type_id,
+                    start_time,
+                    end_time,
+                    status
+                )
+                VALUES ($1, $2, $3, $4, $5, 'approved')
+                RETURNING *;
+            `, [user_id, unit.id, type_id, start_time, end_time])
+
+            inserted.push(result.rows[0])
         }
 
         return res.status(201).json(inserted)
+
     } catch (error) {
         return res.status(500).json({ error: error.message })
     }
-}),
+})
 
 // Get current user's reservations
 router.get('/my', authenticate, async (req, res) => {

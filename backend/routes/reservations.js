@@ -214,6 +214,56 @@ router.get('/:id', authenticate, async (req, res) => {
     }
 })
 
+router.post('/:id/scan', authenticate, async (req, res) => {
+    try {
+        const reservationId = req.params.id;
+        const { qr_code } = req.body;
+        const userId = req.user.userId;
+
+        const result = await db.query(`
+            SELECT
+                r.id,
+                eu.qr_code,
+                r.status
+            FROM reservations r
+            JOIN equipment_units eu
+                ON eu.id = r.unit_id
+            WHERE r.id = $1
+              AND r.user_id = $2
+        `, [reservationId, userId]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                error: 'Reservation not found'
+            });
+        }
+
+        const reservation = result.rows[0];
+
+        if (reservation.qr_code !== qr_code) {
+            return res.status(400).json({
+                error: 'Wrong equipment QR code'
+            });
+        }
+
+        // Move reservation to active after successful pickup scan
+await db.query(`
+    UPDATE reservations
+    SET status = 'active'
+    WHERE id = $1
+`, [reservationId]);
+
+        return res.json({
+            message: 'QR code verified successfully'
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            error: error.message
+        });
+    }
+});
+
 // Cancel a reservation (user)
 router.delete('/:id', authenticate, async (req, res) => {
     try {

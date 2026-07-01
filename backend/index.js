@@ -30,7 +30,10 @@ app.use('/api/stats', adminStatisticsRoute)
 
 // User route prefixes
 app.use('/api/users', userRoutes)
-
+app.use(
+  '/documents',
+  express.static(path.join(__dirname, '../documents'))
+);
 app.use(express.static(path.join(__dirname,'../frontend')))
 app.use(express.static(path.join(__dirname, '../frontend/html')))
 

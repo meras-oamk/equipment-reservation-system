@@ -31,129 +31,72 @@
     <section class="equipment-section">
         <h2>All Equipment</h2>
 
-        <div class="equipment-grid">
+        <div class="equipment-grid" id="equipmentGrid">
 
-            <!-- Card 1 -->
             <div class="card">
-                <img src="../assets/Equipment1.png" alt="Drone">
+                <img>
                 <div class="card-content">
                     <h3>NewBeeDrone Replacement</h3>
-                    <span class="badge">Drone</span>
-                    <ul>
-                        <li>Pre-installed V2 flight controller</li>
-                        <li>Compatible with V2 drones</li>
-                        <li>Designed for V2 & V2.5 series</li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Card 2 -->
-            <div class="card">
-                <img src="../assets/Equipment1.png" alt="Drone">
-                <div class="card-content">
-                    <h3>NewBeeDrone Replacement</h3>
-                    <span class="badge">Drone</span>
-                    <ul>
-                        <li>Pre-installed V2 flight controller</li>
-                        <li>Compatible with V2 drones</li>
-                        <li>Designed for V2 & V2.5 series</li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Card 3 -->
-            <div class="card">
-                <img src="../assets/Equipment1.png" alt="Drone">
-                <div class="card-content">
-                    <h3>NewBeeDrone Replacement</h3>
-                    <span class="badge">Drone</span>
-                    <ul>
-                        <li>Pre-installed V2 flight controller</li>
-                        <li>Compatible with V2 drones</li>
-                        <li>Designed for V2 & V2.5 series</li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Card 4 -->
-            <div class="card">
-                <img src="../assets/Equipment1.png" alt="Drone">
-                <div class="card-content">
-                    <h3>NewBeeDrone Replacement</h3>
-                    <span class="badge">Drone</span>
-                    <ul>
-                        <li>Pre-installed V2 flight controller</li>
-                        <li>Compatible with V2 drones</li>
-                        <li>Designed for V2 & V2.5 series</li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Card 5 -->
-            <div class="card">
-                <img src="../assets/Equipment1.png" alt="Drone">
-                <div class="card-content">
-                    <h3>NewBeeDrone Replacement</h3>
-                    <span class="badge">Drone</span>
-                    <ul>
-                        <li>Pre-installed V2 flight controller</li>
-                        <li>Compatible with V2 drones</li>
-                        <li>Designed for V2 & V2.5 series</li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Card 6 -->
-            <div class="card">
-                <img src="../assets/Equipment1.png" alt="Drone">
-                <div class="card-content">
-                    <h3>NewBeeDrone Replacement</h3>
-                    <span class="badge">Drone</span>
-                    <ul>
-                        <li>Pre-installed V2 flight controller</li>
-                        <li>Compatible with V2 drones</li>
-                        <li>Designed for V2 & V2.5 series</li>
-                    </ul>
+                    <span class="text-muted d-block mb-2">Drone</span>
                 </div>
             </div>
         </div>
     </section>
 </div>
 <script>
-const loginTab = document.getElementById("loginTab");
-const registerTab = document.getElementById("registerTab");
+const API_URL = "api/equipment/catalog";
 
-const loginForm = document.getElementById("loginForm");
-const registerForm = document.getElementById("registerForm");
+async function loadEquipment() {
+    try {
+        const response = await fetch(API_URL);
 
-function showLogin() {
-    loginForm.style.display = "block";
-    registerForm.style.display = "none";
+        if (!response.ok) {
+            throw new Error("Failed to load equipment");
+        }
 
-    loginTab.classList.add("active");
-    registerTab.classList.remove("active");
+        const equipment = await response.json();
+
+        const grid = document.getElementById("equipmentGrid");
+        grid.innerHTML = "";
+
+        equipment.forEach(item => {
+
+            const image = item.image_url
+                ? item.image_url
+                : "../assets/Equipment1.png";
+
+            const description = item.description
+            ? item.description.replace(/^Details?:\s*/i, "")
+            : "No description available.";
+
+            grid.innerHTML += `
+                <div class="card">
+                    <img src="${image}" alt="${item.name}">
+
+                    <div class="card-content">
+
+                        <h3>${item.name}</h3>
+
+                        <span class="text-muted d-block mb-2">
+                            ${item.subcategory}
+                        </span>
+
+                        <p style="white-space: pre-line;">${description}</p>
+
+                    </div>
+                </div>
+            `;
+        });
+
+    } catch (err) {
+        console.error(err);
+
+        document.getElementById("equipmentGrid").innerHTML =
+            "<p>Unable to load equipment.</p>";
+    }
 }
 
-function showRegister() {
-    loginForm.style.display = "none";
-    registerForm.style.display = "block";
-
-    registerTab.classList.add("active");
-    loginTab.classList.remove("active");
-}
-
-loginTab.addEventListener("click", showLogin);
-registerTab.addEventListener("click", showRegister);
-
-// Read URL parameter
-const params = new URLSearchParams(window.location.search);
-const form = params.get("form");
-
-if (form === "register") {
-    showRegister();
-} else {
-    showLogin();
-}
+loadEquipment();
 </script>
 </body>
 </html>

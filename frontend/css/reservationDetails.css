@@ -73,6 +73,13 @@
       font-size: 0.82rem; font-weight: 600;
     }
 
+    .badge-overdue { 
+      background: #fdecea; color: #c0392b; 
+      border: 1px solid #f5b7b1;
+      padding: 0.3rem 1rem; border-radius: 20px;
+      font-size: 0.82rem; font-weight: 600;
+    }
+
     .badge-expired {
       background: #f0f0f0; color: #777;
       border: 1px solid #d0d0d0;

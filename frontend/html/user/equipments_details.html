@@ -85,7 +85,7 @@
             <label class="form-label">Pickup Location</label>
             <div class="position-relative">
               <div class="input-group">
-                <input type="text" id="pickupInput" class="form-control" placeholder="Linnanmaa Kirjasto" readonly style="cursor:pointer;"/>
+                <input type="text" id="pickupInput" class="form-control" placeholder="Select a pickup location" readonly style="cursor:pointer;"/>
                 <span class="input-group-text cal-trigger" id="locationBtn" style="cursor:pointer;" title="Choose location">
                   <i class="bi bi-geo-alt"></i>
                 </span>
@@ -124,11 +124,15 @@
             <label class="form-label">Pickup Time</label>
             <div class="input-group select-group">
               <select class="form-select" id="startTime">
+                <option>08:00</option>
+                <option>09:00</option>
+                <option>10:00</option>
+                <option>11:00</option>
                 <option>12:00</option>
                 <option>13:00</option>
                 <option>14:00</option>
                 <option>15:00</option>
-                <option>16:00</option>
+
               </select>
               <span class="input-group-text select-icon" onclick="document.getElementById('startTime').showPicker()">
                 <i class="bi bi-chevron-down"></i>
@@ -141,11 +145,14 @@
             <label class="form-label">Return Time</label>
             <div class="input-group select-group">
               <select class="form-select" id="endTime">
+                <option>08:00</option>
+                <option>09:00</option>
+                <option>10:00</option>
+                <option>11:00</option>
+                <option>12:00</option>
                 <option>13:00</option>
                 <option>14:00</option>
                 <option>15:00</option>
-                <option>16:00</option>
-                <option>17:00</option>
               </select>
               <span class="input-group-text select-icon" onclick="document.getElementById('endTime').showPicker()">
                 <i class="bi bi-chevron-down"></i>

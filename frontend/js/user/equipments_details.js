@@ -28,14 +28,17 @@ locationDropdown.innerHTML = `<li class="location-header"><i class="bi bi-geo-al
 if (locations.length === 0) {
     locationDropdown.innerHTML += `<li class="location-item disabled">No locations available</li>`;
 } else {
-    locations.forEach(loc => {
+    locations.forEach((loc, index) => {
         locationDropdown.innerHTML += `
-            <li class="location-item" data-value="${loc.location}">
+            <li class="location-item${index === 0 ? ' selected' : ''}" data-value="${loc.location}">
                 <i class="bi bi-building me-2"></i>${loc.location}
                 <span class="location-sub">${loc.available_count} available</span>
             </li>
         `;
     });
+
+    // Default the pickup field to the first real location for this equipment
+    pickupInput.value = locations[0].location;
 }
 
         // ── Parse booking policy ──
@@ -254,7 +257,8 @@ document.addEventListener('click', function (e) {
         type_id,
         start_time,
         end_time,
-        quantity: document.getElementById('qtySelect').value
+        quantity: document.getElementById('qtySelect').value,
+        pickup_location: location
       })
     });
 

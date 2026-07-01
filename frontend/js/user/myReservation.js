@@ -32,50 +32,56 @@ reservations = { inactive: [], active: [], overdue: [], completed: [] };
 const now = new Date();
 
 data.forEach(r => {
-            const start = new Date(r.start_time);
-            const end   = new Date(r.end_time);
+    const start = new Date(r.start_time);
+    const end   = new Date(r.end_time);
 
-            const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
-            const duration = diffDays === 1 ? '1 day' : `${diffDays} days`;
+    const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+    const duration = diffDays === 1 ? '1 day' : `${diffDays} days`;
 
-            const s = fmt(r.start_time);
-            const e = fmt(r.end_time);
+    const s = fmt(r.start_time);
+    const e = fmt(r.end_time);
 
-            // Determine display status based on time
-            let status;
-              const dbStatus = r.status;
+    const dbStatus = r.status;
+    const now = new Date();
 
-                if (
-    dbStatus === 'completed' ||
-    dbStatus === 'cancelled'
-) {
-    status = 'completed';
-}
-else if (dbStatus === 'pending_return') {
-    status = 'completed';
-}
-else if (dbStatus === 'active') {
-    status = 'active';
-}
-else if (dbStatus === 'overdue') {
-    status = 'overdue';
-}
-else {
-    status = 'inactive';
-}                  
+    // tabStatus decides which tab bucket it lands in
+    // displayStatus decides what badge label/color is shown
+    let tabStatus, displayStatus;
 
-            const entry = {
-                id:       r.id,
-                device:   r.device,
-                start:    `${s.time}\n${s.date}`,
-                end:      `${e.time}\n${e.date}`,
-                duration,
-                location: r.pickup_location,
-                status
-            };
+    if (dbStatus === 'completed' || dbStatus === 'cancelled') {
+        tabStatus = 'completed';
+        displayStatus = 'completed';
+    }
+    else if (dbStatus === 'pending_return') {
+        tabStatus = 'completed';
+        displayStatus = 'pending_approval';
+    }
+    else if (dbStatus === 'overdue') {
+        tabStatus = 'overdue';
+        displayStatus = 'overdue';
+    }
+    else if (dbStatus === 'active') {
+        tabStatus = end < now ? 'overdue' : 'active';
+        displayStatus = tabStatus;
+    }
+    else {
+        tabStatus = 'inactive';
+        displayStatus = 'inactive';
+    }
 
-            reservations[status].push(entry);
-        });
+    const entry = {
+        id:       r.id,
+        device:   r.device,
+        start:    `${s.time}\n${s.date}`,
+        end:      `${e.time}\n${e.date}`,
+        duration,
+        location: r.pickup_location,
+        status:   tabStatus,       // used for grouping into reservations{}
+        displayStatus              // used for badge rendering
+    };
+
+    reservations[tabStatus].push(entry);
+});
 
         updateTabCounts();
         renderTable(currentTab);
@@ -88,10 +94,18 @@ else {
 window.addEventListener('DOMContentLoaded', loadReservations);
 
     function badgeHtml(status) {
-      const map = { inactive: 'badge-inactive', active: 'badge-active', overdue: 'badge-overdue', completed: 'badge-completed' };
-      const label = status.charAt(0).toUpperCase() + status.slice(1);
-      return `<span class="badge-status ${map[status]}">${label}</span>`;
-    }
+    const map = {
+        inactive: 'badge-inactive',
+        active: 'badge-active',
+        overdue: 'badge-overdue',
+        completed: 'badge-completed',
+        pending_approval: 'badge-pending-approval'
+    };
+    const label = status === 'pending_approval'
+        ? 'Pending Approval'
+        : status.charAt(0).toUpperCase() + status.slice(1);
+    return `<span class="badge-status ${map[status]}">${label}</span>`;
+}
 
     function renderTable(tab) {
       const rows = reservations[tab];
@@ -117,7 +131,7 @@ window.addEventListener('DOMContentLoaded', loadReservations);
       <td>${r.duration}</td>
       <td>1</td>
       <td>${r.location}</td>
-      <td>${badgeHtml(r.status)}</td>
+      <td>${badgeHtml(r.displayStatus)}</td>
       <td>
         <div class="action-btns">
           <a href="reservationDetails.html?id=${r.id}&status=${r.status}" class="btn-view-icon" onclick="event.stopPropagation()" title="View">
@@ -139,7 +153,7 @@ window.addEventListener('DOMContentLoaded', loadReservations);
      <div class="mobile-res-card" data-id="${r.id}" onclick="goToDetail(${r.id})">
       <div class="d-flex justify-content-between align-items-start mb-2">
         <span class="device-name">${r.device}</span>
-        ${badgeHtml(r.status)}
+        ${badgeHtml(r.displayStatus)}
       </div>
       <div class="mobile-meta">
         <span>Reservation ID: <strong>#${r.id}</strong></span>

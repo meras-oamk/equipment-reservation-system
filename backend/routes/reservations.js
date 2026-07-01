@@ -67,7 +67,7 @@ router.post('/', authenticate, async (req, res) => {
         const { type_id, start_time, end_time, quantity, pickup_location } = req.body
         const user_id = req.user.userId
 
-        if (!type_id || !start_time || !end_time || !quantity) {
+        if (!type_id || !start_time || !end_time || !quantity || !pickup_location) {
             return res.status(400).json({ error: 'Missing required fields.' })
         }
 
@@ -113,19 +113,20 @@ router.post('/', authenticate, async (req, res) => {
         const available = await db.query(`
             SELECT eu.id FROM equipment_units eu
             WHERE eu.type_id = $1
+              AND eu.location = $2
               AND eu.status = 'available'
               AND eu.id NOT IN (
                 SELECT r.unit_id FROM reservations r
                 WHERE r.status NOT IN ('cancelled', 'completed', 'overdue')
-                  AND r.start_time < $3
-                  AND r.end_time   > $2
+                  AND r.start_time < $4
+                  AND r.end_time   > $3
               )
-            LIMIT $4;
-        `, [type_id, start_time, end_time, quantity])
+            LIMIT $5;
+        `, [type_id, pickup_location, start_time, end_time, quantity])
 
         if (available.rows.length < quantity) {
             return res.status(400).json({
-                error: 'Not enough units available for the selected time.'
+                error: 'Not enough units available at this location for the selected time.'
             })
         }
 
@@ -224,7 +225,9 @@ router.post('/:id/scan', authenticate, async (req, res) => {
             SELECT
                 r.id,
                 eu.qr_code,
-                r.status
+                r.status,
+                r.start_time,
+                r.end_time
             FROM reservations r
             JOIN equipment_units eu
                 ON eu.id = r.unit_id
@@ -246,44 +249,52 @@ router.post('/:id/scan', authenticate, async (req, res) => {
             });
         }
 
-        // Move reservation to active after successful pickup scan
-await db.query(`
-    UPDATE reservations
-    SET status = 'active'
-    WHERE id = $1
-`, [reservationId]);
+        const now       = new Date();
+        const startTime = new Date(reservation.start_time);
+        const endTime   = new Date(reservation.end_time);
 
+        // Pickup scan — only allowed within the booked window
         if (reservation.status === 'approved') {
+            if (now < startTime) {
+                return res.status(400).json({
+                    error: `This equipment cannot be picked up before ${startTime.toLocaleString()}.`
+                });
+            }
+            if (now > endTime) {
+                return res.status(400).json({
+                    error: `The pickup window for this reservation has expired (was until ${endTime.toLocaleString()}).`
+                });
+            }
 
-    await db.query(`
-        UPDATE reservations
-        SET status = 'active'
-        WHERE id = $1
-    `, [reservationId]);
+            await db.query(`
+                UPDATE reservations
+                SET status = 'active'
+                WHERE id = $1
+            `, [reservationId]);
 
-    return res.json({
-        message: 'Equipment picked up successfully',
-        status: 'active'
-    });
-}
+            return res.json({
+                message: 'Equipment picked up successfully',
+                status: 'active'
+            });
+        }
 
-if (reservation.status === 'active') {
+        if (reservation.status === 'active') {
+            await db.query(`
+                UPDATE reservations
+                SET status = 'pending_return',
+                return_time = CURRENT_TIMESTAMP
+                WHERE id = $1
+            `, [reservationId]);
 
-    await db.query(`
-        UPDATE reservations
-        SET status = 'pending_return'
-        WHERE id = $1
-    `, [reservationId]);
+            return res.json({
+                message: 'Return request submitted',
+                status: 'pending_return'
+            });
+        }
 
-    return res.json({
-        message: 'Return request submitted',
-        status: 'pending_return'
-    });
-}
-
-return res.json({
-    message: 'QR code verified successfully'
-});
+        return res.json({
+            message: 'QR code verified successfully'
+        });
 
     } catch (error) {
         return res.status(500).json({

@@ -22,17 +22,20 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         let displayStatus;
 
+const now = new Date();
+const endTime = new Date(r.end_time);
+
 if (r.status === 'approved') {
     displayStatus = 'inactive';
-}
-else if (r.status === 'active') {
-    displayStatus = 'active';
 }
 else if (r.status === 'pending_return') {
     displayStatus = 'pending approval';
 }
 else if (r.status === 'overdue') {
     displayStatus = 'overdue';
+}
+else if (r.status === 'active') {
+    displayStatus = endTime < now ? 'overdue' : 'active';
 }
 else {
     displayStatus = 'completed';
@@ -67,7 +70,7 @@ badgeEl.textContent =
     }
 }
 
-if (displayStatus === 'active') {
+if (displayStatus === 'active' || displayStatus === 'overdue') {
     const pickupOption = document.querySelector(
         '.action-option[data-href="reservationAction_checkin.html"]'
     );

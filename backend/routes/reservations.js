@@ -161,6 +161,15 @@ router.get('/my', authenticate, async (req, res) => {
     try {
         const user_id = req.user.userId
 
+        // Auto-cancel reservations that were never picked up before their window expired
+        await db.query(`
+            UPDATE reservations
+            SET status = 'cancelled'
+            WHERE user_id = $1
+              AND status = 'approved'
+              AND end_time < NOW();
+        `, [user_id])
+
         const result = await db.query(`
             SELECT
                 r.id,

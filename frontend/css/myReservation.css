@@ -166,6 +166,10 @@
     }
     .mobile-res-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.09); }
 
+    .mobile-res-card.not-clickable { cursor: default; }
+    .mobile-res-card.not-clickable:hover { box-shadow: none; }
+
+
     .mobile-res-card .device-name { margin-bottom: 0.4rem; }
 
     .mobile-meta {

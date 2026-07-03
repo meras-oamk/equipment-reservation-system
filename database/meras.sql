@@ -26,11 +26,11 @@ CREATE TYPE user_role AS ENUM (
   'admin'
 );
 
-CREATE TYPE user_status AS ENUM {
+CREATE TYPE user_status AS ENUM (
   'active',
   'suspended',
   'banned'
-};
+);
 
 CREATE TYPE equipment_category AS ENUM (
   'vr_ar',
@@ -106,6 +106,7 @@ CREATE TABLE equipment_types (
   category    equipment_category NOT NULL,
   subcategory  VARCHAR(100),
   description TEXT,
+  image_url    TEXT,
   created_at  TIMESTAMP          DEFAULT NOW(),
   updated_at  TIMESTAMP          DEFAULT NOW()
 );

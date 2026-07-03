@@ -17,10 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            const cameraId = cameras[0].id;
-
             html5QrCode.start(
-                cameraId,
+                { facingMode: "environment" },
                 {
                     fps: 10,
                     qrbox: 250

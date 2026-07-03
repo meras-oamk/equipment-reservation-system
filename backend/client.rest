@@ -5,7 +5,7 @@ Content-Type: application/json
 {
   "fullname": "Diem Tran",
   "email": "thtran25@students.oamk.fi",
-  "password": "cattuongkientuong@2993"
+  "password": "abcxyz"
 }
 
 ###Test verify code
@@ -22,5 +22,5 @@ Content-Type: application/json
 
 {
   "email": "thtran25@students.oamk.fi",
-  "password": "cattuongkientuong@2993"
+  "password": "abcxyz"
 }

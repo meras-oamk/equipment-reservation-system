@@ -35,20 +35,23 @@ data.forEach(r => {
     const start = new Date(r.start_time);
     const end   = new Date(r.end_time);
 
+    const dbStatus = r.status;
+    const now = new Date();
+
+    // Skip cancelled (auto-cancelled no-shows) entirely — not shown in any tab
+    if (dbStatus === 'cancelled') {
+        return;
+    }
+
     const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
     const duration = diffDays === 1 ? '1 day' : `${diffDays} days`;
 
     const s = fmt(r.start_time);
     const e = fmt(r.end_time);
 
-    const dbStatus = r.status;
-    const now = new Date();
-
-    // tabStatus decides which tab bucket it lands in
-    // displayStatus decides what badge label/color is shown
     let tabStatus, displayStatus;
 
-    if (dbStatus === 'completed' || dbStatus === 'cancelled') {
+    if (dbStatus === 'completed') {
         tabStatus = 'completed';
         displayStatus = 'completed';
     }
@@ -76,8 +79,8 @@ data.forEach(r => {
         end:      `${e.time}\n${e.date}`,
         duration,
         location: r.pickup_location,
-        status:   tabStatus,       // used for grouping into reservations{}
-        displayStatus              // used for badge rendering
+        status:   tabStatus,
+        displayStatus
     };
 
     reservations[tabStatus].push(entry);
@@ -108,78 +111,82 @@ window.addEventListener('DOMContentLoaded', loadReservations);
 }
 
     function renderTable(tab) {
-      const rows = reservations[tab];
-      const tbody = document.getElementById('tableBody');
-      const mobileList = document.getElementById('mobileList');
+  const rows = reservations[tab];
+  const tbody = document.getElementById('tableBody');
+  const mobileList = document.getElementById('mobileList');
+  const isCompleted = tab === 'completed';
 
-      if (!rows || rows.length === 0) {
+  if (!rows || rows.length === 0) {
     tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><i class="bi bi-calendar-x"></i><p>No reservations found.</p></div></td></tr>`;
     mobileList.innerHTML = `<div class="empty-state"><i class="bi bi-calendar-x"></i><p>No reservations found.</p></div>`;
     return;
-}
+  }
 
-      // Desktop rows — every row navigates to detail on click
-      tbody.innerHTML = rows.map(r => {
-  const startLines = r.start.split('\n');
-  const endLines   = r.end.split('\n');
-  return `
-    <tr class="clickable" onclick="goToDetail(${r.id})">
-      <td><span class="device-name">${r.device}</span></td>
-      <td><span class="device-name">#${r.id}</span></td>
-      <td>${startLines[0]}<br><span style="color:var(--muted);font-size:0.8rem;">${startLines[1]||''}</span></td>
-      <td>${endLines[0]}<br><span style="color:var(--muted);font-size:0.8rem;">${endLines[1]||''}</span></td>
-      <td>${r.duration}</td>
-      <td>1</td>
-      <td>${r.location}</td>
-      <td>${badgeHtml(r.displayStatus)}</td>
-      <td>
-        <div class="action-btns">
-          <a href="reservationDetails.html?id=${r.id}&status=${r.status}" class="btn-view-icon" onclick="event.stopPropagation()" title="View">
-            <i class="bi bi-eye"></i>
-          </a>
-          <button class="btn-delete-icon" onclick="event.stopPropagation(); deleteRow(${r.id}, '${r.device}')" title="Remove">
-            <i class="bi bi-x-lg"></i>
-          </button>
+  // Desktop rows
+  tbody.innerHTML = rows.map(r => {
+    const startLines = r.start.split('\n');
+    const endLines   = r.end.split('\n');
+    return `
+      <tr class="${isCompleted ? '' : 'clickable'}" ${isCompleted ? '' : `onclick="goToDetail(${r.id})"`}>
+        <td><span class="device-name">${r.device}</span></td>
+        <td><span class="device-name">#${r.id}</span></td>
+        <td>${startLines[0]}<br><span style="color:var(--muted);font-size:0.8rem;">${startLines[1]||''}</span></td>
+        <td>${endLines[0]}<br><span style="color:var(--muted);font-size:0.8rem;">${endLines[1]||''}</span></td>
+        <td>${r.duration}</td>
+        <td>1</td>
+        <td>${r.location}</td>
+        <td>${badgeHtml(r.displayStatus)}</td>
+        <td>
+          <div class="action-btns">
+            ${isCompleted ? '' : `
+            <a href="reservationDetails.html?id=${r.id}&status=${r.status}" class="btn-view-icon" onclick="event.stopPropagation()" title="View">
+              <i class="bi bi-eye"></i>
+            </a>`}
+            <button class="btn-delete-icon" onclick="event.stopPropagation(); deleteRow(${r.id}, '${r.device}')" title="Remove">
+              <i class="bi bi-x-lg"></i>
+            </button>
+          </div>
+        </td>
+      </tr>`;
+  }).join('');
+
+  // Mobile cards
+  mobileList.innerHTML = rows.map(r => {
+    const startLines = r.start.split('\n');
+    const endLines   = r.end.split('\n');
+    return `
+       <div class="mobile-res-card${isCompleted ? ' not-clickable' : ''}" data-id="${r.id}">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <span class="device-name">${r.device}</span>
+          ${badgeHtml(r.displayStatus)}
         </div>
-      </td>
-    </tr>`;
-}).join('');
+        <div class="mobile-meta">
+          <span>Reservation ID: <strong>#${r.id}</strong></span>
+          <span>Start: <strong>${startLines[0]} ${startLines[1]||''}</strong></span>
+          <span>End: <strong>${endLines[0]} ${endLines[1]||''}</strong></span>
+          <span>Duration: <strong>${r.duration}</strong></span>
+          <span>Quantity: <strong>1</strong></span>
+          <span>Location: <strong>${r.location}</strong></span>
+        </div>
+      </div>`;
+  }).join('');
 
-      // Mobile cards
-      mobileList.innerHTML = rows.map(r => {
-  const startLines = r.start.split('\n');
-  const endLines   = r.end.split('\n');
-  return `
-     <div class="mobile-res-card" data-id="${r.id}" onclick="goToDetail(${r.id})">
-      <div class="d-flex justify-content-between align-items-start mb-2">
-        <span class="device-name">${r.device}</span>
-        ${badgeHtml(r.displayStatus)}
-      </div>
-      <div class="mobile-meta">
-        <span>Reservation ID: <strong>#${r.id}</strong></span>
-        <span>Start: <strong>${startLines[0]} ${startLines[1]||''}</strong></span>
-        <span>End: <strong>${endLines[0]} ${endLines[1]||''}</strong></span>
-        <span>Duration: <strong>${r.duration}</strong></span>
-        <span>Quantity: <strong>1</strong></span>
-        <span>Location: <strong>${r.location}</strong></span>
-      </div>
-    </div>`;
-}).join('');
-
-    // Attach touch + click listeners to each mobile card
-      mobileList.querySelectorAll('.mobile-res-card').forEach(card => {
-        let touchMoved = false;
-        card.addEventListener('touchstart', () => { touchMoved = false; }, { passive: true });
-        card.addEventListener('touchmove',  () => { touchMoved = true;  }, { passive: true });
-        card.addEventListener('touchend', (e) => {
-          if (!touchMoved) {
-            e.preventDefault();
-            goToDetail(card.dataset.id);
-          }
-        });
-        card.addEventListener('click', () => goToDetail(card.dataset.id));
+  // Attach touch + click listeners to each mobile card (skip for completed tab)
+  if (!isCompleted) {
+    mobileList.querySelectorAll('.mobile-res-card').forEach(card => {
+      let touchMoved = false;
+      card.addEventListener('touchstart', () => { touchMoved = false; }, { passive: true });
+      card.addEventListener('touchmove',  () => { touchMoved = true;  }, { passive: true });
+      card.addEventListener('touchend', (e) => {
+        if (!touchMoved) {
+          e.preventDefault();
+          goToDetail(card.dataset.id);
+        }
       });
-    }
+      card.addEventListener('click', () => goToDetail(card.dataset.id));
+    });
+  }
+}
 
     function goToDetail(id) {
       // Find the reservation across all tabs to get its status

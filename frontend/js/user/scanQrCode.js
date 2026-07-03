@@ -10,66 +10,51 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const html5QrCode = new Html5Qrcode("reader");
 
-    Html5Qrcode.getCameras()
-        .then(cameras => {
-            if (!cameras.length) {
-                alert("No camera found");
-                return;
-            }
+    html5QrCode.start(
+        { facingMode: { ideal: "environment" } },
+        {
+            fps: 10,
+            qrbox: 250
+        },
+        async (decodedText) => {
+            try {
+                html5QrCode.stop();
 
-            const cameraId = cameras[0].id;
+                console.log("QR:", decodedText);
 
-            html5QrCode.start(
-                cameraId,
-                {
-                    fps: 10,
-                    qrbox: 250
-                },
-                async (decodedText) => {
-                    try {
+                const token = localStorage.getItem('token');
 
-                        html5QrCode.stop();
-
-                        console.log("QR:", decodedText);
-
-                        const token = localStorage.getItem('token');
-
-                        const res = await fetch(
-                            `/api/reservation/${reservationId}/scan`,
-                            {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'Authorization': `Bearer ${token}`
-                                },
-                                body: JSON.stringify({
-                                    qr_code: decodedText
-                                })
-                            }
-                        );
-
-                        const data = await res.json();
-
-                        if (!res.ok) {
-                            alert(data.error);
-                            return;
-                        }
-
-                        alert(data.message);
-
-window.location.href =
-    'myReservation.html';
-
-                    } catch (err) {
-                        console.error(err);
-                        alert('Scan failed');
+                const res = await fetch(
+                    `/api/reservation/${reservationId}/scan`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            qr_code: decodedText
+                        })
                     }
-                }
-            );
-        })
-        .catch(err => {
-            console.error(err);
-            alert('Unable to access camera');
-        });
-});
+                );
 
+                const data = await res.json();
+
+                if (!res.ok) {
+                    alert(data.error);
+                    return;
+                }
+
+                alert(data.message);
+                window.location.href = 'myReservation.html';
+
+            } catch (err) {
+                console.error(err);
+                alert('Scan failed');
+            }
+        }
+    ).catch(err => {
+        console.error(err);
+        alert('Unable to access camera');
+    });
+});

@@ -14,8 +14,8 @@
         <img src="../assets/Logo.png" alt="Logo" class="logo">
 
         <div class="nav-buttons">
-           <button class="btn" onclick="window.location.href='loginOrRegister.html?form=register'">Register</button>
-            <button class="btn" onclick="window.location.href='loginOrRegister.html?form=login'">Login</button>
+           <button class="btn-register" onclick="window.location.href='loginOrRegister.html?form=register'">Register</button>
+            <button class="btn-login" onclick="window.location.href='loginOrRegister.html?form=login'">Login</button>
         </div>
     </nav>
 
@@ -31,70 +31,236 @@
     <section class="equipment-section">
         <h2>All Equipment</h2>
 
-        <div class="equipment-grid" id="equipmentGrid">
+        <!-- Search -->
+        <div class="search-wrapper">
+            <input type="text" id="searchInput" placeholder="Search by equipment, category...">
+        </div>
 
-            <div class="card">
-                <img>
-                <div class="card-content">
-                    <h3>NewBeeDrone Replacement</h3>
-                    <span class="text-muted d-block mb-2">Drone</span>
+        <!-- Categories -->
+        <div class="category-bar">
+            <div class="cat-dropdown" data-category="vr_ar">
+                <button class="btn-category" data-label="VR/AR">VR/AR</button>
+                <div class="cat-menu">
+                    <span data-subcategory="AR Glasses">AR Glasses</span>
+                    <span data-subcategory="Base Stations / Sensors">Base Stations / Sensors</span>
+                    <span data-subcategory="Haptic Gloves">Haptic Gloves</span>
+                    <span data-subcategory="Motion Trackers">Motion Trackers</span>
+                    <span data-subcategory="VR Controllers">VR Controllers</span>
+                    <span data-subcategory="VR Headset">VR Headset</span>
+                    <span data-subcategory="VR Ready Laptops">VR Ready Laptops</span>
+                </div>
+            </div>
+            <div class="cat-dropdown" data-category="robotics">
+                <button class="btn-category" data-label="Robotics">Robotics</button>
+                <div class="cat-menu">
+                    <span data-subcategory="Drones">Drones</span>
+                    <span data-subcategory="Educational Robots">Educational Robots</span>
+                    <span data-subcategory="Embedded Boards">Embedded Boards</span>
+                    <span data-subcategory="Mobile Robots">Mobile Robots</span>
+                    <span data-subcategory="Motor Controllers">Motor Controllers</span>
+                    <span data-subcategory="Robot Arms">Robot Arms</span>
+                    <span data-subcategory="Sensors">Sensors</span>
+                </div>
+            </div>
+            <div class="cat-dropdown" data-category="audio_video">
+                <button class="btn-category" data-label="Audio/Video">Audio/Video</button>
+                <div class="cat-menu">
+                    <span data-subcategory="Cameras">Cameras</span>
+                    <span data-subcategory="Capture Cards">Capture Cards</span>
+                    <span data-subcategory="Lighting Kits">Lighting Kits</span>
+                    <span data-subcategory="Microphones">Microphones</span>
+                    <span data-subcategory="Tripods">Tripods</span>
+                    <span data-subcategory="Video Switches">Video Switches</span>
+                </div>
+            </div>
+            <div class="cat-dropdown" data-category="laboratory">
+                <button class="btn-category" data-label="Laboratory">Laboratory</button>
+                <div class="cat-menu">
+                    <span data-subcategory="3D Printers">3D Printers</span>
+                    <span data-subcategory="Microscopes">Microscopes</span>
+                    <span data-subcategory="Multimeters">Multimeters</span>
+                    <span data-subcategory="Oscilloscopes">Oscilloscopes</span>
+                    <span data-subcategory="Power Supplies">Power Supplies</span>
+                    <span data-subcategory="Signal Generators">Signal Generators</span>
+                </div>
+            </div>
+            <div class="cat-dropdown" data-category="computing">
+                <button class="btn-category" data-label="Computing">Computing</button>
+                <div class="cat-menu">
+                    <span data-subcategory="GPUs">GPUs</span>
+                    <span data-subcategory="Laptops">Laptops</span>
+                    <span data-subcategory="Networking Equipment">Networking Equipment</span>
+                    <span data-subcategory="Raspberry Pi Kits">Raspberry Pi Kits</span>
+                    <span data-subcategory="Tablets">Tablets</span>
+                    <span data-subcategory="Workstations">Workstations</span>
+                </div>
+            </div>
+            <div class="cat-dropdown" data-category="iot_embedded">
+                <button class="btn-category" data-label="IoT and Embedded">IoT and Embedded</button>
+                <div class="cat-menu">
+                    <span data-subcategory="FPGA Boards">FPGA Boards</span>
+                    <span data-subcategory="LoRa Devices">LoRa Devices</span>
+                    <span data-subcategory="Microcontrollers">Microcontrollers</span>
+                    <span data-subcategory="Sensor Modules">Sensor Modules</span>
+                    <span data-subcategory="Smart Home Kits">Smart Home Kits</span>
                 </div>
             </div>
         </div>
+
+        <div class="grid-scroll-area">
+            <div class="equipment-grid" id="equipmentGrid"></div>
+            <div class="pagination" id="pagination"></div>
+        </div>
     </section>
 </div>
+
 <script>
-const API_URL = "api/equipment/catalog";
+let allEquipments = [];
+let currentData = [];
+let currentPage = 1;
+const PAGE_SIZE = 18;
 
-async function loadEquipment() {
+async function loadEquipment(category, subcategory) {
     try {
-        const response = await fetch(API_URL);
+        let url = 'api/equipment/catalog';
+        const params = [];
+        if (category) params.push(`category=${category}`);
+        if (subcategory) params.push(`subcategory=${encodeURIComponent(subcategory)}`);
+        if (params.length) url += '?' + params.join('&');
 
-        if (!response.ok) {
-            throw new Error("Failed to load equipment");
-        }
-
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("Failed to load equipment");
         const equipment = await response.json();
 
-        const grid = document.getElementById("equipmentGrid");
-        grid.innerHTML = "";
-
-        equipment.forEach(item => {
-
-            const image = item.image_url
-                ? item.image_url
-                : "../assets/Equipment1.png";
-
-            const description = item.description
-            ? item.description.replace(/^Details?:\s*/i, "")
-            : "No description available.";
-
-            grid.innerHTML += `
-                <div class="card">
-                    <img src="${image}" alt="${item.name}">
-
-                    <div class="card-content">
-
-                        <h3>${item.name}</h3>
-
-                        <span class="text-muted d-block mb-2">
-                            ${item.subcategory}
-                        </span>
-
-                        <p style="white-space: pre-line;">${description}</p>
-
-                    </div>
-                </div>
-            `;
-        });
-
+        if (!category && !subcategory) allEquipments = equipment;
+        currentPage = 1;
+        currentData = equipment;
+        renderEquipment();
     } catch (err) {
         console.error(err);
-
-        document.getElementById("equipmentGrid").innerHTML =
-            "<p>Unable to load equipment.</p>";
+        document.getElementById("equipmentGrid").innerHTML = "<p>Unable to load equipment.</p>";
     }
 }
+
+function renderEquipment() {
+    const grid = document.getElementById("equipmentGrid");
+    grid.innerHTML = "";
+
+    if (!currentData.length) {
+        grid.innerHTML = "<p>No equipment found.</p>";
+        renderPagination(0);
+        return;
+    }
+
+    const start = (currentPage - 1) * PAGE_SIZE;
+    const pageItems = currentData.slice(start, start + PAGE_SIZE);
+
+    pageItems.forEach(item => {
+        const image = item.image_url || "../assets/Equipment1.png";
+        const description = item.description
+            ? item.description.replace(/^Details?:\s*/i, "")
+            : "No description available.";
+        grid.innerHTML += `
+            <div class="card">
+                <img src="${image}" alt="${item.name}">
+                <div class="card-content">
+                    <h3>${item.name}</h3>
+                    <span class="text-muted d-block mb-2">${item.subcategory}</span>
+                    <p style="white-space:pre-line;">${description}</p>
+                </div>
+            </div>`;
+    });
+
+    renderPagination(currentData.length);
+}
+
+function renderPagination(total) {
+    const container = document.getElementById("pagination");
+    const totalPages = Math.ceil(total / PAGE_SIZE);
+
+    if (totalPages <= 1) { container.innerHTML = ""; return; }
+
+    let html = '';
+
+    html += `<button class="page-btn" ${currentPage === 1 ? 'disabled' : ''}
+        onclick="goToPage(${currentPage - 1})">&#8592;</button>`;
+
+    for (let i = 1; i <= totalPages; i++) {
+        html += `<button class="page-btn ${i === currentPage ? 'page-active' : ''}"
+            onclick="goToPage(${i})">${i}</button>`;
+    }
+
+    html += `<button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''}
+        onclick="goToPage(${currentPage + 1})">&#8594;</button>`;
+
+    container.innerHTML = html;
+}
+
+function goToPage(page) {
+    currentPage = page;
+    document.querySelector('.grid-scroll-area').scrollTo({ top: 0, behavior: 'instant' });
+    renderEquipment();
+}
+
+function searchEquipment(keyword) {
+    keyword = keyword.toLowerCase().trim();
+    currentPage = 1;
+    currentData = !keyword ? allEquipments : allEquipments.filter(item =>
+        item.name?.toLowerCase().includes(keyword) ||
+        item.category?.toLowerCase().includes(keyword) ||
+        item.subcategory?.toLowerCase().includes(keyword)
+    );
+    renderEquipment();
+}
+
+// Category + dropdown logic
+document.querySelectorAll('.cat-dropdown').forEach(dropdown => {
+    const btn = dropdown.querySelector('.btn-category');
+
+    btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        if (!this.classList.contains('active-category')) {
+            document.querySelectorAll('.btn-category').forEach(b => {
+                b.classList.remove('active-category');
+                b.textContent = b.dataset.label;
+            });
+            document.querySelectorAll('.cat-dropdown').forEach(d => d.classList.remove('open'));
+            this.classList.add('active-category');
+            loadEquipment(dropdown.dataset.category);
+        } else {
+            const isOpen = dropdown.classList.contains('open');
+            document.querySelectorAll('.cat-dropdown').forEach(d => d.classList.remove('open'));
+            if (!isOpen) {
+                const rect = this.getBoundingClientRect();
+                const menu = dropdown.querySelector('.cat-menu');
+                menu.style.top = (rect.bottom + 4) + 'px';
+                menu.style.left = rect.left + 'px';
+                dropdown.classList.add('open');
+            }
+        }
+    });
+
+    dropdown.querySelectorAll('.cat-menu span').forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.stopPropagation();
+            btn.textContent = this.dataset.subcategory;
+            dropdown.classList.remove('open');
+            loadEquipment(dropdown.dataset.category, this.dataset.subcategory);
+        });
+    });
+});
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.cat-dropdown')) {
+        document.querySelectorAll('.cat-dropdown').forEach(d => d.classList.remove('open'));
+    }
+});
+
+// Search
+document.getElementById('searchInput').addEventListener('input', e => {
+    searchEquipment(e.target.value);
+});
 
 loadEquipment();
 </script>

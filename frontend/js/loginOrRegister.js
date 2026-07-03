@@ -53,6 +53,14 @@ document.getElementById("showLogin")
 setupPasswordToggle("loginPassword", "loginEye");
 setupPasswordToggle("registerPassword", "registerEye");
 
+// Auto-select form based on URL param
+const params = new URLSearchParams(window.location.search);
+if (params.get('form') === 'register') {
+    showRegister();
+} else {
+    showLogin();
+}
+
 
 //Auto move between boxes 
 const codeInputs =

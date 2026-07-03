@@ -84,9 +84,10 @@ async function loadEquipment(category, subcategory) {
 
     try {
 
-       const response = await fetch(
-    `/api/equipment/catalog?category=${category}&subcategory=${encodeURIComponent(subcategory)}`
-);
+        let url = `/api/equipment/catalog?category=${category}`;
+        if (subcategory) url += `&subcategory=${encodeURIComponent(subcategory)}`;
+
+        const response = await fetch(url);
 
         const equipments =
             await response.json();
@@ -147,21 +148,28 @@ document.querySelectorAll('.btn-category')
 .forEach(button => {
 
     button.addEventListener('click', function() {
+        if (!this.classList.contains('active-category')) {
+            document
+                .querySelectorAll('.btn-category')
+                .forEach(btn => {
+                    btn.classList.remove('active-category');
+                    btn.textContent = btn.dataset.label;
+                });
 
-        document
-            .querySelectorAll('.btn-category')
-            .forEach(btn =>
-                btn.classList.remove('active-category')
-            );
-
-        this.classList.add('active-category');
+            this.classList.add('active-category');
+            loadEquipment(this.dataset.category);
+        }
     });
-
+});
+document.querySelectorAll('.dropdown').forEach(dropdown => {
+    dropdown.addEventListener('show.bs.dropdown', function(e) {
+        const btn = this.querySelector('.btn-category');
+        if (!btn.classList.contains('active-category')) {
+            e.preventDefault();
+        }
+    });
 });
 
-window.addEventListener('DOMContentLoaded', () => {
-    loadAllEquipment();
-});
 window.addEventListener('DOMContentLoaded', () => {
 
     loadAllEquipment();

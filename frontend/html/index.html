@@ -234,7 +234,8 @@ document.querySelectorAll('.cat-dropdown').forEach(dropdown => {
                 const rect = this.getBoundingClientRect();
                 const menu = dropdown.querySelector('.cat-menu');
                 menu.style.top = (rect.bottom + 4) + 'px';
-                menu.style.left = rect.left + 'px';
+                const left = Math.min(rect.left, window.innerWidth - menu.offsetWidth - 8);
+                menu.style.left = Math.max(8, left) + 'px';
                 dropdown.classList.add('open');
             }
         }

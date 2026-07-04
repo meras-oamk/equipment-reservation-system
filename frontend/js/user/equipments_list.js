@@ -1,6 +1,8 @@
 let allEquipments = [];
-const equipmentGrid =
-    document.getElementById('equipmentGrid');
+let currentData = [];
+let currentPage = 1;
+const PAGE_SIZE = 18;
+const equipmentGrid = document.getElementById('equipmentGrid');
 
     document.querySelectorAll('.dropdown-item').forEach(item => {
 
@@ -45,17 +47,16 @@ async function loadAllEquipment() {
             await response.json();
 
         allEquipments = equipments;
-
-        renderEquipment(equipments);
+        currentData = equipments;
+        currentPage = 1;
+        renderEquipment();
 
     } catch (error) {
 
         console.error(error);
 
         equipmentGrid.innerHTML = `
-            <div class="col-12 text-center">
-                Failed to load equipment.
-            </div>
+            <p style="color:#888">Failed to load equipment.</p>
         `;
     }
 }
@@ -68,17 +69,13 @@ function searchEquipment(keyword) {
         return;
     }
 
-    const filtered = allEquipments.filter(item => {
-
-        return (
-            item.name?.toLowerCase().includes(keyword) ||
-            item.category?.toLowerCase().includes(keyword) ||
-            item.subcategory?.toLowerCase().includes(keyword)
-        );
-
-    });
-
-    renderEquipment(filtered);
+    currentData = allEquipments.filter(item =>
+        item.name?.toLowerCase().includes(keyword) ||
+        item.category?.toLowerCase().includes(keyword) ||
+        item.subcategory?.toLowerCase().includes(keyword)
+    );
+    currentPage = 1;
+    renderEquipment();
 }
 async function loadEquipment(category, subcategory) {
 
@@ -89,60 +86,75 @@ async function loadEquipment(category, subcategory) {
 
         const response = await fetch(url);
 
-        const equipments =
-            await response.json();
-
-        renderEquipment(equipments);
+        currentData = await response.json();
+        currentPage = 1;
+        renderEquipment();
 
     } catch (error) {
 
         console.error(error);
 
         equipmentGrid.innerHTML = `
-            <div class="col-12 text-center">
-                Failed to load equipment.
-            </div>
+            <p style="color:#888">Failed to load equipment.</p>
         `;
     }
 }
 
-function renderEquipment(equipments) {
-
+function renderEquipment() {
     equipmentGrid.innerHTML = '';
 
-    if (equipments.length === 0) {
-
-        equipmentGrid.innerHTML = `
-            <div class="col-12 text-center">
-                No equipment found.
-            </div>
-        `;
-
+    if (currentData.length === 0) {
+        equipmentGrid.innerHTML = `<p style="color:#888;grid-column:1/-1">No equipment found.</p>`;
+        renderPagination(0);
         return;
     }
 
-    equipments.forEach(item => {
-    equipmentGrid.innerHTML += `
-        <div class="col-6 col-md-4">
-            <a href="equipments_details.html?id=${item.id}" class="text-decoration-none">
-                <div class="card equipment-card h-100">
-                    <img src="${item.image_url}" class="card-img-top" alt="${item.name}">
-                    <div class="card-body">
-                        <h6 class="equipment-name">${item.name}</h6>
-                        <small class="text-muted d-block mb-2">${item.subcategory}</small>
-                        <p class="small">${item.description}</p>
-                        <div class="availability">
-                            <i class="bi bi-box-seam"></i>
-                            Available quantity:
-                            <strong>${item.available_count}</strong>
-                        </div>
+    const start = (currentPage - 1) * PAGE_SIZE;
+    const pageItems = currentData.slice(start, start + PAGE_SIZE);
+
+    pageItems.forEach(item => {
+        const image = item.image_url || '../../assets/Equipment1.png';
+        const desc = item.description ? item.description.replace(/^Details?:\s*/i, '') : '';
+        equipmentGrid.innerHTML += `
+            <a href="equipments_details.html?id=${item.id}" class="equipment-card">
+                <img src="${image}" alt="${item.name}">
+                <div class="card-body">
+                    <div class="equipment-name">${item.name}</div>
+                    <small class="text-muted d-block mb-2">${item.subcategory}</small>
+                    <p class="small">${desc}</p>
+                    <div class="availability">
+                        <i class="bi bi-box-seam"></i>
+                        Available: <strong>${item.available_count}</strong>
                     </div>
                 </div>
             </a>
-        </div>
-    `;
-});
+        `;
+    });
+
+    renderPagination(currentData.length);
 }
+
+function renderPagination(total) {
+    let container = document.getElementById('pagination');
+    if (!container) return;
+    const totalPages = Math.ceil(total / PAGE_SIZE);
+    if (totalPages <= 1) { container.innerHTML = ''; return; }
+
+    let html = `<button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="goToPage(${currentPage - 1})">&#8592;</button>`;
+    for (let i = 1; i <= totalPages; i++) {
+        html += `<button class="page-btn ${i === currentPage ? 'page-active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+    }
+    html += `<button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="goToPage(${currentPage + 1})">&#8594;</button>`;
+    container.innerHTML = html;
+}
+
+function goToPage(page) {
+    currentPage = page;
+    renderEquipment();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+window.goToPage = goToPage;
 
 document.querySelectorAll('.btn-category')
 .forEach(button => {
@@ -171,6 +183,13 @@ document.querySelectorAll('.dropdown').forEach(dropdown => {
 });
 
 window.addEventListener('DOMContentLoaded', () => {
+
+    // Init Bootstrap dropdowns with fixed strategy to avoid overflow clipping on mobile
+    document.querySelectorAll('.dropdown-toggle').forEach(el => {
+        new bootstrap.Dropdown(el, {
+            popperConfig: { strategy: 'fixed' }
+        });
+    });
 
     loadAllEquipment();
 

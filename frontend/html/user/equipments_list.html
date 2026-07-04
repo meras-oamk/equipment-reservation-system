@@ -4,188 +4,128 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Equipment List</title>
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-
     <link rel="stylesheet" href="../../css/equipment_list.css">
 </head>
 <body>
 
+<div class="page-wrapper">
 
-
-      <!-- NAVBAR -->
-  <nav class="navbar navbar-expand-md sticky-top px-3 px-md-4">
-    <a class="navbar-brand" href="equipments_list.html">
-      <div class="logo-icon"><img src="../../Assets/Logo.png" alt="Logo" width="60" height="60"/></div>
-    </a>
-
-    <button class="navbar-toggler ms-auto" type="button"
-      data-bs-toggle="collapse" data-bs-target="#navMenu"
-      aria-controls="navMenu" aria-expanded="false" aria-label="Toggle navigation">
-      <i class="bi bi-list fs-4"></i>
-    </button>
-
-    <div class="collapse navbar-collapse" id="navMenu">
-      <ul class="navbar-nav ms-auto gap-md-2 mt-2 mt-md-0">
-        <li class="nav-item"><a class="nav-link" href="equipments_list.html">Equipments</a></li>
-        <li class="nav-item"><a class="nav-link" href="myReservation.html">Reservations</a></li>
-        <li class="nav-item"><a class="nav-link" href="myAccount.html">My Account</a></li>
-        <li class="nav-item"><a class="nav-link logout" id="logoutBtn" href="index.html">Logout</a></li>
-      </ul>
-    </div>
-  </nav>
-
-    <!-- Page Title -->
-    <div class="container py-4" style="max-width: 1100px;">
-    <h1 class="page-title">List of Equipments</h1>
-
-    <!-- Search -->
-<div class="container py-4">    
-    <div class="search-wrapper mb-4">
-        <div class="input-group">
-            <span class="input-group-text bg-white">
-                <i class="bi bi-search"></i>
-            </span>
-
-            <input
-    type="text"
-    id="searchInput"
-    class="form-control"
-    placeholder="Search by equipment, category, or subcategory..."
->
+    <!-- NAVBAR -->
+    <nav class="top-navbar">
+        <img src="../../Assets/Logo.png" alt="Logo" class="logo">
+        <button class="nav-toggle" id="navToggle"><i class="bi bi-list"></i></button>
+        <div class="nav-links" id="navLinks">
+            <a href="equipments_list.html" class="active">Equipments</a>
+            <a href="myReservation.html">Reservations</a>
+            <a href="myAccount.html">My Account</a>
+            <a href="index.html" class="logout" id="logoutBtn">Logout</a>
         </div>
+    </nav>
+
+    <!-- CONTENT -->
+    <div class="content">
+        <h1 class="page-title">List of Equipments</h1>
+
+        <!-- Search -->
+        <div class="search-wrapper">
+            <input type="text" id="searchInput" placeholder="Search by equipment, category, or subcategory...">
+        </div>
+
+        <!-- Categories -->
+        <div class="category-bar">
+            <div class="dropdown">
+                <button class="btn-category dropdown-toggle" type="button" data-bs-toggle="dropdown" data-category="vr_ar" data-label="VR/AR">VR/AR</button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#" data-subcategory="AR Glasses">AR Glasses</a></li>
+                    <li><a class="dropdown-item" href="#" data-subcategory="Base Stations / Sensors">Base Stations / Sensors</a></li>
+                    <li><a class="dropdown-item" href="#" data-subcategory="Haptic Gloves">Haptic Gloves</a></li>
+                    <li><a class="dropdown-item" href="#" data-subcategory="Motion Trackers">Motion Trackers</a></li>
+                    <li><a class="dropdown-item" href="#" data-subcategory="VR Controllers">VR Controllers</a></li>
+                    <li><a class="dropdown-item" href="#" data-subcategory="VR Headset">VR Headset</a></li>
+                    <li><a class="dropdown-item" href="#" data-subcategory="VR Ready Laptops">VR Ready Laptops</a></li>
+                </ul>
+            </div>
+            <div class="dropdown">
+                <button class="btn-category dropdown-toggle" type="button" data-bs-toggle="dropdown" data-category="robotics" data-label="Robotics">Robotics</button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#" data-subcategory="Drones">Drones</a></li>
+                    <li><a class="dropdown-item" href="#" data-subcategory="Educational Robots">Educational Robots</a></li>
+                    <li><a class="dropdown-item" href="#" data-subcategory="Embedded Boards">Embedded Boards</a></li>
+                    <li><a class="dropdown-item" href="#" data-subcategory="Mobile Robots">Mobile Robots</a></li>
+                    <li><a class="dropdown-item" href="#" data-subcategory="Motor Controllers">Motor Controllers</a></li>
+                    <li><a class="dropdown-item" href="#" data-subcategory="Robot Arms">Robot Arms</a></li>
+                    <li><a class="dropdown-item" href="#" data-subcategory="Sensors">Sensors</a></li>
+                </ul>
+            </div>
+            <div class="dropdown">
+                <button class="btn-category dropdown-toggle" type="button" data-bs-toggle="dropdown" data-category="audio_video" data-label="Audio/Video">Audio/Video</button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#" data-subcategory="Cameras">Cameras</a></li>
+                    <li><a class="dropdown-item" href="#" data-subcategory="Capture Cards">Capture Cards</a></li>
+                    <li><a class="dropdown-item" href="#" data-subcategory="Lighting Kits">Lighting Kits</a></li>
+                    <li><a class="dropdown-item" href="#" data-subcategory="Microphones">Microphones</a></li>
+                    <li><a class="dropdown-item" href="#" data-subcategory="Tripods">Tripods</a></li>
+                    <li><a class="dropdown-item" href="#" data-subcategory="Video Switches">Video Switches</a></li>
+                </ul>
+            </div>
+            <div class="dropdown">
+                <button class="btn-category dropdown-toggle" type="button" data-bs-toggle="dropdown" data-category="laboratory" data-label="Laboratory">Laboratory</button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#" data-subcategory="3D Printers">3D Printers</a></li>
+                    <li><a class="dropdown-item" href="#" data-subcategory="Microscopes">Microscopes</a></li>
+                    <li><a class="dropdown-item" href="#" data-subcategory="Multimeters">Multimeters</a></li>
+                    <li><a class="dropdown-item" href="#" data-subcategory="Oscilloscopes">Oscilloscopes</a></li>
+                    <li><a class="dropdown-item" href="#" data-subcategory="Power Supplies">Power Supplies</a></li>
+                    <li><a class="dropdown-item" href="#" data-subcategory="Signal Generators">Signal Generators</a></li>
+                </ul>
+            </div>
+            <div class="dropdown">
+                <button class="btn-category dropdown-toggle" type="button" data-bs-toggle="dropdown" data-category="computing" data-label="Computing">Computing</button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#" data-subcategory="GPUs">GPUs</a></li>
+                    <li><a class="dropdown-item" href="#" data-subcategory="Laptops">Laptops</a></li>
+                    <li><a class="dropdown-item" href="#" data-subcategory="Networking Equipment">Networking Equipment</a></li>
+                    <li><a class="dropdown-item" href="#" data-subcategory="Raspberry Pi Kits">Raspberry Pi Kits</a></li>
+                    <li><a class="dropdown-item" href="#" data-subcategory="Tablets">Tablets</a></li>
+                    <li><a class="dropdown-item" href="#" data-subcategory="Workstations">Workstations</a></li>
+                </ul>
+            </div>
+            <div class="dropdown">
+                <button class="btn-category dropdown-toggle" type="button" data-bs-toggle="dropdown" data-category="iot_embedded" data-label="IoT and Embedded">IoT and Embedded</button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#" data-subcategory="FPGA Boards">FPGA Boards</a></li>
+                    <li><a class="dropdown-item" href="#" data-subcategory="LoRa Devices">LoRa Devices</a></li>
+                    <li><a class="dropdown-item" href="#" data-subcategory="Microcontrollers">Microcontrollers</a></li>
+                    <li><a class="dropdown-item" href="#" data-subcategory="Sensor Modules">Sensor Modules</a></li>
+                    <li><a class="dropdown-item" href="#" data-subcategory="Smart Home Kits">Smart Home Kits</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Equipment Grid -->
+        <div class="equipment-grid" id="equipmentGrid"></div>
+        <div class="pagination" id="pagination"></div>
     </div>
-
-    <!-- Categories -->
-<div class="d-flex flex-wrap gap-2 mb-3">
-
-   <div class="dropdown">
-    <button class="btn btn-category dropdown-toggle"
-        type="button"
-        data-bs-toggle="dropdown"
-        data-category="vr_ar"
-        data-label="VR/AR">
-    VR/AR
-</button>
-    <ul class="dropdown-menu">
-        <li><a class="dropdown-item" href="#" data-subcategory="AR Glasses">AR Glasses</a></li>
-        <li><a class="dropdown-item" href="#" data-subcategory="Base Stations / Sensors">Base Stations / Sensors</a></li>
-        <li><a class="dropdown-item" href="#" data-subcategory="Haptic Gloves">Haptic Gloves</a></li>
-        <li><a class="dropdown-item" href="#" data-subcategory="Motion Trackers">Motion Trackers</a></li>
-        <li><a class="dropdown-item" href="#" data-subcategory="VR Controllers">VR Controllers</a></li>
-        <li><a class="dropdown-item" href="#" data-subcategory="VR Headset">VR Headset</a></li>
-        <li><a class="dropdown-item" href="#" data-subcategory="VR Ready Laptops">VR Ready Laptops</a></li>
-    </ul>
-</div>
-
-    <div class="dropdown">
-    <button class="btn btn-category dropdown-toggle"
-        type="button"
-        data-bs-toggle="dropdown"
-        data-category="robotics"
-        data-label="Robotics">
-    Robotics
-</button>
-    <ul class="dropdown-menu">
-        <li><a class="dropdown-item" href="#" data-subcategory="Drones">Drones</a></li>
-        <li><a class="dropdown-item" href="#" data-subcategory="Educational Robots">Educational Robots</a></li>
-        <li><a class="dropdown-item" href="#" data-subcategory="Embedded Boards">Embedded Boards</a></li>
-        <li><a class="dropdown-item" href="#" data-subcategory="Mobile Robots">Mobile Robots</a></li>
-        <li><a class="dropdown-item" href="#" data-subcategory="Motor Controllers">Motor Controllers</a></li>
-        <li><a class="dropdown-item" href="#" data-subcategory="Robot Arms">Robot Arms</a></li>
-        <li><a class="dropdown-item" href="#" data-subcategory="Sensors">Sensors</a></li>
-    </ul>
-</div>
-
-    <div class="dropdown">
-    <button class="btn btn-category dropdown-toggle"
-        type="button"
-        data-bs-toggle="dropdown"
-        data-category="audio_video"
-        data-label="Audio/Video">
-    Audio/Video
-</button>
-    <ul class="dropdown-menu">
-        <li><a class="dropdown-item" href="#" data-subcategory="Cameras">Cameras</a></li>
-        <li><a class="dropdown-item" href="#" data-subcategory="Capture Cards">Capture Cards</a></li>
-        <li><a class="dropdown-item" href="#" data-subcategory="Lighting Kits">Lighting Kits</a></li>
-        <li><a class="dropdown-item" href="#" data-subcategory="Microphones">Microphones</a></li>
-        <li><a class="dropdown-item" href="#" data-subcategory="Tripods">Tripods</a></li>
-        <li><a class="dropdown-item" href="#" data-subcategory="Video Switches">Video Switches</a></li>
-
-</div>
-<div class="dropdown">
-    <button class="btn btn-category dropdown-toggle"
-        type="button"
-        data-bs-toggle="dropdown"
-        data-category="laboratory"
-        data-label="Laboratory">
-    Laboratory
-</button>
-    <ul class="dropdown-menu">
-        <li><a class="dropdown-item" href="#" data-subcategory="3D Printers">3D Printers</a></li>
-        <li><a class="dropdown-item" href="#" data-subcategory="Microscopes">Microscopes</a></li>
-        <li><a class="dropdown-item" href="#" data-subcategory="Multimeters">Multimeters</a></li>
-        <li><a class="dropdown-item" href="#" data-subcategory="Oscilloscopes">Oscilloscopes</a></li>
-        <li><a class="dropdown-item" href="#" data-subcategory="Power Supplies">Power Supplies</a></li>
-        <li><a class="dropdown-item" href="#" data-subcategory="Signal Generators">Signal Generators</a></li>
-
-</div>
-<div class="dropdown">
-    <button class="btn btn-category dropdown-toggle"
-        type="button"
-        data-bs-toggle="dropdown"
-        data-category="computing"
-        data-label="Computing">
-    Computing
-</button>
-    <ul class="dropdown-menu">
-        <li><a class="dropdown-item" href="#" data-subcategory="GPUs">GPUs</a></li>
-        <li><a class="dropdown-item" href="#" data-subcategory="Laptops">Laptops</a></li>
-        <li><a class="dropdown-item" href="#" data-subcategory="Networking Equipment">Networking Equipment</a></li>
-        <li><a class="dropdown-item" href="#" data-subcategory="Raspberry Pi Kits">Raspberry Pi Kits</a></li>
-        <li><a class="dropdown-item" href="#" data-subcategory="Tablets">Tablets</a></li>
-        <li><a class="dropdown-item" href="#" data-subcategory="Workstations">Workstations</a></li>
-
-</div>
-<div class="dropdown">
-    <button class="btn btn-category dropdown-toggle"
-        type="button"
-        data-bs-toggle="dropdown"
-        data-category="iot_embedded"
-        data-label="IoT and Embedded">
-    IoT and Embedded
-</button>
-    <ul class="dropdown-menu">
-        <li><a class="dropdown-item" href="#" data-subcategory="FPGA Boards">FPGA Boards</a></li>
-        <li><a class="dropdown-item" href="#" data-subcategory="LoRa Devices">LoRa Devices</a></li>
-        <li><a class="dropdown-item" href="#" data-subcategory="Microcontrollers">Microcontrollers</a></li>
-        <li><a class="dropdown-item" href="#" data-subcategory="Sensor Modules">Sensor Modules</a></li>
-        <li><a class="dropdown-item" href="#" data-subcategory="Smart Home Kits">Smart Home Kits</a></li>
-
-</div>
-    <!-- Equipment Grid -->
-    <div class="row g-4" id="equipmentGrid"></div>
-
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="../../js/user/equipments_list.js" type="module"></script>
 <script>
-  const logoutBtn = document.getElementById('logoutBtn');
-  const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token');
+    if (!token) window.location.href = '../../index.html';
 
-  if (!token) window.location.href = '../../index.html';
+    document.getElementById('logoutBtn').addEventListener('click', (e) => {
+        e.preventDefault();
+        localStorage.removeItem('token');
+        localStorage.removeItem('role');
+        window.location.href = '../../index.html';
+    });
 
-  logoutBtn.addEventListener('click', (e) => {
-    e.preventDefault(); // prevent the href from firing too
-    localStorage.removeItem('token');
-    localStorage.removeItem('role');
-    window.location.href = '../../index.html';
-  });
-  </script>
-
+    document.getElementById('navToggle').addEventListener('click', () => {
+        document.getElementById('navLinks').classList.toggle('open');
+    });
+</script>
 </body>
 </html>

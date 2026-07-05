@@ -145,7 +145,7 @@ function renderTable(tab) {
               <i class="bi bi-eye"></i>
             </a>`}
             ${showDeleteBtn ? `
-            <button class="btn-delete-icon" onclick="event.stopPropagation(); deleteRow(${r.id}, '${r.device}')" title="Remove">
+            <button class="btn-delete-icon" onclick="event.stopPropagation(); deleteRow(${r.id}, '${r.device}')" title="Cancel Reservation">
               <i class="bi bi-x-lg"></i>
             </button>` : ''}
           </div>

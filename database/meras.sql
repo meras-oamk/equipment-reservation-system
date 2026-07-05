@@ -96,6 +96,7 @@ CREATE TABLE users (
   password_hash VARCHAR(255) NOT NULL,
   role          user_role    NOT NULL,
   status        user_status  DEFAULT 'active',
+  suspended_at  TIMESTAMP,
   created_at    TIMESTAMP    DEFAULT NOW(),
   updated_at    TIMESTAMP    DEFAULT NOW()
 );
@@ -137,6 +138,7 @@ CREATE TABLE reservations (
   end_time      TIMESTAMP          NOT NULL,
   status        reservation_status DEFAULT 'approved',
   checkout_time TIMESTAMP,
+  overdue_notified_at TIMESTAMP,
   return_time   TIMESTAMP,
   return_notes  TEXT,
   created_at    TIMESTAMP          DEFAULT NOW(),

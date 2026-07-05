@@ -85,10 +85,12 @@ cron.schedule('*/15 * * * *', async () => {
 
         for (const userId of affectedUserIds) {
             // Count all-time overdue reservations for this user
+            // Use overdue_notified_at IS NOT NULL so completed/returned reservations
+            // that were once overdue still count toward the user's history.
             const countResult = await db.query(`
                 SELECT COUNT(*) AS overdue_count
                 FROM reservations
-                WHERE user_id = $1 AND status = 'overdue'
+                WHERE user_id = $1 AND overdue_notified_at IS NOT NULL
             `, [userId])
 
             const overdueCount = parseInt(countResult.rows[0].overdue_count, 10)
@@ -97,7 +99,7 @@ cron.schedule('*/15 * * * *', async () => {
                 // Only suspend if currently active (avoid double-suspend)
                 const suspendResult = await db.query(`
                     UPDATE users
-                    SET status = 'suspended', updated_at = NOW()
+                    SET status = 'suspended', suspended_at = NOW(), updated_at = NOW()
                     WHERE id = $1 AND status = 'active'
                     RETURNING full_name, email
                 `, [userId])
@@ -138,6 +140,53 @@ cron.schedule('*/15 * * * *', async () => {
                     console.log(`[overdue_job] Suspended user ${email} after ${overdueCount} overdue return(s).`)
                 }
             }
+        }
+
+        // ── Unsuspend check ────────────────────────────────────────────────────
+
+        // Read restriction_days from system_settings
+        const restrictionResult = await db.query(`
+            SELECT (value->>'restriction_days')::int AS restriction_days
+            FROM system_settings
+            WHERE key = 'late_return_policy'
+        `)
+        const restrictionDays = restrictionResult.rows[0]?.restriction_days ?? 60
+
+        const unsuspendResult = await db.query(`
+            UPDATE users
+            SET status = 'active', suspended_at = NULL, updated_at = NOW()
+            WHERE status = 'suspended'
+              AND suspended_at < NOW() - ($1 || ' days')::INTERVAL
+            RETURNING full_name, email
+        `, [restrictionDays])
+
+        for (const user of unsuspendResult.rows) {
+            await sendEmail({
+                to: user.email,
+                subject: 'Your MERAS Account Has Been Reactivated',
+                html: `
+                    <p>Dear ${user.full_name},</p>
+
+                    <p>Your MERAS account has been reactivated. You can now make new equipment reservations.</p>
+
+                    <p>
+                        Please note that further late returns may result in longer booking restrictions
+                        or permanent suspension of your account.
+                    </p>
+
+                    <p>
+                        If you have any questions, please contact the equipment desk.
+                    </p>
+
+                    <p>
+                        Thank you,<br/>
+                        MERAS — Equipment Reservation System<br/>
+                        Oulu University of Applied Sciences
+                    </p>
+                `
+            })
+
+            console.log(`[overdue_job] Reactivated user ${user.email} after ${restrictionDays}-day restriction.`)
         }
 
     } catch (error) {

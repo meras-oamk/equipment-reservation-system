@@ -6,6 +6,26 @@ const { authenticate, authorizeRole } = require('../helpers/role')
 const { db } = require('../helpers/db')
 require('dotenv').config()
 
+// Converts the server's actual current moment into the equivalent wall-clock
+// time in Europe/Helsinki, formatted to match the naive DB timestamp strings.
+function getFacilityNowString() {
+    const parts = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Europe/Helsinki',
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit', second: '2-digit',
+        hour12: false
+    }).formatToParts(new Date());
+    const map = {};
+    parts.forEach(p => map[p.type] = p.value);
+    return `${map.year}-${map.month}-${map.day}T${map.hour}:${map.minute}:${map.second}`;
+}
+
+// Normalizes a raw pg timestamp string ("2026-07-05 15:00:00") to the same
+// "YYYY-MM-DDTHH:mm:ss" shape so it can be compared lexicographically.
+function normalizeTimestamp(str) {
+    return str.replace(' ', 'T').slice(0, 19);
+}
+
 router.get('/return-requests', authenticate, authorizeRole('admin'), async (req, res) => {
     try {
         const requestsData = await reservationsHelper.returnRequests()
@@ -258,20 +278,19 @@ router.post('/:id/scan', authenticate, async (req, res) => {
             });
         }
 
-        const now       = new Date();
-        const startTime = new Date(reservation.start_time);
-        const endTime   = new Date(reservation.end_time);
+        const nowStr   = getFacilityNowString();
+        const startStr = normalizeTimestamp(reservation.start_time);
+        const endStr   = normalizeTimestamp(reservation.end_time);
 
-        // Pickup scan — only allowed within the booked window
         if (reservation.status === 'approved') {
-            if (now < startTime) {
+            if (nowStr < startStr) {
                 return res.status(400).json({
-                    error: `This equipment cannot be picked up before ${startTime.toLocaleString()}.`
+                    error: `This equipment cannot be picked up before ${reservation.start_time}.`
                 });
             }
-            if (now > endTime) {
+            if (nowStr > endStr) {
                 return res.status(400).json({
-                    error: `The pickup window for this reservation has expired (was until ${endTime.toLocaleString()}).`
+                    error: `The pickup window for this reservation has expired (was until ${reservation.end_time}).`
                 });
             }
 
@@ -291,7 +310,7 @@ router.post('/:id/scan', authenticate, async (req, res) => {
             await db.query(`
                 UPDATE reservations
                 SET status = 'pending_return',
-                return_time = CURRENT_TIMESTAMP
+                    return_time = CURRENT_TIMESTAMP
                 WHERE id = $1
             `, [reservationId]);
 

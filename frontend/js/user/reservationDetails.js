@@ -82,11 +82,12 @@ if (displayStatus === 'active' || displayStatus === 'overdue') {
 }
 
         function fmt(datetimeStr) {
-          const d = new Date(datetimeStr);
-          const time = d.toTimeString().slice(0, 5);
-          const date = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
-          return { time, date };
-        }
+    const [datePart, timePart] = datetimeStr.split(/[T ]/);
+    const [year, month, day] = datePart.split('-');
+    const time = timePart.slice(0, 5);
+    const date = `${day}/${month}/${year}`;
+    return { time, date };
+}
 
         const start = fmt(r.start_time);
         const end   = fmt(r.end_time);

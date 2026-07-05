@@ -2,9 +2,10 @@ let reservations = { inactive: [], active: [], overdue: [], completed: [] };
 let currentTab = 'inactive';
 
 function fmt(datetimeStr) {
-    const d = new Date(datetimeStr);
-    const time = d.toTimeString().slice(0, 5);
-    const date = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+    const [datePart, timePart] = datetimeStr.split(/[T ]/); // handles both "T" and space separator
+    const [year, month, day] = datePart.split('-');
+    const time = timePart.slice(0, 5);
+    const date = `${day}/${month}/${year}`;
     return { time, date };
 }
 
@@ -110,11 +111,12 @@ window.addEventListener('DOMContentLoaded', loadReservations);
     return `<span class="badge-status ${map[status]}">${label}</span>`;
 }
 
-    function renderTable(tab) {
+function renderTable(tab) {
   const rows = reservations[tab];
   const tbody = document.getElementById('tableBody');
   const mobileList = document.getElementById('mobileList');
   const isCompleted = tab === 'completed';
+  const showDeleteBtn = tab === 'inactive'; // only allow cancelling before pickup
 
   if (!rows || rows.length === 0) {
     tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><i class="bi bi-calendar-x"></i><p>No reservations found.</p></div></td></tr>`;
@@ -142,9 +144,10 @@ window.addEventListener('DOMContentLoaded', loadReservations);
             <a href="reservationDetails.html?id=${r.id}&status=${r.status}" class="btn-view-icon" onclick="event.stopPropagation()" title="View">
               <i class="bi bi-eye"></i>
             </a>`}
+            ${showDeleteBtn ? `
             <button class="btn-delete-icon" onclick="event.stopPropagation(); deleteRow(${r.id}, '${r.device}')" title="Remove">
               <i class="bi bi-x-lg"></i>
-            </button>
+            </button>` : ''}
           </div>
         </td>
       </tr>`;

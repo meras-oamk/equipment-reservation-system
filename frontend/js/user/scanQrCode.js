@@ -38,7 +38,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    const scanConfig = { fps: 10, qrbox: 250 };
+    const scanConfig = {
+    fps: 10,
+    qrbox: 250,
+    experimentalFeatures: {
+        useBarCodeDetectorIfSupported: true
+    }
+};
 
     try {
         const cameras = await Html5Qrcode.getCameras();

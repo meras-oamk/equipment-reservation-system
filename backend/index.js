@@ -12,6 +12,7 @@ const userRoutes = require('./routes/users')
 const adminStatisticsRoute = require('./routes/adminStatistics')
 
 require('dotenv').config()
+require('./routes/overdue_job')
 const app = express()
 
 connectDB()

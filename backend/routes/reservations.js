@@ -96,12 +96,18 @@ router.post('/', authenticate, async (req, res) => {
         // =========================
 
         const userResult = await db.query(`
-            SELECT role
+            SELECT role, status
             FROM users
             WHERE id = $1
         `, [user_id])
 
-        const role = userResult.rows[0].role
+        const { role, status } = userResult.rows[0]
+
+        if (status === 'suspended') {
+            return res.status(403).json({
+                error: 'Your account is suspended. You cannot make new reservations.'
+            })
+        }
 
         const reservationLimit = role === 'staff' ? 5 : 3
 
@@ -316,6 +322,20 @@ router.post('/:id/scan', authenticate, async (req, res) => {
 
             return res.json({
                 message: 'Return request submitted',
+                status: 'pending_return'
+            });
+        }
+
+        if (reservation.status === 'overdue') {
+            await db.query(`
+                UPDATE reservations
+                SET status = 'pending_return',
+                    return_time = CURRENT_TIMESTAMP
+                WHERE id = $1
+            `, [reservationId]);
+
+            return res.json({
+                message: 'Overdue return submitted',
                 status: 'pending_return'
             });
         }

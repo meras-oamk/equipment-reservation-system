@@ -31,19 +31,16 @@
         <tr>
           <th></th>
           <th class="text-center">Max Active Reservations</th>
-          <th class="text-center">Max Future Reservations</th>
         </tr>
       </thead>
       <tbody>
         <tr>
           <td>Student</td>
           <td class="text-center"><input class="rule-input policy-input" type="number" value="3" disabled data-setting="reservation_limits" data-cat="student" data-field="max_active" /></td>
-          <td class="text-center"><input class="rule-input policy-input" type="number" value="5" disabled data-setting="reservation_limits" data-cat="student" data-field="max_future" /></td>
         </tr>
         <tr>
           <td>Staff</td>
           <td class="text-center"><input class="rule-input policy-input" type="number" value="5" disabled data-setting="reservation_limits" data-cat="staff" data-field="max_active" /></td>
-          <td class="text-center"><input class="rule-input policy-input" type="number" value="8" disabled data-setting="reservation_limits" data-cat="staff" data-field="max_future" /></td>
         </tr>
       </tbody>
     </table>
@@ -94,19 +91,19 @@
   <!-- Policy Violation Escalation -->
   <div class="section-card">
     <div class="rules-title"><i class="bi bi-exclamation-triangle"></i> Policy Violation Escalation</div>
-    <p class="cat-note">Severity of action depends on the number and nature of violations.</p>
+    <p class="cat-note">Violations may result in one or more of the following, depending on the severity and nature of the violation.</p>
 
     <div class="escalation-row">
-      <span class="escalation-step">1st violation</span>
       <span class="escalation-action">Warning notification</span>
     </div>
     <div class="escalation-row">
-      <span class="escalation-step">2nd violation</span>
       <span class="escalation-action">Temporary suspension of reservation privileges</span>
     </div>
     <div class="escalation-row">
-      <span class="escalation-step">3rd+ violation</span>
-      <span class="escalation-action">Permanent restriction (administrative review)</span>
+      <span class="escalation-action">Administrative review</span>
+    </div>
+    <div class="escalation-row">
+      <span class="escalation-action">Permanent restriction on equipment usage</span>
     </div>
   </div>
 

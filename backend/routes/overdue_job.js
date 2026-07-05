@@ -27,8 +27,7 @@ cron.schedule('*/15 * * * *', async () => {
             JOIN equipment_types et ON et.id = u.type_id
         `)
 
-        if (result.rows.length === 0) return
-
+        if (result.rows.length > 0) {
         for (const row of result.rows) {
             await sendEmail({
                 to: row.email,
@@ -69,6 +68,8 @@ cron.schedule('*/15 * * * *', async () => {
         }
 
         console.log(`[overdue_job] Marked ${result.rows.length} reservation(s) as overdue.`)
+
+        } // end if (result.rows.length > 0)
 
         // ── Suspend check ──────────────────────────────────────────────────────
 

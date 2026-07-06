@@ -62,7 +62,7 @@ cron.schedule('*/15 * * * *', async () => {
 
             await db.query(`
                 UPDATE reservations
-                SET overdue_notified_at = NOW()
+                SET overdue_notified_at = (NOW() AT TIME ZONE 'Europe/Helsinki')
                 WHERE id = $1
             `, [row.reservation_id])
         }

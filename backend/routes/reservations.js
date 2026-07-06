@@ -52,8 +52,9 @@ router.put('/:id/return', authenticate, authorizeRole('admin'), async (req, res)
     try {
         const reservationId = req.params.id
         const { condition, notes } = req.body
+        const adminId = req.user.userId
 
-        const updatedReservation = await reservationsHelper.confirmReturn(reservationId, condition, notes)
+        const updatedReservation = await reservationsHelper.confirmReturn(reservationId, condition, notes, adminId)
 
         if (!updatedReservation) {
             return res.status(404).json({ error: 'Reservation not found' })
@@ -191,19 +192,15 @@ router.get('/my', authenticate, async (req, res) => {
         const autoCancelled = await db.query(`
             UPDATE reservations
             SET status = 'cancelled',
-                cancelled_at = CURRENT_TIMESTAMP
+                cancelled_at = (NOW() AT TIME ZONE 'Europe/Helsinki')
             WHERE user_id = $1
               AND status = 'approved'
               AND end_time < NOW()
             RETURNING id, unit_id;
         `, [user_id])
 
-        for (const row of autoCancelled.rows) {
-            await db.query(`
-                INSERT INTO equipment_logs (unit_id, user_id, reservation_id, action, status_before, status_after, notes)
-                VALUES ($1, $2, $3, 'cancel', 'approved', 'cancelled', 'Auto-cancelled: never picked up before end time')
-            `, [row.unit_id, user_id, row.id])
-        }
+        // No equipment_logs insert for auto-cancel: unit status stays 'available' (never checked out)
+        // Cancellation is already tracked via reservations.cancelled_at
 
         const result = await db.query(`
             SELECT
@@ -313,9 +310,18 @@ router.post('/:id/scan', authenticate, async (req, res) => {
             await db.query(`
                 UPDATE reservations
                 SET status = 'active',
-                    checkout_time = CURRENT_TIMESTAMP
+                    checkout_time = (NOW() AT TIME ZONE 'Europe/Helsinki')
                 WHERE id = $1
             `, [reservationId]);
+
+            await db.query(`
+                UPDATE equipment_units SET status = 'checked_out' WHERE id = $1
+            `, [reservation.unit_id]);
+
+            await db.query(`
+                INSERT INTO equipment_logs (unit_id, user_id, reservation_id, action, status_before, status_after)
+                VALUES ($1, $2, $3, 'checkout', 'available', 'checked_out')
+            `, [reservation.unit_id, userId, reservationId]);
 
             return res.json({
                 message: 'Equipment picked up successfully',
@@ -327,9 +333,18 @@ router.post('/:id/scan', authenticate, async (req, res) => {
             await db.query(`
                 UPDATE reservations
                 SET status = 'pending_return',
-                    return_scan_time = CURRENT_TIMESTAMP
+                    return_scan_time = (NOW() AT TIME ZONE 'Europe/Helsinki')
                 WHERE id = $1
             `, [reservationId]);
+
+            await db.query(`
+                UPDATE equipment_units SET status = 'pending_return' WHERE id = $1
+            `, [reservation.unit_id]);
+
+            await db.query(`
+                INSERT INTO equipment_logs (unit_id, user_id, reservation_id, action, status_before, status_after)
+                VALUES ($1, $2, $3, 'return_scan', 'checked_out', 'pending_return')
+            `, [reservation.unit_id, userId, reservationId]);
 
             return res.json({
                 message: 'Return request submitted',
@@ -341,9 +356,18 @@ router.post('/:id/scan', authenticate, async (req, res) => {
             await db.query(`
                 UPDATE reservations
                 SET status = 'pending_return',
-                    return_scan_time = CURRENT_TIMESTAMP
+                    return_scan_time = (NOW() AT TIME ZONE 'Europe/Helsinki')
                 WHERE id = $1
             `, [reservationId]);
+
+            await db.query(`
+                UPDATE equipment_units SET status = 'pending_return' WHERE id = $1
+            `, [reservation.unit_id]);
+
+            await db.query(`
+                INSERT INTO equipment_logs (unit_id, user_id, reservation_id, action, status_before, status_after)
+                VALUES ($1, $2, $3, 'return_scan', 'checked_out', 'pending_return')
+            `, [reservation.unit_id, userId, reservationId]);
 
             return res.json({
                 message: 'Overdue return submitted',
@@ -371,7 +395,7 @@ router.delete('/:id', authenticate, async (req, res) => {
         const result = await db.query(`
             UPDATE reservations
             SET status = 'cancelled',
-                cancelled_at = CURRENT_TIMESTAMP
+                cancelled_at = (NOW() AT TIME ZONE 'Europe/Helsinki')
             WHERE id = $1
               AND user_id = $2
               AND status = 'approved'

@@ -39,12 +39,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     const scanConfig = {
-    fps: 10,
-    qrbox: 250,
-    experimentalFeatures: {
-        useBarCodeDetectorIfSupported: true
-    }
-};
+        fps: 10,
+        qrbox: { width: 250, height: 250 },
+        aspectRatio: 1.0,
+        formatsToSupport: [ Html5QrcodeSupportedFormats.QR_CODE ]
+    };
 
     try {
         const cameras = await Html5Qrcode.getCameras();
@@ -52,7 +51,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         let target;
         if (cameras.length) {
             const backCamera = cameras.find(c => /back|rear|environment/i.test(c.label));
-            target = backCamera ? backCamera.id : cameras[cameras.length - 1].id;
+            const hasLabels = cameras.some(c => c.label && c.label.trim() !== '');
+
+            if (backCamera) {
+                target = backCamera.id;
+            } else if (!hasLabels) {
+                // iOS Safari: labels are empty before permission is granted — use facingMode instead
+                target = { facingMode: "environment" };
+            } else {
+                target = cameras[cameras.length - 1].id;
+            }
         } else {
             // No enumerable cameras — fall back to a plain string facingMode hint
             target = { facingMode: "environment" };

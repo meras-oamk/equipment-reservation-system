@@ -33,18 +33,10 @@ async function loadLogs() {
 
 function renderStats(logs) {
     const total = logs.length
-    const checkouts = logs.filter(l => l.action === 'checkout').length
-    const returnScans = logs.filter(l => l.action === 'return_scan').length
-    const returnConfirms = logs.filter(l => l.action === 'admin_confirm_return').length
-    const cancellations = logs.filter(l => l.action === 'cancel').length
     const statusUpdates = logs.filter(l => l.action === 'status_update').length
     const transfers = logs.filter(l => l.action === 'transfer').length
 
     document.getElementById('statTotal').textContent = total
-    document.getElementById('statCheckouts').textContent = checkouts
-    document.getElementById('statReturnScan').textContent = returnScans
-    document.getElementById('statReturnConfirm').textContent = returnConfirms
-    document.getElementById('statCancellations').textContent = cancellations
     document.getElementById('statStatusUpdates').textContent = statusUpdates
     document.getElementById('statTransfers').textContent = transfers
 }
@@ -91,13 +83,12 @@ function formatAction(action) {
 }
 
 function formatDateTime(value) {
-    const d = new Date(value)
-    const hh = String(d.getHours()).padStart(2, '0')
-    const mm = String(d.getMinutes()).padStart(2, '0')
-    const dd = String(d.getDate()).padStart(2, '0')
-    const mo = String(d.getMonth() + 1).padStart(2, '0')
-    const yyyy = d.getFullYear()
-    return `${hh}:${mm}<br>${dd}/${mo}/${yyyy}`
+    if (!value) return '—'
+    const clean = value.replace(' ', 'T').slice(0, 19)
+    const [datePart, timePart] = clean.split('T')
+    const [yyyy, mo, dd] = datePart.split('-')
+    const [hh, mm] = timePart.split(':')
+    return `${dd}/${mo}/${yyyy} ${hh}:${mm}`
 }
 
 // =====================

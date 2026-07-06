@@ -40,14 +40,14 @@ const reservationsHelper = {
         return conditions.rows.map(row => row.condition)
     },
 
-    confirmReturn: async (reservationId, condition, notes, adminId) => {
-        const reservationQuery = await db.query(`SELECT unit_id, user_id FROM reservations WHERE id = $1;`, [reservationId])
+    confirmReturn: async (reservationId, condition, notes) => {
+        const reservationQuery = await db.query(`SELECT unit_id FROM reservations WHERE id = $1;`, [reservationId])
 
         if (reservationQuery.rows.length === 0) {
             throw new Error('Reservation not found')
         }
 
-        const { unit_id: unitId, user_id: userId } = reservationQuery.rows[0];
+        const unitId = reservationQuery.rows[0].unit_id;
 
         const updateReservationResult = await db.query(`
             UPDATE reservations
@@ -64,11 +64,6 @@ const reservationsHelper = {
              WHERE id = $2;`,
             [condition, unitId]
         )
-
-        await db.query(`
-            INSERT INTO equipment_logs (unit_id, user_id, reservation_id, action, status_before, status_after, notes)
-            VALUES ($1, $2, $3, 'admin_confirm_return', 'pending_return', 'completed', $4)
-        `, [unitId, adminId ?? userId, reservationId, notes ?? null])
 
         return updateReservationResult.rows[0];
     },

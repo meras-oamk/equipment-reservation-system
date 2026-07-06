@@ -12,7 +12,7 @@
             { name: 'Equipments', filename: 'equipments_list.html', path: `/admin/equipments_list.html`, icon: 'bi-box-seam' },
             { name: 'Configuration', filename: 'configuration.html', path: `/admin/configuration.html`, icon: 'bi-gear' },
             { name: 'Manage Users', filename: 'manageUsers.html', path: `/admin/manageUsers.html`, icon: 'bi-people' },
-            { name: 'Logs', filename: 'logs.html', path: `/admin/logs_list.html`, icon: 'bi-journal-text' },
+            { name: 'Equipment Logs', filename: 'logs.html', path: `/admin/logs_list.html`, icon: 'bi-journal-text' },
             { name: 'Booking Policies', filename: 'bookingPolicies.html', path: `/admin/booking_policies.html`, icon: 'bi-book' }
         ];
 

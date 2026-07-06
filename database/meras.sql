@@ -139,6 +139,7 @@ CREATE TABLE reservations (
   status        reservation_status DEFAULT 'approved',
   checkout_time TIMESTAMP,
   overdue_notified_at TIMESTAMP,
+  return_scan_time TIMESTAMP,
   return_time   TIMESTAMP,
   return_notes  TEXT,
   created_at    TIMESTAMP          DEFAULT NOW(),

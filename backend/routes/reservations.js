@@ -53,7 +53,7 @@ router.put('/:id/return', authenticate, authorizeRole('admin'), async (req, res)
         const reservationId = req.params.id
         const { condition, notes } = req.body
 
-        const updatedReservation = await reservationsHelper.confirmReturn(reservationId, condition, notes)
+        const updatedReservation = await reservationsHelper.confirmReturn(reservationId, condition, notes, req.user.userId)
 
         if (!updatedReservation) {
             return res.status(404).json({ error: 'Reservation not found' })
@@ -259,6 +259,7 @@ router.post('/:id/scan', authenticate, async (req, res) => {
         const result = await db.query(`
             SELECT
                 r.id,
+                r.unit_id,
                 eu.qr_code,
                 r.status,
                 r.start_time,
@@ -302,9 +303,15 @@ router.post('/:id/scan', authenticate, async (req, res) => {
 
             await db.query(`
                 UPDATE reservations
-                SET status = 'active'
+                SET status = 'active',
+                    checkout_time = CURRENT_TIMESTAMP
                 WHERE id = $1
             `, [reservationId]);
+
+            await db.query(`
+                INSERT INTO equipment_logs (unit_id, user_id, reservation_id, action, status_before, status_after)
+                VALUES ($1, $2, $3, 'checkout', 'approved', 'active')
+            `, [reservation.unit_id, userId, reservationId]);
 
             return res.json({
                 message: 'Equipment picked up successfully',
@@ -316,9 +323,14 @@ router.post('/:id/scan', authenticate, async (req, res) => {
             await db.query(`
                 UPDATE reservations
                 SET status = 'pending_return',
-                    return_time = CURRENT_TIMESTAMP
+                    return_scan_time = CURRENT_TIMESTAMP
                 WHERE id = $1
             `, [reservationId]);
+
+            await db.query(`
+                INSERT INTO equipment_logs (unit_id, user_id, reservation_id, action, status_before, status_after)
+                VALUES ($1, $2, $3, 'return_scan', 'active', 'pending_return')
+            `, [reservation.unit_id, userId, reservationId]);
 
             return res.json({
                 message: 'Return request submitted',
@@ -330,9 +342,14 @@ router.post('/:id/scan', authenticate, async (req, res) => {
             await db.query(`
                 UPDATE reservations
                 SET status = 'pending_return',
-                    return_time = CURRENT_TIMESTAMP
+                    return_scan_time = CURRENT_TIMESTAMP
                 WHERE id = $1
             `, [reservationId]);
+
+            await db.query(`
+                INSERT INTO equipment_logs (unit_id, user_id, reservation_id, action, status_before, status_after)
+                VALUES ($1, $2, $3, 'return_scan', 'overdue', 'pending_return')
+            `, [reservation.unit_id, userId, reservationId]);
 
             return res.json({
                 message: 'Overdue return submitted',
@@ -358,14 +375,25 @@ router.delete('/:id', authenticate, async (req, res) => {
         const user_id = req.user.userId
 
         const result = await db.query(`
-            DELETE FROM reservations
-            WHERE id = $1 AND user_id = $2
-            RETURNING *;
+            UPDATE reservations
+            SET status = 'cancelled'
+            WHERE id = $1
+              AND user_id = $2
+              AND status = 'approved'
+            RETURNING id, unit_id;
         `, [id, user_id])
 
         if (result.rows.length === 0) {
-            return res.status(404).json({ error: 'Reservation not found.' })
+            return res.status(404).json({ error: 'Reservation not found or cannot be cancelled.' })
         }
+
+        const { unit_id } = result.rows[0]
+
+        await db.query(`
+            INSERT INTO equipment_logs (unit_id, user_id, reservation_id, action, status_before, status_after)
+            VALUES ($1, $2, $3, 'cancel', 'approved', 'cancelled')
+        `, [unit_id, user_id, id])
+
         return res.status(200).json({ message: 'Reservation cancelled.' })
     } catch (error) {
         return res.status(500).json({ error: error.message })

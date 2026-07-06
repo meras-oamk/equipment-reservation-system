@@ -33,12 +33,12 @@ async function loadLogs() {
 
 function renderStats(logs) {
     const total = logs.length
-    const statusUpdates = logs.filter(l => l.action === 'status_update').length
-    const transfers = logs.filter(l => l.action === 'transfer').length
+    const reservationActions = logs.filter(l => ['checkout', 'return_scan', 'admin_confirm_return'].includes(l.action)).length
+    const adminActions = logs.filter(l => ['status_update', 'transfer'].includes(l.action)).length
 
     document.getElementById('statTotal').textContent = total
-    document.getElementById('statStatusUpdates').textContent = statusUpdates
-    document.getElementById('statTransfers').textContent = transfers
+    document.getElementById('statReservation').textContent = reservationActions
+    document.getElementById('statAdmin').textContent = adminActions
 }
 
 // =====================

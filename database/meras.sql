@@ -141,6 +141,7 @@ CREATE TABLE reservations (
   overdue_notified_at TIMESTAMP,
   return_scan_time TIMESTAMP,
   return_time   TIMESTAMP,
+  cancelled_at     TIMESTAMP,
   return_notes  TEXT,
   created_at    TIMESTAMP          DEFAULT NOW(),
 

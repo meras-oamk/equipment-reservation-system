@@ -3,7 +3,7 @@
   border-radius: 0px 10px 0 0;
   padding: 14px 20px;
   display: grid;
-  grid-template-columns: 140px 1fr 1fr 120px 120px 130px;
+  grid-template-columns: 140px 250px 200px 160px 280px 140px;
   font-weight: 700;
   font-size: 14px;
   margin-bottom: 4px;
@@ -11,8 +11,8 @@
 
 .table-row {
   display: grid;
-  grid-template-columns: 140px 1fr 1fr 120px 120px 130px;
-  align-items: center;
+  grid-template-columns: 140px 250px 200px 160px 280px 140px;
+  align-items: start;
   padding: 16px 20px;
   border-bottom: 1px solid #f0f0f0;
   font-size: 14px;
@@ -36,3 +36,37 @@
   border: 1px solid #eee;
   overflow: hidden;
 }
+
+/* ── Timeline column ── */
+.timeline-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 12px;
+}
+
+.tl-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #333;
+  white-space: nowrap;
+}
+
+.tl-row--empty {
+  color: #bbb;
+}
+
+.tl-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.tl-dot--req   { background: #888; }
+.tl-dot--pick  { background: #1D9E75; }
+.tl-dot--scan  { background: #E8A020; }
+.tl-dot--ret   { background: #3B82F6; }
+.tl-dot--empty  { background: #ddd; }
+.tl-dot--cancel { background: #EF4444; }

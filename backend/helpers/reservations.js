@@ -75,13 +75,18 @@ const reservationsHelper = {
 
     reservations: async () => {
         const reservations = await db.query(`
-            SELECT 
+            SELECT
                 u.full_name,
                 u.email,
 
-                r.id AS reservation_id,
+                r.id              AS reservation_id,
+                r.created_at,
                 r.start_time,
                 r.end_time,
+                r.checkout_time,
+                r.return_scan_time,
+                r.return_time,
+                r.cancelled_at,
                 r.status,
 
                 et.name AS equipment_name,
@@ -89,16 +94,16 @@ const reservationsHelper = {
 
             FROM reservations r
 
-            JOIN users u 
+            JOIN users u
                 ON r.user_id = u.id
 
-            LEFT JOIN equipment_units eu 
+            LEFT JOIN equipment_units eu
                 ON r.unit_id = eu.id
 
-            LEFT JOIN equipment_types et 
+            LEFT JOIN equipment_types et
                 ON r.type_id = et.id
 
-            ORDER BY r.id ASC;
+            ORDER BY r.id DESC;
         `)
 
         return reservations.rows

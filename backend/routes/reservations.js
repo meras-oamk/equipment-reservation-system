@@ -376,7 +376,8 @@ router.delete('/:id', authenticate, async (req, res) => {
 
         const result = await db.query(`
             UPDATE reservations
-            SET status = 'cancelled'
+            SET status = 'cancelled',
+                cancelled_at = CURRENT_TIMESTAMP
             WHERE id = $1
               AND user_id = $2
               AND status = 'approved'

@@ -55,8 +55,8 @@ function renderReservationsTable(reservations) {
           <span style="text-align: center;">Reservation ID</span>
           <span style="padding-left: 20px;">Equipment</span>
           <span style="padding-left: 20px;">User</span>
-          <span>Start date</span>
-          <span>End Date</span>
+          <span>Start / End</span>
+          <span>Timeline</span>
           <span>Status</span>
         </div>
     `
@@ -82,13 +82,40 @@ function renderReservationsTable(reservations) {
                     <div class="user-name" style="padding-left: 20px;">${r.full_name || 'N/A'}</div>
                     <div class="user-email" style="padding-left: 20px;">${r.email || 'N/A'}</div>
                 </div>
-                <div class="date-time">${formatTableDate(r.start_time)}</div>
-                <div class="date-time">${formatTableDate(r.end_time)}</div>
+                <div class="date-time">
+                    ${formatTableDate(r.start_time)}
+                    <span style="color:#aaa;font-size:0.8em;display:block;text-align:center;">to</span>
+                    ${formatTableDate(r.end_time)}
+                </div>
+                <div class="timeline-cell">${buildTimeline(r)}</div>
                 <span>${getStatusBadge(r.status)}</span>
             </div>
         `
         tableWrap.insertAdjacentHTML('beforeend', rowHtml)
-    });
+    })
+}
+
+function buildTimeline(r) {
+    const tlRow = (dotCls, label, timestamp) => {
+        if (timestamp) {
+            return `<div class="tl-row"><span class="tl-dot ${dotCls}"></span><span><strong>${label}</strong> ${formatTableDate(timestamp)}</span></div>`
+        }
+        return `<div class="tl-row tl-row--empty"><span class="tl-dot tl-dot--empty"></span><span>${label}</span></div>`
+    }
+
+    if (r.status === 'cancelled') {
+        return [
+            tlRow('tl-dot--req',    'Requested', r.created_at),
+            tlRow('tl-dot--cancel', 'Cancelled', r.cancelled_at),
+        ].join('')
+    }
+
+    return [
+        tlRow('tl-dot--req',  'Requested',       r.created_at),
+        tlRow('tl-dot--pick', r.checkout_time    ? 'Pickup'          : 'Not picked up yet', r.checkout_time),
+        tlRow('tl-dot--scan', r.return_scan_time ? 'Return scan'     : 'Not returned yet',  r.return_scan_time),
+        tlRow('tl-dot--ret',  r.return_time      ? 'Return approved' : 'Not confirmed yet', r.return_time),
+    ].join('')
 }
 
 function getStatusBadge(status) {
@@ -114,41 +141,29 @@ function getStatusBadge(status) {
 
 function formatTableDate(isoString) {
     if (!isoString) return 'N/A'
-    const date = new Date(isoString)
-    const hours = String(date.getHours()).padStart(2, '0')
-    const minutes = String(date.getMinutes()).padStart(2, '0')
-    const day = String(date.getDate()).padStart(2, '0')
-    const month = String(date.getMonth() + 1).padStart(2, '0')
-    const year = date.getFullYear()
-    return `${hours}:${minutes}<br>${day}/${month}/${year}`
+    // DB stores naive Helsinki timestamps — parse as local to avoid browser timezone shift
+    const clean = isoString.replace(' ', 'T').slice(0, 19)
+    const [datePart, timePart] = clean.split('T')
+    const [year, month, day] = datePart.split('-')
+    const [hours, minutes] = timePart.split(':')
+    return `${day}/${month}/${year} ${hours}:${minutes}`
 }
 
 function updateStatistics(reservations) {
-    let total = reservations.length
-    let active = 0
-    let overdue = 0
-    let cancelled = 0
-    let completed = 0
+    const counts = { total: reservations.length, approved: 0, active: 0, pending_return: 0, overdue: 0, completed: 0, cancelled: 0 }
 
     reservations.forEach(r => {
         const status = r.status ? r.status.toLowerCase() : ''
-
-        if (status === 'active') {
-            active++
-        } else if (status === 'overdue') {
-            overdue++
-        } else if (status === 'cancelled') {
-            cancelled++
-        } else if (status === 'completed') {
-            completed++
-        }
+        if (counts[status] !== undefined) counts[status]++
     })
 
-    setStatValue('Total', total);
-    setStatValue('Active', active);
-    setStatValue('Overdue', overdue);
-    setStatValue('Cancelled', cancelled);
-    setStatValue('Completed', completed);
+    setStatValue('Total', counts.total)
+    setStatValue('Approved', counts.approved)
+    setStatValue('Active', counts.active)
+    setStatValue('Pending Return', counts.pending_return)
+    setStatValue('Overdue', counts.overdue)
+    setStatValue('Completed', counts.completed)
+    setStatValue('Cancelled', counts.cancelled)
 }
 
 function setStatValue(label, value) {

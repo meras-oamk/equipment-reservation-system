@@ -41,12 +41,10 @@ async function populatedConditionOptions() {
 
 function formatDate(isoString) {
     if (!isoString) return 'N/A';
-    const date = new Date(isoString);
-    const hours = String(date.getHours()).padStart(2, '0')
-    const minutes = String(date.getMinutes()).padStart(2, '0')
-    const day = String(date.getDate()).padStart(2, '0')
-    const month = String(date.getMonth() + 1).padStart(2, '0')
-    const year = date.getFullYear()
+    const clean = isoString.replace(' ', 'T').slice(0, 19)
+    const [datePart, timePart] = clean.split('T')
+    const [year, month, day] = datePart.split('-')
+    const [hours, minutes] = timePart.split(':')
     return `${hours}:${minutes} &nbsp; ${day}/${month}/${year}`
 }
 
@@ -88,7 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
             document.getElementById('detailStart').innerHTML      = formatDate(r.start_time)
             document.getElementById('detailEnd').innerHTML        = formatDate(r.end_time)
-            document.getElementById('detailReturn').innerHTML     = formatDate(r.return_time)
+            document.getElementById('detailReturn').innerHTML     = formatDate(r.return_scan_time)
         },
     
         submitAction: async (activeId) => {

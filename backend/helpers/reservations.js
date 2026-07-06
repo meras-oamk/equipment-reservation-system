@@ -10,7 +10,7 @@ const reservationsHelper = {
                 r.id AS reservation_id,
                 r.start_time,
                 r.end_time,
-                r.return_time,
+                r.return_scan_time,
 
                 et.name AS equipment_name,
                 eu.qr_code,
@@ -28,7 +28,7 @@ const reservationsHelper = {
                 ON r.type_id = et.id
 
             WHERE r.status = 'pending_return'
-            ORDER BY r.return_time ASC;
+            ORDER BY r.return_scan_time ASC;
         `)
 
         return pendingReturn.rows 

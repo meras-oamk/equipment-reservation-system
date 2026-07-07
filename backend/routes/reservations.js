@@ -26,6 +26,14 @@ function normalizeTimestamp(str) {
     return str.replace(' ', 'T').slice(0, 19);
 }
 
+// Formats a DB timestamp string for display: "15:00  05/07/2026"
+function formatTimestampForDisplay(str) {
+    const clean = str.replace(' ', 'T').slice(0, 16);
+    const [datePart, timePart] = clean.split('T');
+    const [year, month, day] = datePart.split('-');
+    return `${timePart}  ${day}/${month}/${year}`;
+}
+
 router.get('/return-requests', authenticate, authorizeRole('admin'), async (req, res) => {
     try {
         const requestsData = await reservationsHelper.returnRequests()
@@ -104,9 +112,11 @@ router.post('/', authenticate, async (req, res) => {
 
         const { role, status } = userResult.rows[0]
 
-        if (status === 'suspended') {
+        if (status === 'suspended' || status === 'banned') {
             return res.status(403).json({
-                error: 'Your account is suspended. You cannot make new reservations.'
+                error: status === 'banned'
+                    ? 'Your account has been banned. You cannot make new reservations.'
+                    : 'Your account is suspended. You cannot make new reservations.'
             })
         }
 
@@ -298,12 +308,12 @@ router.post('/:id/scan', authenticate, async (req, res) => {
         if (reservation.status === 'approved') {
             if (nowStr < startStr) {
                 return res.status(400).json({
-                    error: `This equipment cannot be picked up before ${reservation.start_time}.`
+                    error: `This equipment cannot be picked up before ${formatTimestampForDisplay(reservation.start_time)}.`
                 });
             }
             if (nowStr > endStr) {
                 return res.status(400).json({
-                    error: `The pickup window for this reservation has expired (was until ${reservation.end_time}).`
+                    error: `The pickup window for this reservation has expired (was until ${formatTimestampForDisplay(reservation.end_time)}).`
                 });
             }
 

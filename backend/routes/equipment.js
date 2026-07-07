@@ -93,7 +93,7 @@ router.put('/types/:id', authenticate, authorizeRole('admin'), upload.single('im
 
         const result = await db.query(`
             UPDATE equipment_types
-            SET name = $1, category = $2, subcategory = $3, description = $4, image_url = $5, updated_at = NOW()
+            SET name = $1, category = $2, subcategory = $3, description = $4, image_url = $5, updated_at = (NOW() AT TIME ZONE 'Europe/Helsinki')
             WHERE id = $6
             RETURNING *;
         `, [name, category, subcategory, description, image_url, id])
@@ -163,7 +163,7 @@ router.put('/units/:id', authenticate, authorizeRole('admin'), async (req, res) 
 
         const result = await db.query(`
             UPDATE equipment_units
-            SET qr_code = $1, location = $2, status = $3, condition = $4, updated_at = NOW()
+            SET qr_code = $1, location = $2, status = $3, condition = $4, updated_at = (NOW() AT TIME ZONE 'Europe/Helsinki')
             WHERE id = $5
             RETURNING *;
         `, [qr_code, location, finalStatus, finalCondition, id])

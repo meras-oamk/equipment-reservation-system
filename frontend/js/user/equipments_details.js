@@ -158,12 +158,6 @@ document.addEventListener('click', function (e) {
   }
 });
 
-    // Close when clicking outside
-    document.addEventListener('click', function (e) {
-      if (!locationDropdown.contains(e.target) && !locationBtn.contains(e.target) && !pickupInput.contains(e.target)) {
-        closeLocationDropdown();
-      }
-    });
     // ── CONFIRMATION MODAL ──
     const confirmBtn   = document.getElementById('confirmBtn');
     const successModal = document.getElementById('successModal');
@@ -269,7 +263,6 @@ document.addEventListener('click', function (e) {
     }
 
     reservationData = await res.json();
-    console.log('Reservation response:', reservationData);
   } catch (err) {
     showValidationAlert(['Network error. Please try again.']);
     return;

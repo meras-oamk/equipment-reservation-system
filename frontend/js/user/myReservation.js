@@ -16,7 +16,6 @@ async function loadReservations() {
     headers: { 'Authorization': `Bearer ${token}` }
 });
 const data = await res.json();
-console.log('Raw /my response:', data);
 
 if (!res.ok || !Array.isArray(data)) {
     console.error('Failed to load reservations:', data.error || data);

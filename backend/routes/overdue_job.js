@@ -85,13 +85,15 @@ cron.schedule('*/15 * * * *', async () => {
         const affectedUserIds = [...new Set(result.rows.map(r => r.user_id))]
 
         for (const userId of affectedUserIds) {
-            // Count all-time overdue reservations for this user
-            // Use overdue_notified_at IS NOT NULL so completed/returned reservations
-            // that were once overdue still count toward the user's history.
+            // Count overdue reservations since last unsuspend (or all-time if never unsuspended).
+            // This prevents immediate re-suspension after the restriction period ends.
             const countResult = await db.query(`
                 SELECT COUNT(*) AS overdue_count
-                FROM reservations
-                WHERE user_id = $1 AND overdue_notified_at IS NOT NULL
+                FROM reservations r
+                JOIN users u ON u.id = r.user_id
+                WHERE r.user_id = $1
+                  AND r.overdue_notified_at IS NOT NULL
+                  AND r.overdue_notified_at > COALESCE(u.last_unsuspended_at, '1970-01-01'::timestamp)
             `, [userId])
 
             const overdueCount = parseInt(countResult.rows[0].overdue_count, 10)
@@ -100,7 +102,9 @@ cron.schedule('*/15 * * * *', async () => {
                 // Only suspend if currently active (avoid double-suspend)
                 const suspendResult = await db.query(`
                     UPDATE users
-                    SET status = 'suspended', suspended_at = NOW(), updated_at = NOW()
+                    SET status = 'suspended',
+                        suspended_at = (NOW() AT TIME ZONE 'Europe/Helsinki'),
+                        updated_at = (NOW() AT TIME ZONE 'Europe/Helsinki')
                     WHERE id = $1 AND status = 'active'
                     RETURNING full_name, email
                 `, [userId])
@@ -155,9 +159,12 @@ cron.schedule('*/15 * * * *', async () => {
 
         const unsuspendResult = await db.query(`
             UPDATE users
-            SET status = 'active', suspended_at = NULL, updated_at = NOW()
+            SET status = 'active',
+                suspended_at = NULL,
+                last_unsuspended_at = (NOW() AT TIME ZONE 'Europe/Helsinki'),
+                updated_at = (NOW() AT TIME ZONE 'Europe/Helsinki')
             WHERE status = 'suspended'
-              AND suspended_at < NOW() - ($1 || ' days')::INTERVAL
+              AND suspended_at < (NOW() AT TIME ZONE 'Europe/Helsinki') - ($1 || ' days')::INTERVAL
             RETURNING full_name, email
         `, [restrictionDays])
 

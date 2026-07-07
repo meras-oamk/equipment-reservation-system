@@ -97,6 +97,7 @@ CREATE TABLE users (
   role          user_role    NOT NULL,
   status        user_status  DEFAULT 'active',
   suspended_at  TIMESTAMP,
+  last_unsuspended_at TIMESTAMP,
   created_at    TIMESTAMP    DEFAULT NOW(),
   updated_at    TIMESTAMP    DEFAULT NOW()
 );

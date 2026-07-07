@@ -24,10 +24,10 @@ document.addEventListener('DOMContentLoaded', async function () {
     const r = await res.json();
 
     function fmt(datetimeStr) {
-      const d = new Date(datetimeStr);
-      const time = d.toTimeString().slice(0, 5);
-      const date = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
-      return { time, date };
+      const clean = datetimeStr.replace(' ', 'T').slice(0, 16);
+      const [datePart, timePart] = clean.split('T');
+      const [year, month, day] = datePart.split('-');
+      return { time: timePart, date: `${day}/${month}/${year}` };
     }
 
     const start = fmt(r.start_time);

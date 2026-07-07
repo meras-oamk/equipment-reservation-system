@@ -144,7 +144,7 @@ const authHelper = {
         const change = await db.query(`
             UPDATE users 
             SET password_hash = $1,
-                updated_at = NOW()
+                updated_at = (NOW() AT TIME ZONE 'Europe/Helsinki')
             WHERE id = $2;
         `, [newHashed, userId]
         )

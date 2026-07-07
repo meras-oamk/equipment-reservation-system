@@ -96,9 +96,7 @@ if (displayStatus === 'active' || displayStatus === 'overdue') {
         const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
         const duration = diffDays === 1 ? '1 day' : `${diffDays} days`;
 
-        console.log('detail-category element:', document.getElementById('detail-category'));
-console.log('Full document body innerHTML snippet:', document.querySelector('.status-banner')?.outerHTML);
-document.getElementById('detail-category').textContent      = r.category || '—';
+        document.getElementById('detail-category').textContent      = r.category || '—';
         document.getElementById('detail-device').textContent        = r.device || '—';
         document.getElementById('detail-start-time').firstChild.textContent = start.time + ' ';
 document.getElementById('detail-start-date').textContent            = start.date;

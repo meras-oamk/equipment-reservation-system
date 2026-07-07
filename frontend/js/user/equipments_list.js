@@ -4,37 +4,6 @@ let currentPage = 1;
 const PAGE_SIZE = 18;
 const equipmentGrid = document.getElementById('equipmentGrid');
 
-    document.querySelectorAll('.dropdown-item').forEach(item => {
-
-    item.addEventListener('click', function(e) {
-
-        e.preventDefault();
-
-        const dropdown = this.closest('.dropdown');
-
-        document
-            .querySelectorAll('.btn-category')
-            .forEach(btn => {
-                btn.classList.remove('active-category');
-                btn.textContent = btn.dataset.label;
-            });
-
-        const categoryButton =
-            dropdown.querySelector('.btn-category');
-
-        categoryButton.classList.add('active-category');
-        categoryButton.textContent = this.textContent;
-
-        const category =
-            categoryButton.dataset.category;
-
-        const subcategory =
-            this.dataset.subcategory;
-
-        loadEquipment(category, subcategory);
-    });
-
-});
 async function loadAllEquipment() {
 
     try {
@@ -156,40 +125,78 @@ function goToPage(page) {
 
 window.goToPage = goToPage;
 
-document.querySelectorAll('.btn-category')
-.forEach(button => {
+// ── Custom dropdown (bypasses Bootstrap/Popper positioning issues) ──
+let activeMenu = null;
 
-    button.addEventListener('click', function() {
-        if (!this.classList.contains('active-category')) {
-            document
-                .querySelectorAll('.btn-category')
-                .forEach(btn => {
-                    btn.classList.remove('active-category');
-                    btn.textContent = btn.dataset.label;
-                });
+function closeActiveMenu() {
+    if (activeMenu) {
+        activeMenu.style.display = 'none';
+        activeMenu = null;
+    }
+}
 
-            this.classList.add('active-category');
-            loadEquipment(this.dataset.category);
+document.addEventListener('click', closeActiveMenu);
+
+document.querySelectorAll('.dropdown').forEach(dropdown => {
+    const btn  = dropdown.querySelector('.btn-category');
+    const menu = dropdown.querySelector('.dropdown-menu');
+
+    // Move menu to body so it's never clipped by any overflow container
+    document.body.appendChild(menu);
+    menu.style.display = 'none';
+    menu.style.position = 'fixed';
+    menu.style.zIndex   = '9999';
+    menu.style.minWidth = '160px';
+
+    btn.removeAttribute('data-bs-toggle'); // disable Bootstrap's handler
+
+    btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+
+        if (!btn.classList.contains('active-category')) {
+            // First click: activate category, load all, don't open dropdown yet
+            document.querySelectorAll('.btn-category').forEach(b => {
+                b.classList.remove('active-category');
+                b.textContent = b.dataset.label;
+            });
+            btn.classList.add('active-category');
+            loadEquipment(btn.dataset.category);
+            closeActiveMenu();
+        } else {
+            // Already active: toggle dropdown for subcategory selection
+            if (activeMenu && activeMenu !== menu) closeActiveMenu();
+            if (menu.style.display === 'block') {
+                closeActiveMenu();
+            } else {
+                const rect = btn.getBoundingClientRect();
+                menu.style.top  = (rect.bottom + 2) + 'px';
+                menu.style.left = rect.left + 'px';
+                menu.style.display = 'block';
+                activeMenu = menu;
+            }
         }
     });
-});
-document.querySelectorAll('.dropdown').forEach(dropdown => {
-    dropdown.addEventListener('show.bs.dropdown', function(e) {
-        const btn = this.querySelector('.btn-category');
-        if (!btn.classList.contains('active-category')) {
+
+    // Wire dropdown-item clicks back to the original dropdown reference
+    menu.querySelectorAll('.dropdown-item').forEach(item => {
+        item.addEventListener('click', function(e) {
             e.preventDefault();
-        }
+            e.stopPropagation();
+            closeActiveMenu();
+
+            document.querySelectorAll('.btn-category').forEach(b => {
+                b.classList.remove('active-category');
+                b.textContent = b.dataset.label;
+            });
+            btn.classList.add('active-category');
+            btn.textContent = this.textContent;
+
+            loadEquipment(btn.dataset.category, this.dataset.subcategory);
+        });
     });
 });
 
 window.addEventListener('DOMContentLoaded', () => {
-
-    // Init Bootstrap dropdowns with fixed strategy to avoid overflow clipping on mobile
-    document.querySelectorAll('.dropdown-toggle').forEach(el => {
-        new bootstrap.Dropdown(el, {
-            popperConfig: { strategy: 'fixed' }
-        });
-    });
 
     loadAllEquipment();
 

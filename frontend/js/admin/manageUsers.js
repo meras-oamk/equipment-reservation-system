@@ -299,11 +299,6 @@ function copyCredentials() {
         })
 }
 
-async function initManageUsers() {
-    userDetails = await fetchUserDetails()
-    renderLeftUserPanel(userDetails)
-    setupPanelListeners
-}
 
 document.addEventListener("DOMContentLoaded", () => {
 

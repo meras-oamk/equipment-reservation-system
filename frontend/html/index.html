@@ -8,13 +8,12 @@
 </head>
 <body>
 
-<div class="container">
+<div class="page-wrapper">
     <!-- Navbar -->
-    <nav class="navbar">
+    <nav class="top-navbar">
         <img src="../assets/Logo.png" alt="Logo" class="logo">
-
         <div class="nav-buttons">
-           <button class="btn-register" onclick="window.location.href='loginOrRegister.html?form=register'">Register</button>
+            <button class="btn-register" onclick="window.location.href='loginOrRegister.html?form=register'">Register</button>
             <button class="btn-login" onclick="window.location.href='loginOrRegister.html?form=login'">Login</button>
         </div>
     </nav>
@@ -22,15 +21,11 @@
     <!-- Hero Section -->
     <section class="hero">
         <h1>Reserve Equipment Easily</h1>
-        <p>
-            Browse, book, and manage equipment anytime, anywhere.
-        </p>
+        <p>Browse, book, and manage equipment anytime, anywhere.</p>
     </section>
 
     <!-- Equipment Section -->
-    <section class="equipment-section">
-        <h2>All Equipment</h2>
-
+    <div class="content">
         <!-- Search -->
         <div class="search-wrapper">
             <input type="text" id="searchInput" placeholder="Search by equipment, category...">
@@ -107,11 +102,9 @@
             </div>
         </div>
 
-        <div class="grid-scroll-area">
-            <div class="equipment-grid" id="equipmentGrid"></div>
-            <div class="pagination" id="pagination"></div>
-        </div>
-    </section>
+        <div class="equipment-grid" id="equipmentGrid"></div>
+        <div class="pagination" id="pagination"></div>
+    </div>
 </div>
 
 <script>
@@ -198,7 +191,7 @@ function renderPagination(total) {
 
 function goToPage(page) {
     currentPage = page;
-    document.querySelector('.grid-scroll-area').scrollTo({ top: 0, behavior: 'instant' });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     renderEquipment();
 }
 
@@ -213,49 +206,89 @@ function searchEquipment(keyword) {
     renderEquipment();
 }
 
-// Category + dropdown logic
+// ── Category dropdown ──
+// One shared popup div appended to body once
+const catPopup = document.createElement('div');
+catPopup.style.cssText = [
+    'display:none',
+    'position:fixed',
+    'z-index:9999',
+    'background:#fff',
+    'border:1px solid #ddd',
+    'border-radius:10px',
+    'box-shadow:0 4px 12px rgba(0,0,0,.12)',
+    'min-width:190px',
+    'padding:4px 0',
+    'font-family:Georgia,serif',
+    'font-size:13px'
+].join(';');
+document.body.appendChild(catPopup);
+
+let activeBtn = null;
+
+function closePopup() {
+    catPopup.style.display = 'none';
+    activeBtn = null;
+}
+document.addEventListener('click', closePopup);
+
+// Read subcategory data from HTML, then wire up each button
 document.querySelectorAll('.cat-dropdown').forEach(dropdown => {
-    const btn = dropdown.querySelector('.btn-category');
+    const btn      = dropdown.querySelector('.btn-category');
+    const category = dropdown.dataset.category;
+    const items    = Array.from(dropdown.querySelectorAll('.cat-menu span')).map(s => ({
+        label: s.textContent.trim(),
+        sub:   s.dataset.subcategory
+    }));
 
     btn.addEventListener('click', function(e) {
         e.stopPropagation();
-        if (!this.classList.contains('active-category')) {
+
+        if (!btn.classList.contains('active-category')) {
+            // First click → activate, load all for this category
             document.querySelectorAll('.btn-category').forEach(b => {
                 b.classList.remove('active-category');
                 b.textContent = b.dataset.label;
             });
-            document.querySelectorAll('.cat-dropdown').forEach(d => d.classList.remove('open'));
-            this.classList.add('active-category');
-            loadEquipment(dropdown.dataset.category);
+            btn.classList.add('active-category');
+            loadEquipment(category);
+            closePopup();
         } else {
-            const isOpen = dropdown.classList.contains('open');
-            document.querySelectorAll('.cat-dropdown').forEach(d => d.classList.remove('open'));
-            if (!isOpen) {
-                const rect = this.getBoundingClientRect();
-                const menu = dropdown.querySelector('.cat-menu');
-                menu.style.top = (rect.bottom + 4) + 'px';
-                const left = Math.min(rect.left, window.innerWidth - menu.offsetWidth - 8);
-                menu.style.left = Math.max(8, left) + 'px';
-                dropdown.classList.add('open');
+            // Second click → toggle subcategory popup
+            if (activeBtn === btn && catPopup.style.display === 'block') {
+                closePopup();
+                return;
             }
+            closePopup();
+
+            // Populate popup with this category's subcategories
+            catPopup.innerHTML = items.map(it =>
+                `<div style="padding:8px 16px;cursor:pointer;white-space:nowrap;color:#333" data-sub="${it.sub}">${it.label}</div>`
+            ).join('');
+
+            catPopup.querySelectorAll('div').forEach(el => {
+                el.addEventListener('pointerover',  () => { el.style.background = '#fff8f0'; el.style.color = '#f39a1d'; });
+                el.addEventListener('pointerout',   () => { el.style.background = '';        el.style.color = '#333'; });
+                el.addEventListener('click', function(ev) {
+                    ev.stopPropagation();
+                    document.querySelectorAll('.btn-category').forEach(b => {
+                        b.classList.remove('active-category');
+                        b.textContent = b.dataset.label;
+                    });
+                    btn.classList.add('active-category');
+                    btn.textContent = this.textContent;
+                    closePopup();
+                    loadEquipment(category, this.dataset.sub);
+                });
+            });
+
+            const rect = btn.getBoundingClientRect();
+            catPopup.style.top  = (rect.bottom + 4) + 'px';
+            catPopup.style.left = Math.max(8, Math.min(rect.left, window.innerWidth - 200)) + 'px';
+            catPopup.style.display = 'block';
+            activeBtn = btn;
         }
     });
-
-    dropdown.querySelectorAll('.cat-menu span').forEach(item => {
-        item.addEventListener('click', function(e) {
-            e.stopPropagation();
-            btn.textContent = this.dataset.subcategory;
-            dropdown.classList.remove('open');
-            loadEquipment(dropdown.dataset.category, this.dataset.subcategory);
-        });
-    });
-});
-
-// Close dropdown when clicking outside
-document.addEventListener('click', function(e) {
-    if (!e.target.closest('.cat-dropdown')) {
-        document.querySelectorAll('.cat-dropdown').forEach(d => d.classList.remove('open'));
-    }
 });
 
 // Search

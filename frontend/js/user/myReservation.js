@@ -158,17 +158,16 @@ function renderTable(tab) {
     const endLines   = r.end.split('\n');
     return `
        <div class="mobile-res-card${isCompleted ? ' not-clickable' : ''}" data-id="${r.id}">
-        <div class="d-flex justify-content-between align-items-start mb-2">
+        <div class="mobile-card-header">
           <span class="device-name">${r.device}</span>
           ${badgeHtml(r.displayStatus)}
         </div>
         <div class="mobile-meta">
-          <span>Reservation ID: <strong>#${r.id}</strong></span>
+          <span>ID: <strong>#${r.id}</strong></span>
+          <span>Duration: <strong>${r.duration}</strong></span>
           <span>Start: <strong>${startLines[0]} ${startLines[1]||''}</strong></span>
           <span>End: <strong>${endLines[0]} ${endLines[1]||''}</strong></span>
-          <span>Duration: <strong>${r.duration}</strong></span>
-          <span>Quantity: <strong>1</strong></span>
-          <span>Location: <strong>${r.location}</strong></span>
+          <span class="mobile-meta-full">Location: <strong>${r.location}</strong></span>
         </div>
       </div>`;
   }).join('');

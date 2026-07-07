@@ -76,12 +76,12 @@ async function saveSetting(card, settingKey) {
 
         const result = await res.json()
         if (!res.ok) {
-            alert(`Lỗi khi lưu: ${result.error || 'Unknown error'}`)
+            alert(`Failed to save: ${result.error || 'Unknown error'}`)
             return false
         }
         return true
     } catch (error) {
-        alert('Lỗi kết nối server.')
+        alert('Failed to connect to server.')
         return false
     }
 }

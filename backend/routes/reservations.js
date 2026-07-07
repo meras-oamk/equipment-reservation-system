@@ -40,8 +40,8 @@ router.get('/return-requests', authenticate, authorizeRole('admin'), async (req,
 
         return res.status(200).json({ requestsData })
     } catch (error) {
-        console.log('Error return requests: ', error.message)
-        return res.status(401).json({ error: error.message })
+        console.error('Error return requests: ', error.message)
+        return res.status(500).json({ error: error.message })
     }
 })
 
@@ -85,8 +85,8 @@ router.get('/reservations', authenticate, authorizeRole('admin'), async (req, re
 
         return res.status(200).json({ reservationsData })
     } catch (error) {
-        console.log('Error get reservations: ', error.message)
-        return res.status(401).json({ error: error.message })
+        console.error('Error get reservations: ', error.message)
+        return res.status(500).json({ error: error.message })
     }
 }),
 

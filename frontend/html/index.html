@@ -241,53 +241,66 @@ document.querySelectorAll('.cat-dropdown').forEach(dropdown => {
         sub:   s.dataset.subcategory
     }));
 
-    btn.addEventListener('click', function(e) {
-        e.stopPropagation();
+    btn.addEventListener('click', function (e) {
+    e.stopPropagation();
 
-        if (!btn.classList.contains('active-category')) {
-            // First click → activate, load all for this category
-            document.querySelectorAll('.btn-category').forEach(b => {
-                b.classList.remove('active-category');
-                b.textContent = b.dataset.label;
-            });
-            btn.classList.add('active-category');
-            loadEquipment(category);
+    // Close current popup if another button is open
+    if (activeBtn && activeBtn !== btn) {
+        closePopup();
+    }
+
+    // Reset all category buttons
+    document.querySelectorAll('.btn-category').forEach(b => {
+        b.classList.remove('active-category');
+        b.textContent = b.dataset.label;
+    });
+
+    // Activate current button
+    btn.classList.add('active-category');
+
+    // Load all equipment in this category
+    loadEquipment(category);
+
+    // Create popup menu
+    catPopup.innerHTML = items.map(it => `
+        <div class="popup-item" data-sub="${it.sub}">
+            ${it.label}
+        </div>
+    `).join('');
+
+    // Add events to popup items
+    catPopup.querySelectorAll('.popup-item').forEach(el => {
+
+        el.addEventListener('mouseenter', () => {
+            el.style.background = '#fff8f0';
+            el.style.color = '#f39a1d';
+        });
+
+        el.addEventListener('mouseleave', () => {
+            el.style.background = '';
+            el.style.color = '#333';
+        });
+
+        el.addEventListener('click', function (ev) {
+            ev.stopPropagation();
+
+            btn.textContent = this.textContent;
+
+            loadEquipment(category, this.dataset.sub);
+
             closePopup();
-        } else {
-            // Second click → toggle subcategory popup
-            if (activeBtn === btn && catPopup.style.display === 'block') {
-                closePopup();
-                return;
-            }
-            closePopup();
+        });
 
-            // Populate popup with this category's subcategories
-            catPopup.innerHTML = items.map(it =>
-                `<div style="padding:8px 16px;cursor:pointer;white-space:nowrap;color:#333" data-sub="${it.sub}">${it.label}</div>`
-            ).join('');
+    });
 
-            catPopup.querySelectorAll('div').forEach(el => {
-                el.addEventListener('pointerover',  () => { el.style.background = '#fff8f0'; el.style.color = '#f39a1d'; });
-                el.addEventListener('pointerout',   () => { el.style.background = '';        el.style.color = '#333'; });
-                el.addEventListener('click', function(ev) {
-                    ev.stopPropagation();
-                    document.querySelectorAll('.btn-category').forEach(b => {
-                        b.classList.remove('active-category');
-                        b.textContent = b.dataset.label;
-                    });
-                    btn.classList.add('active-category');
-                    btn.textContent = this.textContent;
-                    closePopup();
-                    loadEquipment(category, this.dataset.sub);
-                });
-            });
+    // Position popup below button
+    const rect = btn.getBoundingClientRect();
 
-            const rect = btn.getBoundingClientRect();
-            catPopup.style.top  = (rect.bottom + 4) + 'px';
-            catPopup.style.left = Math.max(8, Math.min(rect.left, window.innerWidth - 200)) + 'px';
-            catPopup.style.display = 'block';
-            activeBtn = btn;
-        }
+    catPopup.style.top = (rect.bottom + 4) + 'px';
+    catPopup.style.left = Math.max(8, Math.min(rect.left, window.innerWidth - 200)) + 'px';
+    catPopup.style.display = 'block';
+
+    activeBtn = btn;
     });
 });
 

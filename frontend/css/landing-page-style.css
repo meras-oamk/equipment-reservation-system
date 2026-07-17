@@ -155,7 +155,17 @@ body {
     color: #333;
 }
 .cat-menu span:hover { background: #fff8f0; color: #f39a1d; }
+.popup-item {
+    padding: 8px 16px;
+    cursor: pointer;
+    white-space: nowrap;
+    color: #333;
+}
 
+.popup-item:hover {
+    background: #fff8f0;
+    color: #f39a1d;
+}
 /* EQUIPMENT GRID */
 .equipment-grid {
     display: grid;

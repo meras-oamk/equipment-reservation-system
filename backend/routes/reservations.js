@@ -205,7 +205,7 @@ router.get('/my', authenticate, async (req, res) => {
                 cancelled_at = (NOW() AT TIME ZONE 'Europe/Helsinki')
             WHERE user_id = $1
               AND status = 'approved'
-              AND end_time < NOW()
+              AND end_time < (NOW() AT TIME ZONE 'Europe/Helsinki')
             RETURNING id, unit_id;
         `, [user_id])
 

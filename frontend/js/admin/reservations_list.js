@@ -39,7 +39,6 @@ async function loadAllReservations() {
         const { reservationsData } = data
 
         renderReservationsTable(reservationsData)
-        updateStatistics(reservationsData)
         
     } catch (error) {
         console.error('Error fetching reservations:', error)
@@ -149,33 +148,3 @@ function formatTableDate(isoString) {
     return `${day}/${month}/${year} ${hours}:${minutes}`
 }
 
-function updateStatistics(reservations) {
-    const counts = { total: reservations.length, approved: 0, active: 0, pending_return: 0, overdue: 0, completed: 0, cancelled: 0 }
-
-    reservations.forEach(r => {
-        const status = r.status ? r.status.toLowerCase() : ''
-        if (counts[status] !== undefined) counts[status]++
-    })
-
-    setStatValue('Total', counts.total)
-    setStatValue('Approved', counts.approved)
-    setStatValue('Active', counts.active)
-    setStatValue('Pending Return', counts.pending_return)
-    setStatValue('Overdue', counts.overdue)
-    setStatValue('Completed', counts.completed)
-    setStatValue('Cancelled', counts.cancelled)
-}
-
-function setStatValue(label, value) {
-    const cards = document.querySelectorAll('.stat-card')
-
-    cards.forEach(card => {
-        const labelEl = card.querySelector('.stat-label')
-        if (labelEl && labelEl.textContent.trim().toLowerCase() === label.toLowerCase()) {
-            const valueEl = card.querySelector('.stat-value')
-            if (valueEl) {
-                valueEl.textContent = value
-            }
-        }
-    })
-}

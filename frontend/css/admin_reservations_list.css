@@ -1,3 +1,58 @@
+.stat-card {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #eee;
+  padding: 20px 24px;
+  height: 320px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-top: 0;
+  margin-bottom: 12px;
+}
+
+.chart-container {
+  position: relative;
+  flex-grow: 1;
+  width: 100%;
+  height: calc(100% - 30px);
+}
+
+.radial-wrapper {
+  position: relative;
+}
+
+.doughnut-center-text {
+  position: absolute;
+  top: 50%;
+  left: 34%; 
+  transform: translate(-50%, -35%);
+  text-align: center;
+  pointer-events: none;
+}
+
+.doughnut-total {
+  font-size: 38px;
+  font-weight: 800;
+  color: #333;
+  line-height: 1;
+}
+
+.doughnut-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+}
+
 .table-header {
   background: #F5C992;
   border-radius: 0px 10px 0 0;
@@ -37,7 +92,6 @@
   overflow: hidden;
 }
 
-/* ── Timeline column ── */
 .timeline-cell {
   display: flex;
   flex-direction: column;

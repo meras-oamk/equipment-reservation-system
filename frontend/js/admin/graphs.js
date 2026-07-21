@@ -1,7 +1,9 @@
 let demandLineChart = null
 let popularityBarChart = null
+let outcomesDoughnutChart = null
+let weeklyLoadChart = null
+let durationBarChart = null
 
-// Hardcoded categoties to clean frontend display labels
 const categoryDisplayMap = {
     'vr_ar': 'VR/AR',
     'robotics': 'Robotics',
@@ -15,11 +17,21 @@ document.addEventListener('DOMContentLoaded', () => {
     initLineChart()
     initBarChart()
 
+    initOutcomesChart()
+    initWeeklyLoadChart()
+    initDurationChart()
+
     fetchDashboardStats()
-});
+    fetchReservationStats()
+})
+
+
 
 function initLineChart() {
-    const lineCtx = document.getElementById('demandLineChart').getContext('2d')
+    const lineCanvas = document.getElementById('demandLineChart')
+    if (!lineCanvas) return
+
+    const lineCtx = lineCanvas.getContext('2d')
     demandLineChart = new Chart(lineCtx, {
         type: 'line',
         data: {
@@ -49,15 +61,18 @@ function initLineChart() {
                 },
                 y: {
                     border: { dash: [5, 5] },
-                    ticks: { color: '#888', font: { size: 11 }, stepSize: 20 }
+                    ticks: { color: '#888', font: { size: 11 } ,maxTicksLimit: 5, precision: 0 }
                 }
             }
         }
-    });
+    })
 }
 
 function initBarChart() {
-    const barCtx = document.getElementById('popularityBarChart').getContext('2d')
+    const barCanvas = document.getElementById('popularityBarChart')
+    if (!barCanvas) return
+
+    const barCtx = barCanvas.getContext('2d')
     popularityBarChart = new Chart(barCtx, {
         type: 'bar',
         data: {
@@ -127,7 +142,7 @@ async function fetchDashboardStats() {
 
     } catch (error) {
         console.error('Error loading dashboard statistics: ', error)
-        document.getElementById('utilizationSubtext').textContent = 'Error loading system metrics.'
+        document.querySelectorAll('utilizationSubtext').textContent = 'Error loading system metrics.'
     }
 }
 
@@ -163,7 +178,7 @@ function updateUtilizationCard(stats) {
 function updateLineChart(trends) {
     if (!demandLineChart) return
 
-    const labels = trends.map(t => formatDateLabel(t.week_start))
+    const labels = trends.map(t => t.week_label)
     const dataPoints = trends.map(t => t.reservation_count)
 
     demandLineChart.data.labels = labels
@@ -184,13 +199,6 @@ function updateBarChart(popularity) {
     popularityBarChart.update()
 }
 
-function formatDateLabel(dateString) {
-    if (!dateString) return ''
-    const date = new Date(dateString)
-    if (isNaN(date)) return dateString
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-}
-
 function getGradeInfo(rate) {
     if (rate >= 85) {
         return { color: '#28a745', summary: 'Excellent efficiency' }
@@ -204,3 +212,215 @@ function getGradeInfo(rate) {
         return { color: '#dc3545', summary: 'High equipment idle rate' }
     }
 }
+
+function initOutcomesChart() {
+    const outcomesCanvas = document.getElementById('outcomesDoughnutChart')
+    if (!outcomesCanvas) return
+
+    const outcomesCtx = outcomesCanvas.getContext('2d')
+    outcomesDoughnutChart = new Chart(outcomesCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Completed', 'Cancelled', 'Overdue', 'Approved', 'Active', 'Pending Return'],
+            datasets: [{
+                data: [0, 0, 0, 0, 0, 0],
+                backgroundColor: [
+                    '#28a745', 
+                    '#6c757d', 
+                    '#dc3545', 
+                    '#007bff', 
+                    '#17a2b8', 
+                    '#ffc107'  
+                ],
+                borderWidth: 2,
+                cutout: '72%' 
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        boxWidth: 12,
+                        padding: 10,
+                        font: { size: 11, weight: '500' }
+                    }
+                }
+            }
+        }
+    })
+}
+
+function initWeeklyLoadChart() {
+    const weeklyLoadChartCanvas = document.getElementById('weeklyLoadChart')
+    if (!weeklyLoadChartCanvas) return
+
+    const loadCtx = weeklyLoadChartCanvas.getContext('2d')
+    
+    weeklyLoadChart = new Chart(loadCtx, {
+        type: 'bar',
+        data: {
+            labels: [],
+            datasets: [
+                {
+                    label: 'Expected Returns',
+                    data: [0, 0, 0, 0, 0, 0, 0], 
+                    backgroundColor: '#007bff',
+                    borderRadius: 4,
+                    barThickness: 20
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: { boxWidth: 10, font: { size: 11 } }
+                }
+            },
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: { font: { size: 11 } }
+                },
+                y: {
+                    beginAtZero: true,
+                    border: { dash: [5, 5] },
+                    ticks: { font: { size: 11 } }
+                }
+            }
+        }
+    })
+}
+
+function initDurationChart() {
+    const durationCanvas = document.getElementById('durationBarChart')
+    if (!durationCanvas) return
+
+    const durationCtx = durationCanvas.getContext('2d')
+    durationBarChart = new Chart(durationCtx, {
+        type: 'bar',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Avg. Hours',
+                data: [], 
+                backgroundColor: '#f5a623', 
+                borderRadius: 4,
+                barThickness: 16
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                x: {
+                    grid: { border: { dash: [5, 5] } },
+                    ticks: { font: { size: 11 } }
+                },
+                y: {
+                    grid: { display: false },
+                    ticks: { color: '#333', font: { size: 11, weight: '500' } }
+                }
+            }
+        }
+    })
+}
+
+async function fetchReservationStats() {
+    try {
+        const token = localStorage.getItem('token')
+
+        const res = await fetch('/api/stats/reservations-stats', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        })
+
+        if (res.status === 401) {
+            localStorage.removeItem('token')
+            window.location.replace('../../loginOrRegister.html')
+            return
+        }
+
+        if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`)
+        
+        const data = await res.json()
+        
+        if (data.loanOutcomes) {
+            updateOutcomesChart(data.loanOutcomes)
+        }
+        
+        if (data.weeklyLoad) {
+            updateWeeklyLoadChart(data.weeklyLoad)
+        }
+        
+        if (data.avgDuration) {
+            updateDurationChart(data.avgDuration)
+        }
+    } catch (error) {
+        console.error('Error loading reservations statistics: ', error)
+        document.querySelectorAll('utilizationSubtext').textContent = 'Error loading system metrics.'
+    }
+}
+
+function updateOutcomesChart(loanOutcomes) {
+    if (!outcomesDoughnutChart) return
+
+    const outcomes = Object.fromEntries(
+        loanOutcomes.map(({ status, total_reservations }) => [
+            status,
+            Number(total_reservations),
+        ])
+    )
+
+    const dataPoints = [
+        outcomes.completed,
+        outcomes.cancelled,
+        outcomes.overdue,
+        outcomes.approved,
+        outcomes.active,
+        outcomes.pending_return
+    ]
+
+    outcomesDoughnutChart.data.datasets[0].data = dataPoints
+    outcomesDoughnutChart.update()
+
+    document.getElementById('outcomesTotal').textContent = outcomes.total
+}
+
+function updateWeeklyLoadChart(weeklyLoad) {
+    if (!weeklyLoadChart) return
+    
+    const labels = weeklyLoad.map(d => d.day)
+    const dataPoints = weeklyLoad.map(d => d.due_returns)
+
+    weeklyLoadChart.data.labels = labels
+    weeklyLoadChart.data.datasets[0].data = dataPoints
+    weeklyLoadChart.update()
+}
+
+function updateDurationChart(avgDuration) {
+    if (!durationBarChart) return
+
+    const labels = avgDuration.map(d => categoryDisplayMap[d.category] || d.category)
+    const dataPoints = avgDuration.map(d => d.avg_days)
+
+    console.log(labels)
+    console.log(dataPoints)
+
+    durationBarChart.data.labels = labels
+    durationBarChart.data.datasets[0].data = dataPoints
+    durationBarChart.update()
+}
+

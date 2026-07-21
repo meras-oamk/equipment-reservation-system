@@ -6,7 +6,8 @@ class ListController {
         itemSelector,
         searchFields = [],
         filterCallback,
-        sortCallback
+        sortCallback,
+        onApply
     }) {
         this.searchInput = document.querySelector(searchInputSelector)
         this.dropdownContainer = document.querySelector(dropdownSelector)
@@ -16,6 +17,7 @@ class ListController {
 
         this.filterCallback = filterCallback || (() => true)
         this.sortCallback = sortCallback || (() => 0)
+        this.onApply = onApply
 
         this.searchQuery = ''
         this.activeFilter = 'all'
@@ -52,6 +54,15 @@ class ListController {
     }
 
     apply() {
+        if (typeof this.onApply === 'function') {
+            this.onApply({
+                search: this.searchQuery,
+                filter: this. activeFilter,
+                sort: this.activeSort
+            })
+            return
+        }
+
         const items = document.querySelectorAll(this.itemSelector)
 
         items.forEach(item => {

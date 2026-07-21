@@ -438,9 +438,6 @@ function updateDurationChart(avgDuration) {
     const labels = avgDuration.map(d => categoryDisplayMap[d.category] || d.category)
     const dataPoints = avgDuration.map(d => d.avg_days)
 
-    console.log(labels)
-    console.log(dataPoints)
-
     durationBarChart.data.labels = labels
     durationBarChart.data.datasets[0].data = dataPoints
     durationBarChart.update()

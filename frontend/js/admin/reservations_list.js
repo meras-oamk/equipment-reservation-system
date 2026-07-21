@@ -4,14 +4,18 @@ if (!token) {
     window.location.replace('../../loginOrRegister.html')
 }
 
+let currentPage = 1
+const limit = 10
+let currentSearch = ''
+let currentFilter = 'all'
+
 new ListController({
     searchInputSelector: '.search-bar',
     dropdownSelector: '.filter-select',
-    itemSelector: '.table-row',
-    searchFields: ['.user-name', '.eq-name'],
-    filterCallback: (row, value) => {
-        const status = row.getAttribute('data-status')
-        return status === value
+    onApply: ({ search, filter }) => {
+        currentSearch = search;
+        currentFilter = filter;
+        loadAllReservations(1); 
     }
 })
 
@@ -19,9 +23,17 @@ document.addEventListener('DOMContentLoaded', () => {
     loadAllReservations()
 })
 
-async function loadAllReservations() {
+async function loadAllReservations(page = 1) {
+    currentPage = page
     try {
-        const res = await fetch('/api/reservation/reservations', {
+        const queryParams = new URLSearchParams({
+            page: page,
+            limit: limit,
+            search: currentSearch,
+            status: currentFilter
+        })
+
+        const res = await fetch(`/api/reservation/reservations?${queryParams.toString()}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -40,9 +52,10 @@ async function loadAllReservations() {
         }
 
         const data = await res.json()
-        const { reservationsData } = data
+        const { reservations, pagination } = data
 
-        renderReservationsTable(reservationsData)
+        renderReservationsTable(reservations)
+        renderPaginationControls(pagination)
         
     } catch (error) {
         console.error('Error fetching reservations:', error)
@@ -96,6 +109,47 @@ function renderReservationsTable(reservations) {
         `
         tableWrap.insertAdjacentHTML('beforeend', rowHtml)
     })
+}
+
+function renderPaginationControls(pagination) {
+    const container = document.getElementById('pagination-controls')
+    if (!container) return
+
+    const { currentPage, totalPages } = pagination
+
+    if (totalPages <= 1) {
+        container.innerHTML = ''
+        return
+    }
+
+    let innerHTML = ''
+
+    innerHTML += `
+        <button class="pag-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="changePage(${currentPage - 1})">
+            &laquo;
+        </button>
+    `
+
+    for (let i = 1; i <= totalPages; i++) {
+        innerHTML += `
+            <button class="pag-btn ${currentPage === i ? 'active' : ''}" onclick="changePage(${i})">
+                ${i}
+            </button>
+        `
+    }
+
+    innerHTML += `
+        <button class="pag-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="changePage(${currentPage + 1})">
+            &raquo;
+        </button>
+    `
+
+    container.innerHTML = innerHTML
+    
+}
+
+window.changePage = function(page) {
+    loadAllReservations(page)
 }
 
 function buildTimeline(r) {

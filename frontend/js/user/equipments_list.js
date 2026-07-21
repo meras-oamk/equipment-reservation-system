@@ -150,32 +150,39 @@ document.querySelectorAll('.dropdown').forEach(dropdown => {
 
     btn.removeAttribute('data-bs-toggle'); // disable Bootstrap's handler
 
-    btn.addEventListener('click', function(e) {
-        e.stopPropagation();
+    btn.addEventListener('click', function (e) {
+    e.stopPropagation();
 
-        if (!btn.classList.contains('active-category')) {
-            // First click: activate category, load all, don't open dropdown yet
-            document.querySelectorAll('.btn-category').forEach(b => {
-                b.classList.remove('active-category');
-                b.textContent = b.dataset.label;
-            });
-            btn.classList.add('active-category');
-            loadEquipment(btn.dataset.category);
-            closeActiveMenu();
-        } else {
-            // Already active: toggle dropdown for subcategory selection
-            if (activeMenu && activeMenu !== menu) closeActiveMenu();
-            if (menu.style.display === 'block') {
-                closeActiveMenu();
-            } else {
-                const rect = btn.getBoundingClientRect();
-                menu.style.top  = (rect.bottom + 2) + 'px';
-                menu.style.left = rect.left + 'px';
-                menu.style.display = 'block';
-                activeMenu = menu;
-            }
-        }
+    // Toggle same menu
+    if (activeMenu === menu && menu.style.display === 'block') {
+        closeActiveMenu();
+        return;
+    }
+
+    // Close any other open menu
+    closeActiveMenu();
+
+    // Reset buttons
+    document.querySelectorAll('.btn-category').forEach(b => {
+        b.classList.remove('active-category');
+        b.textContent = b.dataset.label;
     });
+
+    // Activate this button
+    btn.classList.add('active-category');
+
+    // Load all equipment for this category
+    loadEquipment(btn.dataset.category);
+
+    // Position dropdown
+    const rect = btn.getBoundingClientRect();
+
+    menu.style.top = (rect.bottom + 2) + 'px';
+    menu.style.left = rect.left + 'px';
+    menu.style.display = 'block';
+
+    activeMenu = menu;
+});
 
     // Wire dropdown-item clicks back to the original dropdown reference
     menu.querySelectorAll('.dropdown-item').forEach(item => {

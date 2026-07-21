@@ -13,6 +13,27 @@ const categoryDisplayMap = {
     'iot_embedded': 'IoT/Embedded'
 }
 
+// Doughnut center text
+const centerTextPlugin = {
+    id: 'centerTextPlugin',
+    afterDraw(chart) {
+        const { chartArea: { left, right, top, bottom } } = chart
+        
+        const centerX = (left + right) / 2
+        const centerY = (top + bottom) / 2
+        
+        const container = chart.canvas.parentNode;
+        const textDiv = container.querySelector('.doughnut-center-text')
+        
+        if (textDiv) {
+            textDiv.style.left = `${centerX}px`
+            textDiv.style.top = `${centerY}px`
+            textDiv.style.transform = 'translate(-50%, -50%)'
+            textDiv.style.position = 'absolute'
+        }
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     initLineChart()
     initBarChart()
@@ -225,10 +246,10 @@ function initOutcomesChart() {
             datasets: [{
                 data: [0, 0, 0, 0, 0, 0],
                 backgroundColor: [
-                    '#28a745', 
-                    '#6c757d', 
-                    '#dc3545', 
-                    '#007bff', 
+                    '#2E7D32', 
+                    '#757575', 
+                    '#c62828', 
+                    '#1565C0', 
                     '#17a2b8', 
                     '#ffc107'  
                 ],
@@ -249,7 +270,8 @@ function initOutcomesChart() {
                     }
                 }
             }
-        }
+        },
+        plugins: [centerTextPlugin]
     })
 }
 
@@ -267,7 +289,7 @@ function initWeeklyLoadChart() {
                 {
                     label: 'Expected Returns',
                     data: [0, 0, 0, 0, 0, 0, 0], 
-                    backgroundColor: '#007bff',
+                    backgroundColor: '#1565C0',
                     borderRadius: 4,
                     barThickness: 20
                 }

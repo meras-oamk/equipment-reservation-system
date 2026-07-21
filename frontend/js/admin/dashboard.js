@@ -1,4 +1,8 @@
 const token = localStorage.getItem('token')
+if (!token) {
+    alert('Login to see contents!') 
+    window.location.replace('../../loginOrRegister.html')
+}
 
 async function populatedConditionOptions() {
     try {
@@ -12,9 +16,9 @@ async function populatedConditionOptions() {
 
         if (res.status === 401) {
             localStorage.removeItem('token')
-            alert('Your token is expired or invatid. Please login again!')
+            alert('Your token is expired or invalid. Please login again!')
             window.location.replace('../../loginOrRegister.html')
-            return []
+            return 
         }
 
         if (!res.ok) {
@@ -101,3 +105,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     })
 })
+
+
+
+
+
+

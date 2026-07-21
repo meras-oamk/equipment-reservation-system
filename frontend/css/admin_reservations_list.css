@@ -29,10 +29,6 @@
 }
 
 .doughnut-center-text {
-  position: absolute;
-  top: 50%;
-  left: 34%; 
-  transform: translate(-50%, -35%);
   text-align: center;
   pointer-events: none;
 }

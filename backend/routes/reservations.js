@@ -120,6 +120,20 @@ router.post('/', authenticate, async (req, res) => {
             })
         }
 
+        // Block new bookings entirely if the user has ANY overdue reservation
+        const overdueCheck = await db.query(`
+            SELECT COUNT(*) AS total
+            FROM reservations
+            WHERE user_id = $1
+              AND status = 'overdue'
+        `, [user_id])
+
+        if (parseInt(overdueCheck.rows[0].total, 10) > 0) {
+            return res.status(403).json({
+                error: 'You have an overdue reservation. Please return it before making a new booking.'
+            })
+        }
+
         const reservationLimit = role === 'staff' ? 5 : 3
 
         const reservationCountResult = await db.query(`
@@ -142,6 +156,29 @@ router.post('/', authenticate, async (req, res) => {
                 error: `You have reached your reservation limit (${reservationLimit}). Please complete or return an existing reservation first.`
             })
         }
+
+        /*const reservationLimit = role === 'staff' ? 5 : 3
+
+        const reservationCountResult = await db.query(`
+            SELECT COUNT(*) AS total
+            FROM reservations
+            WHERE user_id = $1
+              AND status IN (
+                  'approved',
+                  'active',
+                  'overdue',
+                  'pending_return'
+              )
+        `, [user_id])
+
+        const currentReservations =
+            parseInt(reservationCountResult.rows[0].total, 10)
+
+        if (currentReservations >= reservationLimit) {
+            return res.status(400).json({
+                error: `You have reached your reservation limit (${reservationLimit}). Please complete or return an existing reservation first.`
+            })
+        }*/
 
         // =========================
         // YOUR EXISTING AVAILABILITY CHECK

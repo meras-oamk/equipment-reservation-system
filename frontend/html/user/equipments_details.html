@@ -80,23 +80,6 @@
         <h5 class="mb-3">Reservation Details</h5>
 
         <div class="row g-3">
-          <!-- Pickup Location -->
-            <div class="col-12">
-            <label class="form-label">Pickup Location</label>
-            <div class="position-relative">
-              <div class="input-group">
-                <input type="text" id="pickupInput" class="form-control" placeholder="Select a pickup location" readonly style="cursor:pointer;"/>
-                <span class="input-group-text cal-trigger" id="locationBtn" style="cursor:pointer;" title="Choose location">
-                  <i class="bi bi-geo-alt"></i>
-                </span>
-              </div>
-              <!-- Location Dropdown (populated dynamically) -->
-              <ul class="location-dropdown" id="locationDropdown">
-                <li class="location-header"><i class="bi bi-geo-alt-fill me-1"></i> Select Pickup Location</li>
-                <!-- location items injected by JS -->
-              </ul>
-            </div>
-          </div>
           <!-- Start Date -->
           <div class="col-12 col-sm-6">
             <label class="form-label" for="startDate">Pickup Date</label>
@@ -157,6 +140,24 @@
               <span class="input-group-text select-icon" onclick="document.getElementById('endTime').showPicker()">
                 <i class="bi bi-chevron-down"></i>
               </span>
+            </div>
+          </div>
+
+          <!-- Pickup Location -->
+            <div class="col-12">
+            <label class="form-label">Pickup Location</label>
+            <div class="position-relative">
+              <div class="input-group">
+                <input type="text" id="pickupInput" class="form-control" placeholder="Select a pickup location" readonly style="cursor:pointer;"/>
+                <span class="input-group-text cal-trigger" id="locationBtn" style="cursor:pointer;" title="Choose location">
+                  <i class="bi bi-geo-alt"></i>
+                </span>
+              </div>
+              <!-- Location Dropdown (populated dynamically) -->
+              <ul class="location-dropdown" id="locationDropdown">
+                <li class="location-header"><i class="bi bi-geo-alt-fill me-1"></i> Select Pickup Location</li>
+                <!-- location items injected by JS -->
+              </ul>
             </div>
           </div>
 

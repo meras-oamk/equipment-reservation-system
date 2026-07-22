@@ -36,7 +36,58 @@ router.get('/types/:id/units', authenticate, authorizeRole('admin'), async (req,
     }
 })
 
-// Get available unit locations for a given equipment type
+// Get available unit locations for a given equipment type, optionally filtered
+// by a specific date/time window so only units truly free for that window show up
+router.get('/types/:id/locations', async (req, res) => {
+    try {
+        const { id } = req.params
+        const { start_time, end_time } = req.query
+
+        // No date/time window given yet — fall back to static availability (original behavior)
+        if (!start_time || !end_time) {
+            const result = await db.query(`
+                SELECT
+                    location,
+                    COUNT(*) AS available_count
+                FROM equipment_units
+                WHERE type_id = $1
+                  AND status = 'available'
+                  AND location IS NOT NULL
+                GROUP BY location
+                ORDER BY location;
+            `, [id])
+
+            return res.status(200).json(result.rows)
+        }
+
+        // Date/time window given — exclude units already reserved during that window,
+        // same overlap logic used by the reservation-creation availability check
+        const result = await db.query(`
+            SELECT
+                location,
+                COUNT(*) AS available_count
+            FROM equipment_units eu
+            WHERE eu.type_id = $1
+              AND eu.status = 'available'
+              AND eu.location IS NOT NULL
+              AND eu.id NOT IN (
+                SELECT r.unit_id FROM reservations r
+                WHERE r.status NOT IN ('cancelled', 'completed', 'overdue')
+                  AND r.start_time < $3
+                  AND r.end_time   > $2
+              )
+            GROUP BY location
+            ORDER BY location;
+        `, [id, start_time, end_time])
+
+        return res.status(200).json(result.rows)
+    } catch (error) {
+        return res.status(400).json({ error: error.message })
+    }
+})
+
+
+/*// Get available unit locations for a given equipment type
 router.get('/types/:id/locations', async (req, res) => {
     try {
         const { id } = req.params
@@ -56,7 +107,7 @@ router.get('/types/:id/locations', async (req, res) => {
     } catch (error) {
         return res.status(400).json({ error: error.message })
     }
-})
+})*/
 
 // Add type
 router.post('/types', authenticate, authorizeRole('admin'), upload.single('image'), async (req, res) => {

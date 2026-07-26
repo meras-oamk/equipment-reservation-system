@@ -302,8 +302,18 @@ confirmBtn.addEventListener('click', async function () {
   document.getElementById('modal-end-date').textContent   = fmt(endDate);
   document.getElementById('modal-location').textContent   = location;
 
-  const firstReservation = Array.isArray(reservationData) ? reservationData[0] : reservationData;
-  document.getElementById('modal-reservation-id').textContent = firstReservation?.id ?? '—';
+  // Show ALL reservation IDs created in this booking (one per unit, for quantity > 1)
+  const allReservations = Array.isArray(reservationData) ? reservationData : [reservationData];
+  const idLabel = document.getElementById('modal-reservation-id-label');
+  const idValue = document.getElementById('modal-reservation-id');
+
+  if (allReservations.length > 1) {
+    idLabel.textContent = 'Reservation IDs';
+    idValue.textContent = allReservations.map(r => `#${r.id}`).join(', ');
+  } else {
+    idLabel.textContent = 'Reservation ID';
+    idValue.textContent = allReservations[0]?.id ?? '—';
+  }
 
   successModal.classList.add('show');
 });

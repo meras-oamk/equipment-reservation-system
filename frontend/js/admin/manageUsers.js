@@ -36,13 +36,22 @@ const userController = new DetailsController({
             }          
         })
 
+        const searchBar = document.querySelector('.search-bar')
+        const filterSelect = document.querySelector('.filter-select')
+        
+        if (searchBar) {
+            searchBar.addEventListener('input', resetRightPanel)
+        }
+        if (filterSelect) {
+            filterSelect.addEventListener('change', resetRightPanel)
+        }
+
         const originalRender = this.renderLeftPanel
         this.renderLeftPanel = function() {
             originalRender.call(this)
             updateUserStatistics(this.items)
         }
     },
-
 
     // Render left card list attaches the filtering attributes
     renderCardHTML: (user, index) => {
@@ -203,6 +212,18 @@ const userController = new DetailsController({
         }
     }
 })
+
+function resetRightPanel() {
+    const placeholder = document.getElementById('rightPanelPlaceholder')
+    const details = document.getElementById('rightPanelDetails')
+    
+    if (placeholder) placeholder.style.display = 'block'
+    if (details) details.style.display = 'none'
+
+    document.querySelectorAll('#leftPanel .user-card').forEach(card => {
+        card.classList.remove('active')
+    })
+}
 
 async function updateUserStatus(userId, newStatus) {
     try {

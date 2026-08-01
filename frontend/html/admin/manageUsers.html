@@ -38,18 +38,10 @@
     </div>
 
     <select class="form-select filter-select px-3 py-2" style="font-weight: 600; cursor: pointer; width: auto; min-width: 180px;">
-      <option value="all" data-type="filter">All Users</option>
-      
-      <optgroup label="Filter by Status">
-        <option value="active" data-type="filter">Active</option>
-        <option value="suspended" data-type="filter">Suspended</option>
-        <option value="banned" data-type="filter">Banned</option>
-      </optgroup>
-      
-      <optgroup label="Sort By">
-        <option value="newest" data-type="sort">Join Date (Newest first)</option>
-        <option value="oldest" data-type="sort">Join Date (Oldest first)</option>
-      </optgroup>
+      <option value="all" data-type="filter">All Users</option>      
+      <option value="active" data-type="filter">Active</option>
+      <option value="suspended" data-type="filter">Suspended</option>
+      <option value="banned" data-type="filter">Banned</option>
     </select>
 
   </div>
@@ -59,7 +51,7 @@
     <!-- Users List -->
     <div class="col-md-5">
       <div id="leftPanel" class="panel">
-        <div class="panel-title">Users</div>
+        <div class="panel-title">Registered Users</div>
       
       </div>
     </div>
@@ -93,8 +85,7 @@
           
           <div class="history-title">Reservation History</div>
           
-          <div id="dHistoryContainer"></div>
-
+          <div id="dHistoryContainer" style="max-height: 250px; overflow-y: auto; padding-right: 5px;"></div>
           <div class="divider"></div>
           
           <div id="dUserActionsContainer" style="margin-top: 20px; display: flex; gap: 10px;"></div>

@@ -122,6 +122,44 @@ function renderPaginationControls(pagination) {
         return
     }
 
+    const range = new Set()
+    range.add(1)
+    range.add(totalPages)
+
+    let left = currentPage - 1
+    let right = currentPage + 1
+
+    if (currentPage <= 2) {
+        left = 1
+        right = Math.min(3, totalPages)
+    } else if (currentPage >= totalPages - 1) {
+        left = Math.max(1, totalPages - 2)
+        right = totalPages
+    }
+
+    for (let i = left; i <= right; i++) {
+        if (i >= 1 && i <= totalPages) {
+            range.add(i)
+        }
+    }
+
+    const sortedRange = Array.from(range).sort((a, b) => a - b)
+
+    const paginatedPages = []
+    let lastValue = null
+
+    for (const page of sortedRange) {
+        if (lastValue != null) {
+            if (page - lastValue === 2) {
+                paginatedPages.push(lastValue + 1)
+            } else if (page - lastValue > 2) {
+                paginatedPages.push('...')
+            }
+        }
+        paginatedPages.push(page)
+        lastValue = page
+    }
+
     let innerHTML = ''
 
     innerHTML += `
@@ -130,13 +168,17 @@ function renderPaginationControls(pagination) {
         </button>
     `
 
-    for (let i = 1; i <= totalPages; i++) {
-        innerHTML += `
-            <button class="pag-btn ${currentPage === i ? 'active' : ''}" onclick="changePage(${i})">
-                ${i}
-            </button>
-        `
-    }
+    paginatedPages.forEach(page => {
+        if (page === '...') {
+            innerHTML += `<span>...</span>`
+        } else {
+            innerHTML += `
+                <button class="pag-btn ${currentPage === page ? 'active' : ''}" onclick="changePage(${page})">
+                    ${page}
+                </button>
+            `;
+        }
+    })
 
     innerHTML += `
         <button class="pag-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="changePage(${currentPage + 1})">
@@ -150,6 +192,17 @@ function renderPaginationControls(pagination) {
 
 window.changePage = function(page) {
     loadAllReservations(page)
+
+    const searchBar = document.querySelector('.search-bar')
+    if (searchBar) {
+        const searchContainer = searchBar.closest('.d-flex')
+        if (searchContainer) {
+            searchContainer.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start' 
+            })
+        }
+    }
 }
 
 function buildTimeline(r) {

@@ -13,19 +13,19 @@ async function loadReservations() {
     const token = localStorage.getItem('token');
     try {
         const res = await fetch('/api/reservation/my', {
-    headers: { 'Authorization': `Bearer ${token}` }
-});
-const data = await res.json();
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
 
-if (!res.ok || !Array.isArray(data)) {
-    console.error('Failed to load reservations:', data.error || data);
-    if (data.error === 'Invalid or expired token.') {
-        alert('Your session has expired. Please log in again.');
-        localStorage.removeItem('token');
-        window.location.href = '../../index.html';
-    }
-    return;
-}
+        if (!res.ok || !Array.isArray(data)) {
+            console.error('Failed to load reservations:', data.error || data);
+            if (data.error === 'Invalid or expired token.') {
+                alert('Your session has expired. Please log in again.');
+                localStorage.removeItem('token');
+                window.location.href = '../../index.html';
+            }
+            return;
+        }
 
 reservations = { inactive: [], active: [], overdue: [], completed: [] };
 
@@ -35,25 +35,24 @@ data.forEach(r => {
     const start = new Date(r.start_time);
     const end   = new Date(r.end_time);
 
-    const dbStatus = r.status;
-    const now = new Date();
-
-    // Skip cancelled (auto-cancelled no-shows) entirely — not shown in any tab
-    if (dbStatus === 'cancelled') {
-        return;
-    }
-
     const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
     const duration = diffDays === 1 ? '1 day' : `${diffDays} days`;
 
     const s = fmt(r.start_time);
     const e = fmt(r.end_time);
 
+    const dbStatus = r.status;
+    const now = new Date();
+
     let tabStatus, displayStatus;
 
     if (dbStatus === 'completed') {
         tabStatus = 'completed';
         displayStatus = 'completed';
+    }
+    else if (dbStatus === 'cancelled') {
+        tabStatus = 'completed';
+        displayStatus = 'cancelled';
     }
     else if (dbStatus === 'pending_return') {
         tabStatus = 'completed';
@@ -80,7 +79,8 @@ data.forEach(r => {
         duration,
         location: r.pickup_location,
         status:   tabStatus,
-        displayStatus
+        displayStatus,
+        booking_group_id: r.booking_group_id
     };
 
     reservations[tabStatus].push(entry);
@@ -96,13 +96,15 @@ data.forEach(r => {
 
 window.addEventListener('DOMContentLoaded', loadReservations);
 
-    function badgeHtml(status) {
+  function badgeHtml(status) {
     const map = {
         inactive: 'badge-inactive',
         active: 'badge-active',
         overdue: 'badge-overdue',
         completed: 'badge-completed',
-        pending_approval: 'badge-pending-approval'
+        cancelled: 'badge-cancelled',
+        pending_approval: 'badge-pending-approval',
+        mixed: 'badge-mixed'
     };
     const label = status === 'pending_approval'
         ? 'Pending Approval'
@@ -110,21 +112,25 @@ window.addEventListener('DOMContentLoaded', loadReservations);
     return `<span class="badge-status ${map[status]}">${label}</span>`;
 }
 
-function renderTable(tab) {
-  const rows = reservations[tab];
-  const tbody = document.getElementById('tableBody');
-  const mobileList = document.getElementById('mobileList');
-  const isCompleted = tab === 'completed';
-  const showDeleteBtn = tab === 'inactive'; // only allow cancelling before pickup
+// ── GROUP ROWS SHARING THE SAME booking_group_id ──
+function groupByBooking(rows) {
+    const groups = {};
+    const order = [];
 
-  if (!rows || rows.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><i class="bi bi-calendar-x"></i><p>No reservations found.</p></div></td></tr>`;
-    mobileList.innerHTML = `<div class="empty-state"><i class="bi bi-calendar-x"></i><p>No reservations found.</p></div>`;
-    return;
-  }
+    rows.forEach(r => {
+        const key = r.booking_group_id || `single-${r.id}`;
+        if (!groups[key]) {
+            groups[key] = [];
+            order.push(key);
+        }
+        groups[key].push(r);
+    });
 
-  // Desktop rows
-  tbody.innerHTML = rows.map(r => {
+    return order.map(key => groups[key]);
+}
+
+// ── RENDER ONE DESKTOP ROW  ──
+function renderSingleRow(r, isCompleted, showDeleteBtn) {
     const startLines = r.start.split('\n');
     const endLines   = r.end.split('\n');
     return `
@@ -147,10 +153,80 @@ function renderTable(tab) {
             <button class="btn-delete-icon" onclick="event.stopPropagation(); deleteRow(${r.id}, '${r.device}')" title="Cancel Reservation">
               <i class="bi bi-x-lg"></i>
             </button>` : ''}
+            ${isCompleted ? `
+            <button class="btn-delete-icon" onclick="event.stopPropagation(); hideRow(${r.id}, '${r.device}')" title="Remove from history">
+              <i class="bi bi-x-lg"></i>
+            </button>` : ''}
           </div>
         </td>
       </tr>`;
-  }).join('');
+}
+
+// ── RENDER ONE GROUP (single row if group of 1, expandable summary + nested rows if 2+) ──
+function renderGroupRow(group, isCompleted, showDeleteBtn) {
+    const first = group[0];
+    const startLines = first.start.split('\n');
+    const endLines   = first.end.split('\n');
+    const isMulti = group.length > 1;
+    const groupId = `group-${first.booking_group_id || first.id}`;
+
+    if (!isMulti) {
+        // Render exactly as a normal single row (reuse your existing single-row markup)
+        return renderSingleRow(first, isCompleted, showDeleteBtn);
+    }
+
+    // Multi-unit summary row + hidden expandable detail rows
+    const summaryStatus = group.every(r => r.displayStatus === group[0].displayStatus)
+        ? group[0].displayStatus
+        : 'mixed'; // units in the group have diverged in status
+
+    return `
+      <tr class="clickable group-summary" onclick="toggleGroup('${groupId}')">
+        <td><span class="device-name">${first.device} (x${group.length})</span></td>
+        <td><span class="device-name">#${first.id} +${group.length - 1}</span></td>
+        <td>${startLines[0]}<br><span style="color:var(--muted);font-size:0.8rem;">${startLines[1]||''}</span></td>
+        <td>${endLines[0]}<br><span style="color:var(--muted);font-size:0.8rem;">${endLines[1]||''}</span></td>
+        <td>${first.duration}</td>
+        <td>${group.length}</td>
+        <td>${first.location}</td>
+        <td>${summaryStatus === 'mixed' ? '<span class="badge-status badge-mixed">Mixed</span>' : badgeHtml(summaryStatus)}</td>
+        <td><i class="bi bi-chevron-down group-toggle-icon"></i></td>
+      </tr>
+      <tr class="group-detail-row" id="${groupId}" style="display:none;">
+        <td colspan="9">
+          <table class="res-table nested-table">
+            <tbody>
+              ${group.map(r => renderSingleRow(r, isCompleted, showDeleteBtn)).join('')}
+            </tbody>
+          </table>
+        </td>
+      </tr>
+    `;
+}
+
+function toggleGroup(groupId) {
+    const row = document.getElementById(groupId);
+    if (!row) return;
+    row.style.display = row.style.display === 'none' ? '' : 'none';
+}
+window.toggleGroup = toggleGroup;
+
+function renderTable(tab) {
+  const rows = reservations[tab];
+  const tbody = document.getElementById('tableBody');
+  const mobileList = document.getElementById('mobileList');
+  const isCompleted = tab === 'completed';
+  const showDeleteBtn = tab === 'inactive'; // only allow cancelling before pickup
+
+  if (!rows || rows.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><i class="bi bi-calendar-x"></i><p>No reservations found.</p></div></td></tr>`;
+    mobileList.innerHTML = `<div class="empty-state"><i class="bi bi-calendar-x"></i><p>No reservations found.</p></div>`;
+    return;
+  }
+
+  // Desktop rows — grouped by booking_group_id
+  const groups = groupByBooking(rows);
+  tbody.innerHTML = groups.map(g => renderGroupRow(g, isCompleted, showDeleteBtn)).join('');
 
   // Mobile cards
   mobileList.innerHTML = rows.map(r => {
@@ -169,6 +245,18 @@ function renderTable(tab) {
           <span>End: <strong>${endLines[0]} ${endLines[1]||''}</strong></span>
           <span class="mobile-meta-full">Location: <strong>${r.location}</strong></span>
         </div>
+        ${showDeleteBtn ? `
+        <div class="mobile-card-actions">
+          <button class="btn-delete-icon" onclick="event.stopPropagation(); deleteRow(${r.id}, '${r.device}')" title="Cancel Reservation">
+            <i class="bi bi-x-lg"></i> Cancel
+          </button>
+        </div>` : ''}
+        ${isCompleted ? `
+        <div class="mobile-card-actions">
+          <button class="btn-delete-icon" onclick="event.stopPropagation(); hideRow(${r.id}, '${r.device}')" title="Remove from history">
+            <i class="bi bi-x-lg"></i> Remove
+          </button>
+        </div>` : ''}
       </div>`;
   }).join('');
 
@@ -224,6 +312,31 @@ function renderTable(tab) {
     renderTable(currentTab);
 }
 
+async function hideRow(id, deviceName) {
+    if (!confirm(`Remove "${deviceName}" from your history?\nThis only removes it from your view.`)) return;
+
+    const token = localStorage.getItem('token');
+    try {
+        const res = await fetch(`/api/reservation/${id}/hide`, {
+            method: 'PATCH',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) {
+            alert('Failed to remove from history.');
+            return;
+        }
+    } catch (err) {
+        alert('Network error.');
+        return;
+    }
+
+    for (const tab in reservations) {
+        reservations[tab] = reservations[tab].filter(r => r.id !== id);
+    }
+    updateTabCounts();
+    renderTable(currentTab);
+}
+
     function updateTabCounts() {
       document.querySelectorAll('.tab-btn').forEach(btn => {
         const tab = btn.dataset.tab;
@@ -246,3 +359,4 @@ function renderTable(tab) {
 
     window.deleteRow = deleteRow;
     window.goToDetail = goToDetail;
+    window.hideRow = hideRow;

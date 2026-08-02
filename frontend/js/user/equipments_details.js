@@ -1,7 +1,10 @@
-    // ── LOAD EQUIPMENT DETAILS FROM URL PARAM ──
+let currentEquipmentId = null;
+
+// ── LOAD EQUIPMENT DETAILS FROM URL PARAM ──
 async function loadEquipmentDetails() {
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
+    currentEquipmentId = id;
 
     if (!id) {
         document.getElementById('detail-name').textContent = 'Equipment not found.';
@@ -9,37 +12,17 @@ async function loadEquipmentDetails() {
     }
 
     try {
-        // Fetch equipment and settings in parallel
-        const [equipRes, settingsRes, locationsRes] = await Promise.all([
-    fetch(`/api/equipment/types/${id}`),
-    fetch('/api/settings'),
-    fetch(`/api/equipment/types/${id}/locations`)
-]);
+        const [equipRes, settingsRes] = await Promise.all([
+            fetch(`/api/equipment/types/${id}`),
+            fetch('/api/settings')
+        ]);
 
-if (!equipRes.ok) throw new Error('Not found');
-const item      = await equipRes.json();
-const settings  = await settingsRes.json();
-const locations = await locationsRes.json();
+        if (!equipRes.ok) throw new Error('Not found');
+        const item     = await equipRes.json();
+        const settings = await settingsRes.json();
 
-// ── Populate location dropdown ──
-const locationDropdown = document.getElementById('locationDropdown');
-locationDropdown.innerHTML = `<li class="location-header"><i class="bi bi-geo-alt-fill me-1"></i> Select Pickup Location</li>`;
-
-if (locations.length === 0) {
-    locationDropdown.innerHTML += `<li class="location-item disabled">No locations available</li>`;
-} else {
-    locations.forEach((loc, index) => {
-        locationDropdown.innerHTML += `
-            <li class="location-item${index === 0 ? ' selected' : ''}" data-value="${loc.location}">
-                <i class="bi bi-building me-2"></i>${loc.location}
-                <span class="location-sub">${loc.available_count} available</span>
-            </li>
-        `;
-    });
-
-    // Default the pickup field to the first real location for this equipment
-    pickupInput.value = locations[0].location;
-}
+        // Initial location load — no date/time selected yet, shows static availability
+        await refreshLocations();
 
         // ── Parse booking policy ──
         const general = settings.general_booking_settings || {};
@@ -59,13 +42,11 @@ if (locations.length === 0) {
         document.getElementById('detail-description').textContent   = item.description || 'No description available.';
         document.getElementById('modal-equipment-name').textContent = item.name;
 
-        // Set max allowed start date based on advance booking window
         const maxStartDate = new Date();
         maxStartDate.setDate(maxStartDate.getDate() + window.advanceBookingDays);
         document.getElementById('startDate').max = maxStartDate.toISOString().split('T')[0];
 
-        // Populate quantity dropdown up to available_count
-        const qtySelect = document.getElementById('qtySelect');
+        /*const qtySelect = document.getElementById('qtySelect');
         qtySelect.innerHTML = '';
         const max = Math.max(1, parseInt(item.available_count) || 1);
         for (let i = 1; i <= max; i++) {
@@ -73,7 +54,7 @@ if (locations.length === 0) {
             opt.value = i;
             opt.textContent = i;
             qtySelect.appendChild(opt);
-        }
+        }*/
 
     } catch (err) {
         console.error(err);
@@ -81,30 +62,101 @@ if (locations.length === 0) {
     }
 }
 
+// ── FETCH + RENDER LOCATIONS (static, or filtered by selected date/time) ──
+async function refreshLocations() {
+    const locationDropdown = document.getElementById('locationDropdown');
+    const pickupInput = document.getElementById('pickupInput');
+
+    const startDate = document.getElementById('startDate').value;
+    const endDate   = document.getElementById('endDate').value;
+    const startTime = document.getElementById('startTime').value;
+    const endTime   = document.getElementById('endTime').value;
+
+    let url = `/api/equipment/types/${currentEquipmentId}/locations`;
+
+    // Only pass a date/time window once all four fields are filled
+    if (startDate && endDate && startTime && endTime) {
+        const start_time = `${startDate}T${startTime}:00`;
+        const end_time   = `${endDate}T${endTime}:00`;
+        url += `?start_time=${encodeURIComponent(start_time)}&end_time=${encodeURIComponent(end_time)}`;
+    }
+
+    let locations;
+    try {
+        const res = await fetch(url);
+        locations = await res.json();
+    } catch (err) {
+        console.error('Failed to load locations:', err);
+        locations = [];
+    }
+
+    pickupInput.value = '';
+    locationDropdown.innerHTML = `<li class="location-header"><i class="bi bi-geo-alt-fill me-1"></i> Select Pickup Location</li>`;
+
+    if (locations.length === 0) {
+        locationDropdown.innerHTML += `<li class="location-item disabled">No locations available for this time</li>`;
+        updateQuantityOptions(1); // no locations — fall back to a single option
+    } else {
+        locations.forEach((loc, index) => {
+            locationDropdown.innerHTML += `
+                <li class="location-item${index === 0 ? ' selected' : ''}" data-value="${loc.location}" data-count="${loc.available_count}">
+                    <i class="bi bi-building me-2"></i>${loc.location}
+                    <span class="location-sub">${loc.available_count} available</span>
+                </li>
+            `;
+        });
+        pickupInput.value = locations[0].location;
+        updateQuantityOptions(locations[0].available_count);
+    }
+}
+
+// ── UPDATE QUANTITY DROPDOWN TO MATCH SELECTED LOCATION'S AVAILABLE COUNT ──
+function updateQuantityOptions(count) {
+    const qtySelect = document.getElementById('qtySelect');
+    const max = Math.max(1, parseInt(count) || 1);
+
+    const previousValue = parseInt(qtySelect.value) || 1;
+
+    qtySelect.innerHTML = '';
+    for (let i = 1; i <= max; i++) {
+        const opt = document.createElement('option');
+        opt.value = i;
+        opt.textContent = i;
+        qtySelect.appendChild(opt);
+    }
+
+    // Keep the previously selected quantity if it's still valid for the new location,
+    // otherwise reset to 1
+    qtySelect.value = previousValue <= max ? previousValue : 1;
+}
+
 loadEquipmentDetails();
 
-    // ── RESTRICT DATES TO TODAY OR FUTURE ──
-const today = new Date().toISOString().split('T')[0]; // format: YYYY-MM-DD
+// ── RESTRICT DATES TO TODAY OR FUTURE ──
+const today = new Date().toISOString().split('T')[0];
 
 const startDateInput = document.getElementById('startDate');
 const endDateInput   = document.getElementById('endDate');
+const startTimeInput = document.getElementById('startTime');
+const endTimeInput   = document.getElementById('endTime');
 
-    // Set minimum date to today for both
 startDateInput.min = today;
 endDateInput.min   = today;
 
-    // When start date changes, end date minimum updates to match
 startDateInput.addEventListener('change', function () {
     endDateInput.min = this.value;
-
-    // If end date is now before the new start date, reset it
     if (endDateInput.value && endDateInput.value < this.value) {
         endDateInput.value = '';
     }
+    refreshLocations();
 });
-    
-    
-    // Location dropdown
+
+// Re-fetch locations whenever any of the four date/time fields change
+endDateInput.addEventListener('change', refreshLocations);
+startTimeInput.addEventListener('change', refreshLocations);
+endTimeInput.addEventListener('change', refreshLocations);
+
+// Location dropdown
 const locationBtn = document.getElementById('locationBtn');
 const locationDropdown = document.getElementById('locationDropdown');
 const pickupInput = document.getElementById('pickupInput');
@@ -127,19 +179,16 @@ function toggleLocationDropdown() {
   locationDropdown.classList.contains('show') ? closeLocationDropdown() : openLocationDropdown();
 }
 
-// Open/close on icon click
 locationBtn.addEventListener('click', function (e) {
   e.stopPropagation();
   toggleLocationDropdown();
 });
 
-// Open/close on input click
 pickupInput.addEventListener('click', function (e) {
   e.stopPropagation();
   toggleLocationDropdown();
 });
 
-// Select a location — use event delegation since items are added dynamically
 locationDropdown.addEventListener('click', function (e) {
   const item = e.target.closest('.location-item');
   if (!item || item.classList.contains('disabled')) return;
@@ -149,29 +198,29 @@ locationDropdown.addEventListener('click', function (e) {
   locationDropdown.querySelectorAll('.location-item').forEach(i => i.classList.remove('selected'));
   item.classList.add('selected');
   closeLocationDropdown();
+
+  const count = item.getAttribute('data-count');
+  updateQuantityOptions(count);
 });
 
-// Close when clicking outside
 document.addEventListener('click', function (e) {
   if (!locationDropdown.contains(e.target) && !locationBtn.contains(e.target) && !pickupInput.contains(e.target)) {
     closeLocationDropdown();
   }
 });
 
-    // ── CONFIRMATION MODAL ──
-    const confirmBtn   = document.getElementById('confirmBtn');
-    const successModal = document.getElementById('successModal');
-    const modalCloseBtn = document.getElementById('modalCloseBtn');
+// ── CONFIRMATION MODAL ── (unchanged from your existing code below this point)
+const confirmBtn   = document.getElementById('confirmBtn');
+const successModal = document.getElementById('successModal');
+const modalCloseBtn = document.getElementById('modalCloseBtn');
 
-    confirmBtn.addEventListener('click', async function () {
-  // Read form values
+confirmBtn.addEventListener('click', async function () {
   const startDate = document.getElementById('startDate').value;
   const endDate   = document.getElementById('endDate').value;
   const startTime = document.getElementById('startTime').value;
   const endTime   = document.getElementById('endTime').value;
   const location  = document.getElementById('pickupInput').value;
 
-  // ── VALIDATION ──
   const errors = [];
 
   if (!startDate) errors.push('Start Date');
@@ -180,7 +229,6 @@ document.addEventListener('click', function (e) {
   if (!endTime)   errors.push('End Time');
   if (!location)  errors.push('Pickup Location');
 
-  // Date logic checks
   if (startDate && endDate && endDate < startDate) {
     errors.push('End Date cannot be before Start Date');
   }
@@ -193,7 +241,6 @@ document.addEventListener('click', function (e) {
     return;
   }
 
-  // ── POLICY VALIDATION ──
   const policyErrors = [];
 
   if (startDate) {
@@ -230,7 +277,6 @@ document.addEventListener('click', function (e) {
       return;
   }
 
-  // ── POST TO BACKEND ──
   const token   = localStorage.getItem('token');
   const params  = new URLSearchParams(window.location.search);
   const type_id = params.get('id');
@@ -268,7 +314,6 @@ document.addEventListener('click', function (e) {
     return;
   }
 
-  // ── FORMAT & SHOW MODAL ──
   function fmt(d) {
     if (!d) return '—';
     const [y, m, day] = d.split('-');
@@ -281,20 +326,26 @@ document.addEventListener('click', function (e) {
   document.getElementById('modal-end-date').textContent   = fmt(endDate);
   document.getElementById('modal-location').textContent   = location;
 
-  // reservationData is an array (one row per unit) — show the first one's ID
-  const firstReservation = Array.isArray(reservationData) ? reservationData[0] : reservationData;
-  document.getElementById('modal-reservation-id').textContent = firstReservation?.id ?? '—';
+  // Show ALL reservation IDs created in this booking (one per unit, for quantity > 1)
+  const allReservations = Array.isArray(reservationData) ? reservationData : [reservationData];
+  const idLabel = document.getElementById('modal-reservation-id-label');
+  const idValue = document.getElementById('modal-reservation-id');
+
+  if (allReservations.length > 1) {
+    idLabel.textContent = 'Reservation IDs';
+    idValue.textContent = allReservations.map(r => `#${r.id}`).join(', ');
+  } else {
+    idLabel.textContent = 'Reservation ID';
+    idValue.textContent = allReservations[0]?.id ?? '—';
+  }
 
   successModal.classList.add('show');
 });
 
-// ── VALIDATION ALERT HELPER ──
 function showValidationAlert(errors) {
-  // Remove any existing alert first
   const existing = document.getElementById('validationAlert');
   if (existing) existing.remove();
 
-  const isLogicError = errors.some(e => e.includes('cannot') || e.includes('must be'));
   const missingFields = errors.filter(e => !e.includes('cannot') && !e.includes('must be'));
   const logicErrors   = errors.filter(e =>  e.includes('cannot') ||  e.includes('must be'));
 
@@ -329,27 +380,24 @@ function showValidationAlert(errors) {
     <div>${messageHTML}</div>
   `;
 
-  // Insert alert just above the Confirm button
   const confirmBtn = document.getElementById('confirmBtn');
   confirmBtn.parentElement.insertBefore(alert, confirmBtn);
 
-  // Auto-dismiss after 4 seconds
   setTimeout(() => {
     alert.style.transition = 'opacity 0.4s';
     alert.style.opacity = '0';
     setTimeout(() => alert.remove(), 400);
   }, 4000);
 
-  // Scroll alert into view smoothly
   alert.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
-    // Close on Close button
-    modalCloseBtn.addEventListener('click', function () {
-      successModal.classList.remove('show');
-    });
+modalCloseBtn.addEventListener('click', function () {
+  successModal.classList.remove('show');
+});
 
-    // Close on overlay click
-    successModal.addEventListener('click', function (e) {
-      if (e.target === successModal) successModal.classList.remove('show');
-    });
+successModal.addEventListener('click', function (e) {
+  if (e.target === successModal) successModal.classList.remove('show');
+});
+
+

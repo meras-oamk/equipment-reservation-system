@@ -120,7 +120,7 @@
     }
 
     .spec-box {
-      background: var(--spec-bg);
+      
       border: 1px solid var(--border);
       border-radius: 8px;
       padding: 1.2rem 1.4rem;
@@ -488,7 +488,6 @@
     .btn-modal-view {
       flex: 1.4;
       padding: 0.7rem;
-      background: var(--orange);
       border: none;
       border-radius: 8px;
       font-family: 'DM Sans', sans-serif;
@@ -499,4 +498,13 @@
       transition: background 0.2s;
     }
 
+    .btn-modal-view a {
+      color: #032e6ef8;
+      text-decoration: none;
+    }
+
     .btn-modal-view:hover { background: var(--orange-hover); }
+
+    .btn-modal-view:hover a {
+      color: #fff;
+    }

@@ -58,6 +58,29 @@ router.get('/types/:id/locations', async (req, res) => {
     }
 })
 
+// Generate next serial number for a type
+router.get('/types/:id/next-serial', authenticate, authorizeRole('admin'), async (req, res) => {
+    try {
+        const { id } = req.params
+        const prefix = `MERAS-T${id}-`
+
+        const result = await db.query(
+            `SELECT qr_code FROM equipment_units WHERE type_id = $1 AND qr_code LIKE $2`,
+            [id, `${prefix}%`]
+        )
+
+        let maxNum = 700
+        result.rows.forEach(row => {
+            const num = parseInt(row.qr_code.replace(prefix, ''))
+            if (!isNaN(num) && num > maxNum) maxNum = num
+        })
+
+        return res.status(200).json({ serial: `${prefix}${maxNum + 1}` })
+    } catch (error) {
+        return res.status(400).json({ error: error.message })
+    }
+})
+
 // Add type
 router.post('/types', authenticate, authorizeRole('admin'), upload.single('image'), async (req, res) => {
     try {

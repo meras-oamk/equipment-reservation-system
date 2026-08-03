@@ -1,6 +1,7 @@
 const token = localStorage.getItem('token')
 if (!token) {
-    window.location.replace('../loginOrRegister.html')
+    alert('Login to see contents!') 
+    window.location.replace('../../loginOrRegister.html')
 }
 
 const role = localStorage.getItem('role')

@@ -1,5 +1,8 @@
 const token = localStorage.getItem('token')
-
+if (!token) {
+    alert('Login to see contents!') 
+    window.location.replace('../../loginOrRegister.html')
+}
 let allTypes = []
 
 // =====================

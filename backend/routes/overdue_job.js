@@ -18,6 +18,7 @@ cron.schedule('*/15 * * * *', async () => {
             )
             SELECT
                 u.id              AS reservation_id,
+                u.user_id,
                 u.end_time,
                 us.email,
                 us.full_name,
@@ -28,50 +29,50 @@ cron.schedule('*/15 * * * *', async () => {
         `)
 
         if (result.rows.length > 0) {
-        for (const row of result.rows) {
-            await sendEmail({
-                to: row.email,
-                subject: 'Action Required: Overdue Equipment Return',
-                html: `
-                    <p>Dear ${row.full_name},</p>
+            for (const row of result.rows) {
+                await sendEmail({
+                    to: row.email,
+                    subject: 'Action Required: Overdue Equipment Return',
+                    html: `
+                        <p>Dear ${row.full_name},</p>
 
-                    <p>
-                        Your reservation for <strong>${row.equipment_name}</strong>
-                        was due back on <strong>${row.end_time}</strong> (Helsinki time)
-                        but has not been returned yet.
-                    </p>
+                        <p>
+                            Your reservation for <strong>${row.equipment_name}</strong>
+                            was due back on <strong>${row.end_time}</strong> (Helsinki time)
+                            but has not been returned yet.
+                        </p>
 
-                    <p>
-                        Please return the equipment as soon as possible.
-                        Continued failure to return equipment on time may result in
-                        your account being suspended.
-                    </p>
+                        <p>
+                            Please return the equipment as soon as possible.
+                            Continued failure to return equipment on time may result in
+                            your account being suspended.
+                        </p>
 
-                    <p>
-                        If you have already returned the equipment or need assistance,
-                        please contact the equipment desk immediately.
-                    </p>
+                        <p>
+                            If you have already returned the equipment or need assistance,
+                            please contact the equipment desk immediately.
+                        </p>
 
-                    <p>
-                        Thank you,<br/>
-                        MERAS — Equipment Reservation System<br/>
-                        Oulu University of Applied Sciences
-                    </p>
-                `
-            })
+                        <p>
+                            Thank you,<br/>
+                            MERAS — Equipment Reservation System<br/>
+                            Oulu University of Applied Sciences
+                        </p>
+                    `
+                })
 
-            await db.query(`
-                UPDATE reservations
-                SET overdue_notified_at = (NOW() AT TIME ZONE 'Europe/Helsinki')
-                WHERE id = $1
-            `, [row.reservation_id])
-        }
+                await db.query(`
+                    UPDATE reservations
+                    SET overdue_notified_at = (NOW() AT TIME ZONE 'Europe/Helsinki')
+                    WHERE id = $1
+                `, [row.reservation_id])
+            }
 
         console.log(`[overdue_job] Marked ${result.rows.length} reservation(s) as overdue.`)
 
         } // end if (result.rows.length > 0)
 
-        // ── Suspend check ──────────────────────────────────────────────────────
+        // ── Suspend & Ban check ──────────────────────────────────────────────────────
 
         // Read suspend_after threshold from system_settings
         const settingsResult = await db.query(`
@@ -81,69 +82,78 @@ cron.schedule('*/15 * * * *', async () => {
         `)
         const suspendAfter = settingsResult.rows[0]?.suspend_after ?? 3
 
-        // Process each affected user once (deduplicate by user_id)
-        const affectedUserIds = [...new Set(result.rows.map(r => r.user_id))]
+        // BAN users who have > 4 late returns since their last unsuspend date
+        const usersToBan = await db.query(`
+            SELECT u.id, u.full_name, u.email, COUNT(r.id) AS overdue_count
+            FROM users u
+            JOIN reservations r ON r.user_id = u.id
+            WHERE u.status != 'banned'
+              AND r.overdue_notified_at IS NOT NULL
+              AND r.overdue_notified_at > COALESCE(u.last_unsuspended_at, '1970-01-01'::timestamp)
+            GROUP BY u.id, u.full_name, u.email
+            HAVING COUNT(r.id) > 4
+        `)
 
-        for (const userId of affectedUserIds) {
-            // Count overdue reservations since last unsuspend (or all-time if never unsuspended).
-            // This prevents immediate re-suspension after the restriction period ends.
-            const countResult = await db.query(`
-                SELECT COUNT(*) AS overdue_count
-                FROM reservations r
-                JOIN users u ON u.id = r.user_id
-                WHERE r.user_id = $1
-                  AND r.overdue_notified_at IS NOT NULL
-                  AND r.overdue_notified_at > COALESCE(u.last_unsuspended_at, '1970-01-01'::timestamp)
-            `, [userId])
+        for (const row of usersToBan.rows) {
+            const banResult = await db.query(`
+                UPDATE users
+                SET status = 'banned',
+                    updated_at = (NOW() AT TIME ZONE 'Europe/Helsinki')
+                WHERE id = $1 AND status != 'banned'
+                RETURNING full_name, email
+            `, [row.id])
 
-            const overdueCount = parseInt(countResult.rows[0].overdue_count, 10)
+            if (banResult.rows.length > 0) {
+                const { full_name, email } = banResult.rows[0]
+                await sendEmail({
+                    to: email,
+                    subject: 'Account Permanently Banned — Excessive Overdue Returns',
+                    html: `
+                        <p>Dear ${full_name},</p>
+                        <p>Your MERAS account has been <strong>permanently banned</strong> due to having ${row.overdue_count} overdue equipment returns.</p>
+                        <p>You will no longer be able to make reservations or access your account.</p>
+                        <p>Thank you,<br/>MERAS — Equipment Reservation System</p>
+                    `
+                })
+                console.log(`[overdue_job] Banned user ${email} after ${row.overdue_count} overdue return(s).`)
+            }
+        }
 
-            if (overdueCount >= suspendAfter) {
-                // Only suspend if currently active (avoid double-suspend)
-                const suspendResult = await db.query(`
-                    UPDATE users
-                    SET status = 'suspended',
-                        suspended_at = (NOW() AT TIME ZONE 'Europe/Helsinki'),
-                        updated_at = (NOW() AT TIME ZONE 'Europe/Helsinki')
-                    WHERE id = $1 AND status = 'active'
-                    RETURNING full_name, email
-                `, [userId])
+        // SUSPEND active users who have >= suspendAfter late returns since last unsuspend date
+        const usersToSuspend = await db.query(`
+            SELECT u.id, u.full_name, u.email, COUNT(r.id) AS overdue_count
+            FROM users u
+            JOIN reservations r ON r.user_id = u.id
+            WHERE u.status = 'active'
+              AND r.overdue_notified_at IS NOT NULL
+              AND r.overdue_notified_at > COALESCE(u.last_unsuspended_at, '1970-01-01'::timestamp)
+            GROUP BY u.id, u.full_name, u.email
+            HAVING COUNT(r.id) >= $1
+        `, [suspendAfter])
 
-                if (suspendResult.rows.length > 0) {
-                    const { full_name, email } = suspendResult.rows[0]
+        for (const row of usersToSuspend.rows) {
+            const suspendResult = await db.query(`
+                UPDATE users
+                SET status = 'suspended',
+                    suspended_at = (NOW() AT TIME ZONE 'Europe/Helsinki'),
+                    updated_at = (NOW() AT TIME ZONE 'Europe/Helsinki')
+                WHERE id = $1 AND status = 'active'
+                RETURNING full_name, email
+            `, [row.id])
 
-                    await sendEmail({
-                        to: email,
-                        subject: 'Account Suspended — Overdue Equipment Returns',
-                        html: `
-                            <p>Dear ${full_name},</p>
-
-                            <p>
-                                Your MERAS account has been <strong>suspended</strong>
-                                due to ${overdueCount} overdue equipment return(s).
-                            </p>
-
-                            <p>
-                                While suspended, you will not be able to make new reservations.
-                                Any equipment currently in your possession must still be returned
-                                immediately.
-                            </p>
-
-                            <p>
-                                If you believe this is a mistake or need further assistance,
-                                please contact the equipment desk.
-                            </p>
-
-                            <p>
-                                Thank you,<br/>
-                                MERAS — Equipment Reservation System<br/>
-                                Oulu University of Applied Sciences
-                            </p>
-                        `
-                    })
-
-                    console.log(`[overdue_job] Suspended user ${email} after ${overdueCount} overdue return(s).`)
-                }
+            if (suspendResult.rows.length > 0) {
+                const { full_name, email } = suspendResult.rows[0]
+                await sendEmail({
+                    to: email,
+                    subject: 'Account Suspended — Overdue Equipment Returns',
+                    html: `
+                        <p>Dear ${full_name},</p>
+                        <p>Your MERAS account has been <strong>suspended</strong> due to ${row.overdue_count} overdue equipment return(s).</p>
+                        <p>While suspended, you will not be able to make new reservations.</p>
+                        <p>Thank you,<br/>MERAS — Equipment Reservation System</p>
+                    `
+                })
+                console.log(`[overdue_job] Suspended user ${email} after ${row.overdue_count} overdue return(s).`)
             }
         }
 
@@ -164,7 +174,7 @@ cron.schedule('*/15 * * * *', async () => {
                 last_unsuspended_at = (NOW() AT TIME ZONE 'Europe/Helsinki'),
                 updated_at = (NOW() AT TIME ZONE 'Europe/Helsinki')
             WHERE status = 'suspended'
-              AND suspended_at < (NOW() AT TIME ZONE 'Europe/Helsinki') - ($1 || ' days')::INTERVAL
+              AND suspended_at < (NOW() AT TIME ZONE 'Europe/Helsinki') - ($1 * INTERVAL '1 day')
             RETURNING full_name, email
         `, [restrictionDays])
 

@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const jwt = require('jsonwebtoken')
+const crypto = require('crypto')
 const reservationsHelper = require('../helpers/reservations')
 const { authenticate, authorizeRole } = require('../helpers/role')
 const { db } = require('../helpers/db')
@@ -134,6 +135,20 @@ router.post('/', authenticate, async (req, res) => {
             })
         }
 
+        // Block new bookings entirely if the user has ANY overdue reservation
+        const overdueCheck = await db.query(`
+            SELECT COUNT(*) AS total
+            FROM reservations
+            WHERE user_id = $1
+              AND status = 'overdue'
+        `, [user_id])
+
+        if (parseInt(overdueCheck.rows[0].total, 10) > 0) {
+            return res.status(403).json({
+                error: 'You have an overdue reservation. Please return it before making a new booking.'
+            })
+        }
+
         const reservationLimit = role === 'staff' ? 5 : 3
 
         const reservationCountResult = await db.query(`
@@ -181,6 +196,7 @@ router.post('/', authenticate, async (req, res) => {
             })
         }
 
+        const bookingGroupId = crypto.randomUUID()
         const inserted = []
 
         for (const unit of available.rows) {
@@ -191,11 +207,12 @@ router.post('/', authenticate, async (req, res) => {
                     type_id,
                     start_time,
                     end_time,
-                    status
+                    status,
+                    booking_group_id
                 )
-                VALUES ($1, $2, $3, $4, $5, 'approved')
+                VALUES ($1, $2, $3, $4, $5, 'approved', $6)
                 RETURNING *;
-            `, [user_id, unit.id, type_id, start_time, end_time])
+            `, [user_id, unit.id, type_id, start_time, end_time, bookingGroupId])
 
             inserted.push(result.rows[0])
         }
@@ -219,7 +236,7 @@ router.get('/my', authenticate, async (req, res) => {
                 cancelled_at = (NOW() AT TIME ZONE 'Europe/Helsinki')
             WHERE user_id = $1
               AND status = 'approved'
-              AND end_time < NOW()
+              AND end_time < (NOW() AT TIME ZONE 'Europe/Helsinki')
             RETURNING id, unit_id;
         `, [user_id])
 
@@ -232,6 +249,7 @@ router.get('/my', authenticate, async (req, res) => {
                 r.start_time,
                 r.end_time,
                 r.status,
+                r.booking_group_id,
                 et.name       AS device,
                 et.image_url,
                 eu.location   AS pickup_location
@@ -239,6 +257,7 @@ router.get('/my', authenticate, async (req, res) => {
             JOIN equipment_types et ON et.id = r.type_id
             LEFT JOIN equipment_units eu ON eu.id = r.unit_id
             WHERE r.user_id = $1
+                AND r.hidden_by_user = false
             ORDER BY r.created_at DESC;
             `, [user_id])
 
@@ -431,6 +450,31 @@ router.delete('/:id', authenticate, async (req, res) => {
         }
 
         return res.status(200).json({ message: 'Reservation cancelled.' })
+    } catch (error) {
+        return res.status(500).json({ error: error.message })
+    }
+})
+
+// Hide a completed/cancelled reservation from the student's own view (soft, non-destructive)
+router.patch('/:id/hide', authenticate, async (req, res) => {
+    try {
+        const { id } = req.params
+        const user_id = req.user.userId
+
+        const result = await db.query(`
+            UPDATE reservations
+            SET hidden_by_user = true
+            WHERE id = $1
+              AND user_id = $2
+              AND status IN ('completed', 'cancelled')
+            RETURNING id;
+        `, [id, user_id])
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Reservation not found or cannot be hidden.' })
+        }
+
+        return res.status(200).json({ message: 'Reservation removed from history.' })
     } catch (error) {
         return res.status(500).json({ error: error.message })
     }

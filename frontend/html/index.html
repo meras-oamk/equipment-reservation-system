@@ -154,14 +154,14 @@ function renderEquipment() {
             ? item.description.replace(/^Details?:\s*/i, "")
             : "No description available.";
         grid.innerHTML += `
-            <div class="card">
-                <img src="${image}" alt="${item.name}">
-                <div class="card-content">
-                    <h3>${item.name}</h3>
-                    <span class="text-muted d-block mb-2">${item.subcategory}</span>
-                    <p style="white-space:pre-line;">${description}</p>
-                </div>
-            </div>`;
+        <div class="card" onclick="requireLogin()">
+        <img src="${image}" alt="${item.name}">
+        <div class="card-content">
+            <h3>${item.name}</h3>
+            <span class="text-muted d-block mb-2">${item.subcategory}</span>
+            <p style="white-space:pre-line;">${description}</p>
+        </div>
+        </div>`;
     });
 
     renderPagination(currentData.length);
@@ -232,6 +232,15 @@ function closePopup() {
 }
 document.addEventListener('click', closePopup);
 
+function requireLogin() {
+    const login = confirm(
+        "Please log in first to make a reservation.\n\nClick OK to go to the login page."
+    );
+
+    if (login) {
+        window.location.href = "loginOrRegister.html?form=login";
+    }
+}
 // Read subcategory data from HTML, then wire up each button
 document.querySelectorAll('.cat-dropdown').forEach(dropdown => {
     const btn      = dropdown.querySelector('.btn-category');

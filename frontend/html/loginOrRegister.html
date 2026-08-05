@@ -92,14 +92,16 @@
 
         <p id="verifyError" class="error-text"></p>
 
+        <div class="resend-container">
+            <a id="resendBtn" class="resend-text disabled">
+                Resend Code <span id="countdownTimer">60</span>s
+            </a>
+            <div id="resendFeedback" class="feedback-msg hidden"></div>
+        </div>
+
         <button id="verifyBtn" class="primary-btn">
             Verify Email
         </button>
-
-        <p class="resend-text">
-            Didn't receive the code?
-            <a href="#" id="resendCode">Resend Code</a>
-        </p>
 
     </div>
 </div>

@@ -1,4 +1,8 @@
 const token = localStorage.getItem('token')
+if (!token) {
+    alert('Login to see contents!') 
+    window.location.replace('../../loginOrRegister.html')
+}
 
 let allLogs = []
 
@@ -12,17 +16,25 @@ async function loadLogs() {
         const res = await fetch('/api/logs', {
             headers: { 'Authorization': `Bearer ${token}` }
         })
-        const data = await res.json()
 
+        if (res.status === 401) {
+            localStorage.removeItem('token')
+            alert('Your token is expired or invalid. Please login again!')
+            window.location.replace('../../loginOrRegister.html')
+            return 
+        }
+        
+        const data = await res.json()
+        
         if (!res.ok) {
-            container.innerHTML = `<div class="table-row" style="color:#aaa;">${data.error || 'Failed to load logs.'}</div>`
-            return
+            throw new Error(`HTTP error! Status: ${res.status}`)
         }
 
         allLogs = data
         renderStats(allLogs)
         renderLogs(allLogs)
     } catch (error) {
+        console.error('Error fetching logs:', error)
         container.innerHTML = '<div class="table-row" style="color:#aaa;">Failed to load logs.</div>'
     }
 }

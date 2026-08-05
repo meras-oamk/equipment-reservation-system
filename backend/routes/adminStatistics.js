@@ -16,4 +16,17 @@ router.get('/dashboard-stats', authenticate, authorizeRole('admin'), async (req,
     }
 })
 
+router.get('/reservations-stats', authenticate, authorizeRole('admin'), async (req, res) => {
+    try {
+        const loanOutcomes = await adminStatisticsHelpers.loanOutcomes()
+        const weeklyLoad = await adminStatisticsHelpers.weeklyLoad()
+        const avgDuration = await adminStatisticsHelpers.avgDuration()
+
+        return res.status(200).json({ loanOutcomes, weeklyLoad, avgDuration })
+    } catch (error) {
+        console.log('Error get stats: ', error.message)
+        return res.status(401).json({ error: error.message })
+    }
+})
+
 module.exports = router

@@ -1,13 +1,21 @@
 const token = localStorage.getItem('token')
+if (!token) {
+    alert('Login to see contents!') 
+    window.location.replace('../../loginOrRegister.html')
+}
+
+let currentPage = 1
+const limit = 10
+let currentSearch = ''
+let currentFilter = 'all'
 
 new ListController({
     searchInputSelector: '.search-bar',
     dropdownSelector: '.filter-select',
-    itemSelector: '.table-row',
-    searchFields: ['.user-name', '.eq-name'],
-    filterCallback: (row, value) => {
-        const status = row.getAttribute('data-status')
-        return status === value
+    onApply: ({ search, filter }) => {
+        currentSearch = search;
+        currentFilter = filter;
+        loadAllReservations(1); 
     }
 })
 
@@ -15,9 +23,17 @@ document.addEventListener('DOMContentLoaded', () => {
     loadAllReservations()
 })
 
-async function loadAllReservations() {
+async function loadAllReservations(page = 1) {
+    currentPage = page
     try {
-        const res = await fetch('/api/reservation/reservations', {
+        const queryParams = new URLSearchParams({
+            page: page,
+            limit: limit,
+            search: currentSearch,
+            status: currentFilter
+        })
+
+        const res = await fetch(`/api/reservation/reservations?${queryParams.toString()}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -36,10 +52,10 @@ async function loadAllReservations() {
         }
 
         const data = await res.json()
-        const { reservationsData } = data
+        const { reservations, pagination } = data
 
-        renderReservationsTable(reservationsData)
-        updateStatistics(reservationsData)
+        renderReservationsTable(reservations)
+        renderPaginationControls(pagination)
         
     } catch (error) {
         console.error('Error fetching reservations:', error)
@@ -93,6 +109,100 @@ function renderReservationsTable(reservations) {
         `
         tableWrap.insertAdjacentHTML('beforeend', rowHtml)
     })
+}
+
+function renderPaginationControls(pagination) {
+    const container = document.getElementById('pagination-controls')
+    if (!container) return
+
+    const { currentPage, totalPages } = pagination
+
+    if (totalPages <= 1) {
+        container.innerHTML = ''
+        return
+    }
+
+    const range = new Set()
+    range.add(1)
+    range.add(totalPages)
+
+    let left = currentPage - 1
+    let right = currentPage + 1
+
+    if (currentPage <= 2) {
+        left = 1
+        right = Math.min(3, totalPages)
+    } else if (currentPage >= totalPages - 1) {
+        left = Math.max(1, totalPages - 2)
+        right = totalPages
+    }
+
+    for (let i = left; i <= right; i++) {
+        if (i >= 1 && i <= totalPages) {
+            range.add(i)
+        }
+    }
+
+    const sortedRange = Array.from(range).sort((a, b) => a - b)
+
+    const paginatedPages = []
+    let lastValue = null
+
+    for (const page of sortedRange) {
+        if (lastValue != null) {
+            if (page - lastValue === 2) {
+                paginatedPages.push(lastValue + 1)
+            } else if (page - lastValue > 2) {
+                paginatedPages.push('...')
+            }
+        }
+        paginatedPages.push(page)
+        lastValue = page
+    }
+
+    let innerHTML = ''
+
+    innerHTML += `
+        <button class="pag-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="changePage(${currentPage - 1})">
+            &laquo;
+        </button>
+    `
+
+    paginatedPages.forEach(page => {
+        if (page === '...') {
+            innerHTML += `<span>...</span>`
+        } else {
+            innerHTML += `
+                <button class="pag-btn ${currentPage === page ? 'active' : ''}" onclick="changePage(${page})">
+                    ${page}
+                </button>
+            `;
+        }
+    })
+
+    innerHTML += `
+        <button class="pag-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="changePage(${currentPage + 1})">
+            &raquo;
+        </button>
+    `
+
+    container.innerHTML = innerHTML
+    
+}
+
+window.changePage = function(page) {
+    loadAllReservations(page)
+
+    const searchBar = document.querySelector('.search-bar')
+    if (searchBar) {
+        const searchContainer = searchBar.closest('.d-flex')
+        if (searchContainer) {
+            searchContainer.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start' 
+            })
+        }
+    }
 }
 
 function buildTimeline(r) {
@@ -149,33 +259,3 @@ function formatTableDate(isoString) {
     return `${day}/${month}/${year} ${hours}:${minutes}`
 }
 
-function updateStatistics(reservations) {
-    const counts = { total: reservations.length, approved: 0, active: 0, pending_return: 0, overdue: 0, completed: 0, cancelled: 0 }
-
-    reservations.forEach(r => {
-        const status = r.status ? r.status.toLowerCase() : ''
-        if (counts[status] !== undefined) counts[status]++
-    })
-
-    setStatValue('Total', counts.total)
-    setStatValue('Approved', counts.approved)
-    setStatValue('Active', counts.active)
-    setStatValue('Pending Return', counts.pending_return)
-    setStatValue('Overdue', counts.overdue)
-    setStatValue('Completed', counts.completed)
-    setStatValue('Cancelled', counts.cancelled)
-}
-
-function setStatValue(label, value) {
-    const cards = document.querySelectorAll('.stat-card')
-
-    cards.forEach(card => {
-        const labelEl = card.querySelector('.stat-label')
-        if (labelEl && labelEl.textContent.trim().toLowerCase() === label.toLowerCase()) {
-            const valueEl = card.querySelector('.stat-value')
-            if (valueEl) {
-                valueEl.textContent = value
-            }
-        }
-    })
-}

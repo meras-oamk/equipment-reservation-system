@@ -1,3 +1,54 @@
+.stat-card {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #eee;
+  padding: 20px 24px;
+  height: 320px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-top: 0;
+  margin-bottom: 12px;
+}
+
+.chart-container {
+  position: relative;
+  flex-grow: 1;
+  width: 100%;
+  height: calc(100% - 30px);
+}
+
+.radial-wrapper {
+  position: relative;
+}
+
+.doughnut-center-text {
+  text-align: center;
+  pointer-events: none;
+}
+
+.doughnut-total {
+  font-size: 38px;
+  font-weight: 800;
+  color: #333;
+  line-height: 1;
+}
+
+.doughnut-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+}
+
 .table-header {
   background: #F5C992;
   border-radius: 0px 10px 0 0;
@@ -37,7 +88,6 @@
   overflow: hidden;
 }
 
-/* ── Timeline column ── */
 .timeline-cell {
   display: flex;
   flex-direction: column;
@@ -70,3 +120,40 @@
 .tl-dot--ret   { background: #3B82F6; }
 .tl-dot--empty  { background: #ddd; }
 .tl-dot--cancel { background: #EF4444; }
+
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  margin-top: 25px;
+}
+
+.pag-btn {
+  padding: 8px 14px;
+  border: 1px solid #e2e8f0;
+  background-color: #ffffff;
+  color: #4a5568;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pag-btn:hover:not(:disabled) {
+  background-color: #3182ce;
+  border-color: #3182ce;
+  color: #ffffff;
+}
+
+.pag-btn.active {
+  background-color: #3182ce; /* Active page blue */
+  color: #ffffff;
+  border-color: #3182ce;
+}
+
+.pag-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

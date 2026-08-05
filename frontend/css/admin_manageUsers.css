@@ -30,6 +30,20 @@
 
 .panel-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
 
+#leftPanel {
+    height: 650px; 
+    overflow-y: auto;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+#leftPanel, 
+#dHistoryContainer {
+    -ms-overflow-style: none;  
+    scrollbar-width: none;     
+}
+
 /* ── USER CARD ── */
 .user-card {
   border: 1.5px solid var(--orange);

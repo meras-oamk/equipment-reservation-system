@@ -263,16 +263,52 @@ input:focus{
     border-color:#f39a1d;
 }
 
-.resend-text{
-    margin-top:14px;
-    font-size:13px;
-    color:#888;
+.resend-container {
+  margin-bottom: 24px;
+  text-align: left;
 }
 
-.resend-text a{
-    color:#f39a1d;
-    text-decoration:none;
-    font-weight:600;
+/* Active State */
+.resend-text {
+  display: inline-block;
+  margin-top: 14px;
+  font-size: 20px;
+  color: #f39a1d; /* Base Orange */
+  text-decoration: none;
+  font-weight: 600;
+  cursor: pointer; /* Pointer finger for active link */
+}
+
+.resend-text:hover:not(.disabled) {
+  color: #d17e0b; 
+}
+
+/* Class-based Disabled State for Anchor <a> tags */
+.resend-text.disabled {
+  pointer-events: none; 
+  cursor: not-allowed;  
+  color: #bdb8b1;      
+}
+
+/* Base styling for the feedback text */
+.feedback-msg {
+  font-size: 14px;
+  margin-top: 12px;
+  line-height: 1.4;
+  display: block; 
+}
+
+/* Hidden state */
+.feedback-msg.hidden {
+  display: none;
+}
+
+.feedback-msg.success {
+  color: #28a745;
+}
+
+.feedback-msg.error {
+  color: #dc3545;
 }
 
 @media(max-width:480px){

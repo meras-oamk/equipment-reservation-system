@@ -65,7 +65,7 @@ class DetailsController {
                 localStorage.removeItem('token')
                 alert('Your token is expired or invatid. Please login again!')
                 window.location.replace('../../loginOrRegister.html')
-                return []
+                return 
             }
 
             if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`)

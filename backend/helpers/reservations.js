@@ -102,13 +102,46 @@ const reservationsHelper = {
         return updateReservationResult.rows[0];
     },
 
-    reservations: async () => {
-        const reservations = await db.query(`
+    reservations: async (page = 1, limit = 10, search = '', status = 'all') => {
+        const offset = (page - 1) * limit
+
+        let whereClauses = []
+        let queryParams = []
+
+        if (status && status !== 'all') {
+            queryParams.push(status)
+            whereClauses.push(`LOWER(CAST(r.status AS text)) = LOWER($${queryParams.length})`)
+        }
+
+        if (search && search.trim() !== '') {
+            queryParams.push(`%${search.trim()}%`)
+            whereClauses.push(`(u.full_name ILIKE $${queryParams.length} OR et.name ILIKE $${queryParams.length} OR u.email ILIKE $${queryParams.length})`)
+        }
+
+        const whereString = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : ''
+
+        const countQuery = `
+            SELECT COUNT(*) FROM reservations r
+            JOIN users u ON r.user_id = u.id
+            LEFT JOIN equipment_types et ON r.type_id = et.id
+            ${whereString};
+        `
+
+        const countResult = await db.query(countQuery, queryParams)
+        const totalReservations = parseInt(countResult.rows[0].count, 10)
+
+        queryParams.push(limit)
+        const limitPlaceholder = `$${queryParams.length}`
+
+        queryParams.push(offset);
+        const offsetPlaceholder = `$${queryParams.length}`
+
+        const mainQuery = `
             SELECT
                 u.full_name,
                 u.email,
 
-                r.id              AS reservation_id,
+                r.id AS reservation_id,
                 r.created_at,
                 r.start_time,
                 r.end_time,
@@ -131,11 +164,24 @@ const reservationsHelper = {
 
             LEFT JOIN equipment_types et
                 ON r.type_id = et.id
+            
+            ${whereString}
 
-            ORDER BY r.id DESC;
-        `)
+            ORDER BY r.id DESC
+            LIMIT ${limitPlaceholder} OFFSET ${offsetPlaceholder};
+        `
 
-        return reservations.rows
+        const reservations = await db.query(mainQuery, queryParams)
+        const totalPages = Math.ceil(totalReservations / limit)
+        return {
+            reservations: reservations.rows,
+            pagination: {
+                totalReservations, 
+                totalPages, 
+                currentPage: page,
+                limit
+            }
+        }
     }
 }
 

@@ -73,14 +73,14 @@ const manageUsersHelper = {
     restrictUser: async (userId, status) => {
         const changeStatus = await db.query(`
             UPDATE users
-            SET status = $1,
+            SET status = $1::user_status,
                 suspended_at = CASE
-                    WHEN $1 = 'suspended' THEN (NOW() AT TIME ZONE 'Europe/Helsinki')
-                    WHEN $1 = 'active'    THEN NULL
+                    WHEN $1::text = 'suspended' THEN (NOW() AT TIME ZONE 'Europe/Helsinki')
+                    WHEN $1::text = 'active'    THEN NULL
                     ELSE suspended_at
                 END,
                 last_unsuspended_at = CASE
-                    WHEN $1 = 'active' THEN (NOW() AT TIME ZONE 'Europe/Helsinki')
+                    WHEN $1::text = 'active' THEN (NOW() AT TIME ZONE 'Europe/Helsinki')
                     ELSE last_unsuspended_at
                 END,
                 updated_at = (NOW() AT TIME ZONE 'Europe/Helsinki')

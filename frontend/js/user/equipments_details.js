@@ -44,18 +44,7 @@ async function loadEquipmentDetails() {
 
         const maxStartDate = new Date();
         maxStartDate.setDate(maxStartDate.getDate() + window.advanceBookingDays);
-        document.getElementById('startDate').max = maxStartDate.toISOStrin
-        g().split('T')[0];
-
-        /*const qtySelect = document.getElementById('qtySelect');
-        qtySelect.innerHTML = '';
-        const max = Math.max(1, parseInt(item.available_count) || 1);
-        for (let i = 1; i <= max; i++) {
-            const opt = document.createElement('option');
-            opt.value = i;
-            opt.textContent = i;
-            qtySelect.appendChild(opt);
-        }*/
+        document.getElementById('startDate').max = maxStartDate.toISOString().split('T')[0];
 
     } catch (err) {
         console.error(err);
@@ -134,28 +123,115 @@ function updateQuantityOptions(count) {
 loadEquipmentDetails();
 
 // ── RESTRICT DATES TO TODAY OR FUTURE ──
-const today = new Date().toISOString().split('T')[0];
+
+function getLocalDateString() {
+    const now = new Date();
+
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+}
 
 const startDateInput = document.getElementById('startDate');
 const endDateInput   = document.getElementById('endDate');
 const startTimeInput = document.getElementById('startTime');
 const endTimeInput   = document.getElementById('endTime');
 
+const today = getLocalDateString();
+
+// Prevent selecting yesterday or any earlier date
 startDateInput.min = today;
 endDateInput.min   = today;
 
+
+// ── DISABLE PICKUP TIMES THAT HAVE ALREADY PASSED ──
+
+function updateStartTimeOptions() {
+    const now = new Date();
+    const currentDate = getLocalDateString();
+    const selectedDate = startDateInput.value;
+
+    Array.from(startTimeInput.options).forEach(option => {
+
+        const optionTime = option.value;
+
+            // Ignore placeholder option if there is one
+            if (!optionTime || !optionTime.includes(':')) {
+            option.disabled = false;
+            return;
+        }
+
+             // Only disable past times when pickup date is TODAY
+            if (selectedDate === currentDate) {
+
+            const [hours, minutes] = optionTime.split(':').map(Number);
+
+            const selectedDateTime = new Date();
+            selectedDateTime.setHours(hours, minutes, 0, 0);
+
+             // Disable times before the current time
+            option.disabled = selectedDateTime < now;
+
+            } else {
+
+            // Future dates: all times are available
+            option.disabled = false;
+            }
+        });
+
+    // If the currently selected time has become disabled,
+    // select the first available time.
+    if (startTimeInput.selectedOptions[0]?.disabled) {
+
+        const firstAvailable = Array.from(startTimeInput.options)
+            .find(option => !option.disabled);
+
+        if (firstAvailable) {
+            startTimeInput.value = firstAvailable.value;
+        }
+    }
+}
+
+updateStartTimeOptions();
+
+
+// ── DATE CHANGE ──
+
 startDateInput.addEventListener('change', function () {
+
+    // Return date cannot be before pickup date
     endDateInput.min = this.value;
+
     if (endDateInput.value && endDateInput.value < this.value) {
         endDateInput.value = '';
     }
+
+    updateStartTimeOptions();
     refreshLocations();
 });
 
-// Re-fetch locations whenever any of the four date/time fields change
-endDateInput.addEventListener('change', refreshLocations);
-startTimeInput.addEventListener('change', refreshLocations);
-endTimeInput.addEventListener('change', refreshLocations);
+
+// ── END DATE CHANGE ──
+
+endDateInput.addEventListener('change', function () {
+    refreshLocations();
+});
+
+
+// ── START TIME CHANGE ──
+
+startTimeInput.addEventListener('change', function () {
+
+    updateStartTimeOptions();
+
+    refreshLocations();
+});
+
+
+// ── END TIME CHANGE ──
+
+endTimeInput.addEventListener('change', function () {
+    refreshLocations();
+});
+
 
 // Location dropdown
 const locationBtn = document.getElementById('locationBtn');
@@ -235,6 +311,17 @@ confirmBtn.addEventListener('click', async function () {
   }
   if (startDate && endDate && startDate === endDate && endTime <= startTime) {
     errors.push('End Time must be after Start Time on the same day');
+  }
+
+  // Prevent booking a pickup time that has already passed today
+  if (startDate && startTime) {
+    const now = new Date();
+
+    const selectedStart = new Date(`${startDate}T${startTime}:00`);
+
+    if (selectedStart < now) {
+        errors.push('Pickup time cannot be earlier than the current time');
+    }
   }
 
   if (errors.length > 0) {
@@ -347,16 +434,16 @@ function showValidationAlert(errors) {
   const existing = document.getElementById('validationAlert');
   if (existing) existing.remove();
 
-  const missingFields = errors.filter(e => !e.includes('cannot') && !e.includes('must be'));
-  const logicErrors   = errors.filter(e =>  e.includes('cannot') ||  e.includes('must be'));
+  const missingFields = errors.filter(e => ['Start Date', 'End Date', 'Start Time', 'End Time', 'Pickup Location'].includes(e));
+  const otherErrors   = errors.filter(e =>  !['Start Date', 'End Date', 'Start Time', 'End Time', 'Pickup Location'].includes(e));
 
   let messageHTML = '';
   if (missingFields.length > 0) {
     messageHTML += `Please fill in the following fields: <strong>${missingFields.join(', ')}</strong>.`;
   }
-  if (logicErrors.length > 0) {
+  if (otherErrors.length > 0) {
     if (messageHTML) messageHTML += '<br>';
-    messageHTML += logicErrors.map(e => `⚠️ ${e}.`).join('<br>');
+    messageHTML += otherErrors.map(e => `⚠️ ${e}.`).join('<br>');
   }
 
   const alert = document.createElement('div');

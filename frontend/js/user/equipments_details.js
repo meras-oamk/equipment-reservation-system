@@ -44,7 +44,8 @@ async function loadEquipmentDetails() {
 
         const maxStartDate = new Date();
         maxStartDate.setDate(maxStartDate.getDate() + window.advanceBookingDays);
-        document.getElementById('startDate').max = maxStartDate.toISOString().split('T')[0];
+        document.getElementById('startDate').max = maxStartDate.toISOStrin
+        g().split('T')[0];
 
         /*const qtySelect = document.getElementById('qtySelect');
         qtySelect.innerHTML = '';

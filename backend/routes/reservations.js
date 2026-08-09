@@ -236,6 +236,8 @@ router.get('/my', authenticate, async (req, res) => {
                 r.end_time,
                 r.status,
                 r.booking_group_id,
+                r.checkout_time,
+                r.return_scan_time,
                 et.name       AS device,
                 et.image_url,
                 eu.location   AS pickup_location

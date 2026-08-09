@@ -39,7 +39,10 @@ async function loadEquipmentDetails() {
         document.getElementById('detail-subcategory').textContent   = item.subcategory;
         document.getElementById('detail-name').textContent          = item.name;
         document.getElementById('detail-available').textContent     = item.available_count;
-        document.getElementById('detail-description').textContent   = item.description || 'No description available.';
+        document.getElementById('detail-description').textContent =
+        item.description
+        ? item.description.replace(/^Details\s*:?\s*/i, '')
+        : 'No description available.';
         document.getElementById('modal-equipment-name').textContent = item.name;
 
         const maxStartDate = new Date();

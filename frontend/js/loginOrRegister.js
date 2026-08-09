@@ -1,4 +1,3 @@
-
 const loginTab = document.getElementById("loginTab");
 const registerTab = document.getElementById("registerTab");
 
@@ -89,6 +88,15 @@ codeInputs.forEach((input, index) => {
     });
 
 });
+
+window.openVerificationModal = () => {
+    const modal = document.getElementById('verificationModal');
+    if (modal) {
+        verificationModal.style.display = 'flex'
+        
+        window.onVerificationModalOpen(); 
+    }
+};
 
 //get the full code
 document

@@ -1,5 +1,8 @@
 const token = localStorage.getItem('token')
-
+if (!token) {
+    alert('Login to see contents!') 
+    window.location.replace('../../loginOrRegister.html')
+}
 let allTypes = []
 
 // =====================
@@ -312,16 +315,34 @@ function closeDetailModal() {
 // UNIT MODAL
 // =====================
 
-function openUnitModal(unitId = null, typeId) {
+async function openUnitModal(unitId = null, typeId) {
     const unit = unitId ? unitsCache[typeId]?.find(u => u.id === unitId) : null
 
     document.getElementById('unitId').value = unit ? unit.id : ''
     document.getElementById('unitTypeId').value = typeId
-    document.getElementById('unitQrCode').value = unit ? unit.qr_code : ''
     document.getElementById('unitLocation').value = unit ? unit.location || '' : ''
     document.getElementById('unitCondition').value = unit ? unit.condition : 'good'
     document.getElementById('unitStatus').value = unit ? unit.status : 'available'
     document.getElementById('unitModalTitle').textContent = unit ? 'Edit Unit' : 'Add Unit'
+
+    if (unit) {
+        document.getElementById('unitQrCode').value = unit.qr_code
+    } else {
+        // Auto-generate serial number theo format MERAS-T{typeId}-{number}
+        const qrInput = document.getElementById('unitQrCode')
+        qrInput.value = 'Generating...'
+        qrInput.disabled = true
+        try {
+            const res = await fetch(`/api/equipment/types/${typeId}/next-serial`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            const data = await res.json()
+            qrInput.value = res.ok ? data.serial : ''
+        } catch (e) {
+            qrInput.value = ''
+        }
+        qrInput.disabled = false
+    }
 
     syncStatusWithCondition()
 

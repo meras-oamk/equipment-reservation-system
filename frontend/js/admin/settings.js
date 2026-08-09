@@ -1,4 +1,8 @@
 const token = localStorage.getItem('token')
+if (!token) {
+    alert('Login to see contents!') 
+    window.location.replace('../../loginOrRegister.html')
+}
 
 // =====================
 // LOAD SETTINGS
@@ -6,12 +10,23 @@ const token = localStorage.getItem('token')
 
 async function loadSettings() {
     try {
-        const res = await fetch('/api/settings')
-        const settings = await res.json()
-        if (!res.ok) {
-            console.error(settings.error)
+        const res = await fetch('/api/settings', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        })
+
+        if (res.status === 401) {
+            localStorage.removeItem('token')
+            window.location.replace('../../loginOrRegister.html')
             return
         }
+
+        if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`)
+
+        const settings = await res.json()
 
         document.querySelectorAll('[data-setting]').forEach(el => {
             const settingKey = el.dataset.setting
@@ -73,6 +88,13 @@ async function saveSetting(card, settingKey) {
             },
             body: JSON.stringify(data)
         })
+
+        if (res.status === 401) {
+            localStorage.removeItem('token')
+            alert('Your token is expired or invalid. Please login again!')
+            window.location.replace('../../loginOrRegister.html')
+            return 
+        }
 
         const result = await res.json()
         if (!res.ok) {

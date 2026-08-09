@@ -47,6 +47,20 @@ router.post('/verify-email', async (req, res) => {
     }
 })
 
+router.get('/cooldown', async (req, res) => {
+    try {
+        const { email } = req.query
+        if (!email) {
+            return res.status(400).json({ error: 'Email parameter is required.' })
+        }
+
+        const secondsLeft = await authHelper.getCooldown(email)
+        return res.status(200).json({ secondsLeft })
+    } catch (error) {
+        return res.status(500).json({ error: error.message })
+    }
+})
+
 router.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body

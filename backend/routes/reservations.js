@@ -82,9 +82,23 @@ router.put('/:id/return', authenticate, authorizeRole('admin'), async (req, res)
 
 router.get('/reservations', authenticate, authorizeRole('admin'), async (req, res) => {
     try {
-        const reservationsData = await reservationsHelper.reservations()
+        const page = parseInt(req.query.page, 10) || 1
+        const limit = parseInt(req.query.limit, 10) || 10
 
-        return res.status(200).json({ reservationsData })
+        const search = req.query.search || ''
+        const status = req.query.status || 'all'
+
+        const sanitizesPage = Math.max(1, page)
+        const sanitizesLimit = Math.max(1, limit)
+
+        const reservationsData = await reservationsHelper.reservations(
+            sanitizesPage, 
+            sanitizesLimit, 
+            search, 
+            status
+        )
+
+        return res.status(200).json(reservationsData)
     } catch (error) {
         console.error('Error get reservations: ', error.message)
         return res.status(500).json({ error: error.message })

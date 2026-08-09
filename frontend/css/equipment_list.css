@@ -26,6 +26,9 @@ body {
     border-bottom: 2px solid #ddd;
     border-radius: 35px 35px 0 0;
     background: white;
+    position: sticky;
+    top: 0;
+    z-index: 100;
 }
 
 .top-navbar .logo {

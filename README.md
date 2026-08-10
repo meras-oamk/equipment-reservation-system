@@ -12,7 +12,7 @@ It allows students, staff, and admins to:
 - Manage equipment condition, status, and audit logs through an admin dashboard
 
 ## Live Demo
-*****************************
+reservation-faevbvdgeybqg4fv.swedencentral-01.azurewebsites.net
 
 ## Team
 - Janne Kumpuoja (Supervisor)

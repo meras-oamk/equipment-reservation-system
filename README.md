@@ -21,16 +21,16 @@ It allows students, staff, and admins to:
 - Upeksha Eshani (Student)
 - Ruvindra Nimshani (Student)
 
-## Tech Stack
+## Technology Stack
 
 | Layer | Technology |
 |---|---|
 | **Frontend** | HTML, CSS, JavaScript |
 | **Backend** | Node.js + Express.js |
 | **Database** | PostgreSQL |
-| **Authentication** | bscrypt, hashpassword, email verification |
-| **QR Scanning** | QR code generation + browser-based scan |
-| **Email** | ********* |
+| **Authentication** | JSON Web Token (jsonwebtoken), bcrypt |
+| **QR Scanning** | qrcode, html5-qrcode |
+| **Email** | Nodemailer |
 
 ## Features
 

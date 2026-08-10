@@ -9,6 +9,41 @@ function fmt(datetimeStr) {
     return { time, date };
 }
 
+// formatTableDate() — "DD/MM/YYYY HH:MM" on one line
+function formatDisplayDateTime(datetimeStr) {
+    if (!datetimeStr) return 'N/A';
+    const clean = datetimeStr.replace(' ', 'T').slice(0, 19);
+    const [datePart, timePart] = clean.split('T');
+    const [year, month, day] = datePart.split('-');
+    const [hours, minutes] = timePart.split(':');
+    return `${day}/${month}/${year} ${hours}:${minutes}`;
+}
+
+// "Start / End" stacked column with a "to" separator
+function formatStartEndCell(rawStart, rawEnd) {
+    return `
+        ${formatDisplayDateTime(rawStart)}
+        <span style="color:#aaa;font-size:0.8em;display:block;text-align:center;">to</span>
+        ${formatDisplayDateTime(rawEnd)}
+    `;
+}
+
+// "Actual Pickup / Return" stacked column, using already-formatted {date, time} objects
+function formatActualCell(actualPickup, actualReturn) {
+    const pickupText = actualPickup ? `${actualPickup.date} ${actualPickup.time}` : '—';
+    const returnText = actualReturn ? `${actualReturn.date} ${actualReturn.time}` : '—';
+
+    if (!actualPickup && !actualReturn) {
+        return '—';
+    }
+
+    return `
+        ${pickupText}
+        <span style="color:#aaa;font-size:0.8em;display:block;text-align:center;">to</span>
+        ${returnText}
+    `;
+}
+
 async function loadReservations() {
     const token = localStorage.getItem('token');
     try {
@@ -76,11 +111,15 @@ data.forEach(r => {
         device:   r.device,
         start:    `${s.time}\n${s.date}`,
         end:      `${e.time}\n${e.date}`,
+        rawStart:         r.start_time,
+        rawEnd:           r.end_time,
         duration,
         location: r.pickup_location,
         status:   tabStatus,
         displayStatus,
-        booking_group_id: r.booking_group_id
+        booking_group_id: r.booking_group_id,
+        actualPickup:     r.checkout_time ? fmt(r.checkout_time) : null,
+        actualReturn:     r.return_scan_time ? fmt(r.return_scan_time) : null
     };
 
     reservations[tabStatus].push(entry);
@@ -131,14 +170,13 @@ function groupByBooking(rows) {
 
 // ── RENDER ONE DESKTOP ROW  ──
 function renderSingleRow(r, isCompleted, showDeleteBtn) {
-    const startLines = r.start.split('\n');
-    const endLines   = r.end.split('\n');
+    
     return `
       <tr class="${isCompleted ? '' : 'clickable'}" ${isCompleted ? '' : `onclick="goToDetail(${r.id})"`}>
         <td><span class="device-name">${r.device}</span></td>
         <td><span class="device-name">#${r.id}</span></td>
-        <td>${startLines[0]}<br><span style="color:var(--muted);font-size:0.8rem;">${startLines[1]||''}</span></td>
-        <td>${endLines[0]}<br><span style="color:var(--muted);font-size:0.8rem;">${endLines[1]||''}</span></td>
+        <td class="date-time">${formatStartEndCell(r.rawStart, r.rawEnd)}</td>
+        <td class="date-time">${formatActualCell(r.actualPickup, r.actualReturn)}</td>
         <td>${r.duration}</td>
         <td>1</td>
         <td>${r.location}</td>
@@ -165,8 +203,6 @@ function renderSingleRow(r, isCompleted, showDeleteBtn) {
 // ── RENDER ONE GROUP (single row if group of 1, expandable summary + nested rows if 2+) ──
 function renderGroupRow(group, isCompleted, showDeleteBtn) {
     const first = group[0];
-    const startLines = first.start.split('\n');
-    const endLines   = first.end.split('\n');
     const isMulti = group.length > 1;
     const groupId = `group-${first.booking_group_id || first.id}`;
 
@@ -184,12 +220,12 @@ function renderGroupRow(group, isCompleted, showDeleteBtn) {
       <tr class="clickable group-summary" onclick="toggleGroup('${groupId}')">
         <td><span class="device-name">${first.device} (x${group.length})</span></td>
         <td><span class="device-name">#${first.id} +${group.length - 1}</span></td>
-        <td>${startLines[0]}<br><span style="color:var(--muted);font-size:0.8rem;">${startLines[1]||''}</span></td>
-        <td>${endLines[0]}<br><span style="color:var(--muted);font-size:0.8rem;">${endLines[1]||''}</span></td>
+        <td class="date-time">${formatStartEndCell(first.rawStart, first.rawEnd)}</td>
+        <td>—</td>
         <td>${first.duration}</td>
         <td>${group.length}</td>
         <td>${first.location}</td>
-        <td>${summaryStatus === 'mixed' ? '<span class="badge-status badge-mixed">Mixed</span>' : badgeHtml(summaryStatus)}</td>
+        <td>${summaryStatus === 'mixed' ? badgeHtml('mixed') : badgeHtml(summaryStatus)}</td>
         <td><i class="bi bi-chevron-down group-toggle-icon"></i></td>
       </tr>
       <tr class="group-detail-row" id="${groupId}" style="display:none;">

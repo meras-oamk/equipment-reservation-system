@@ -4,156 +4,322 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Equipment Reservation</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../css/landing-page-style.css">
 </head>
 <body>
 
-<div class="container">
+<div class="page-wrapper">
     <!-- Navbar -->
-    <nav class="navbar">
+    <nav class="top-navbar">
         <img src="../assets/Logo.png" alt="Logo" class="logo">
-
         <div class="nav-buttons">
-           <button class="btn" onclick="window.location.href='loginOrRegister.html?form=register'">Register</button>
-            <button class="btn" onclick="window.location.href='loginOrRegister.html?form=login'">Login</button>
+            <button class="btn-register" onclick="window.location.href='loginOrRegister.html?form=register'">Register</button>
+            <button class="btn-login" onclick="window.location.href='loginOrRegister.html?form=login'">Login</button>
         </div>
     </nav>
 
     <!-- Hero Section -->
     <section class="hero">
         <h1>Reserve Equipment Easily</h1>
-        <p>
-            Browse, book, and manage equipment anytime, anywhere.
-        </p>
+        <p>Browse, book, and manage equipment anytime, anywhere.</p>
     </section>
 
     <!-- Equipment Section -->
-    <section class="equipment-section">
-        <h2>All Equipment</h2>
+    <div class="content">
+        <!-- Search -->
+        <div class="search-wrapper">
+            <input type="text" id="searchInput" placeholder="Search by equipment, category...">
+        </div>
 
-        <div class="equipment-grid">
-
-            <!-- Card 1 -->
-            <div class="card">
-                <img src="../assets/Equipment1.png" alt="Drone">
-                <div class="card-content">
-                    <h3>NewBeeDrone Replacement</h3>
-                    <span class="badge">Drone</span>
-                    <ul>
-                        <li>Pre-installed V2 flight controller</li>
-                        <li>Compatible with V2 drones</li>
-                        <li>Designed for V2 & V2.5 series</li>
-                    </ul>
+        <!-- Categories -->
+        <div class="category-bar">
+            <div class="cat-dropdown" data-category="vr_ar">
+                <button class="btn-category" data-label="VR/AR">VR/AR</button>
+                <div class="cat-menu">
+                    <span data-subcategory="AR Glasses">AR Glasses</span>
+                    <span data-subcategory="Base Stations / Sensors">Base Stations / Sensors</span>
+                    <span data-subcategory="Haptic Gloves">Haptic Gloves</span>
+                    <span data-subcategory="Motion Trackers">Motion Trackers</span>
+                    <span data-subcategory="VR Controllers">VR Controllers</span>
+                    <span data-subcategory="VR Headset">VR Headset</span>
+                    <span data-subcategory="VR Ready Laptops">VR Ready Laptops</span>
                 </div>
             </div>
-
-            <!-- Card 2 -->
-            <div class="card">
-                <img src="../assets/Equipment1.png" alt="Drone">
-                <div class="card-content">
-                    <h3>NewBeeDrone Replacement</h3>
-                    <span class="badge">Drone</span>
-                    <ul>
-                        <li>Pre-installed V2 flight controller</li>
-                        <li>Compatible with V2 drones</li>
-                        <li>Designed for V2 & V2.5 series</li>
-                    </ul>
+            <div class="cat-dropdown" data-category="robotics">
+                <button class="btn-category" data-label="Robotics">Robotics</button>
+                <div class="cat-menu">
+                    <span data-subcategory="Drones">Drones</span>
+                    <span data-subcategory="Educational Robots">Educational Robots</span>
+                    <span data-subcategory="Embedded Boards">Embedded Boards</span>
+                    <span data-subcategory="Mobile Robots">Mobile Robots</span>
+                    <span data-subcategory="Motor Controllers">Motor Controllers</span>
+                    <span data-subcategory="Robot Arms">Robot Arms</span>
+                    <span data-subcategory="Sensors">Sensors</span>
                 </div>
             </div>
-
-            <!-- Card 3 -->
-            <div class="card">
-                <img src="../assets/Equipment1.png" alt="Drone">
-                <div class="card-content">
-                    <h3>NewBeeDrone Replacement</h3>
-                    <span class="badge">Drone</span>
-                    <ul>
-                        <li>Pre-installed V2 flight controller</li>
-                        <li>Compatible with V2 drones</li>
-                        <li>Designed for V2 & V2.5 series</li>
-                    </ul>
+            <div class="cat-dropdown" data-category="audio_video">
+                <button class="btn-category" data-label="Audio/Video">Audio/Video</button>
+                <div class="cat-menu">
+                    <span data-subcategory="Cameras">Cameras</span>
+                    <span data-subcategory="Capture Cards">Capture Cards</span>
+                    <span data-subcategory="Lighting Kits">Lighting Kits</span>
+                    <span data-subcategory="Microphones">Microphones</span>
+                    <span data-subcategory="Tripods">Tripods</span>
+                    <span data-subcategory="Video Switches">Video Switches</span>
                 </div>
             </div>
-
-            <!-- Card 4 -->
-            <div class="card">
-                <img src="../assets/Equipment1.png" alt="Drone">
-                <div class="card-content">
-                    <h3>NewBeeDrone Replacement</h3>
-                    <span class="badge">Drone</span>
-                    <ul>
-                        <li>Pre-installed V2 flight controller</li>
-                        <li>Compatible with V2 drones</li>
-                        <li>Designed for V2 & V2.5 series</li>
-                    </ul>
+            <div class="cat-dropdown" data-category="laboratory">
+                <button class="btn-category" data-label="Laboratory">Laboratory</button>
+                <div class="cat-menu">
+                    <span data-subcategory="3D Printers">3D Printers</span>
+                    <span data-subcategory="Microscopes">Microscopes</span>
+                    <span data-subcategory="Multimeters">Multimeters</span>
+                    <span data-subcategory="Oscilloscopes">Oscilloscopes</span>
+                    <span data-subcategory="Power Supplies">Power Supplies</span>
+                    <span data-subcategory="Signal Generators">Signal Generators</span>
                 </div>
             </div>
-
-            <!-- Card 5 -->
-            <div class="card">
-                <img src="../assets/Equipment1.png" alt="Drone">
-                <div class="card-content">
-                    <h3>NewBeeDrone Replacement</h3>
-                    <span class="badge">Drone</span>
-                    <ul>
-                        <li>Pre-installed V2 flight controller</li>
-                        <li>Compatible with V2 drones</li>
-                        <li>Designed for V2 & V2.5 series</li>
-                    </ul>
+            <div class="cat-dropdown" data-category="computing">
+                <button class="btn-category" data-label="Computing">Computing</button>
+                <div class="cat-menu">
+                    <span data-subcategory="GPUs">GPUs</span>
+                    <span data-subcategory="Laptops">Laptops</span>
+                    <span data-subcategory="Networking Equipment">Networking Equipment</span>
+                    <span data-subcategory="Raspberry Pi Kits">Raspberry Pi Kits</span>
+                    <span data-subcategory="Tablets">Tablets</span>
+                    <span data-subcategory="Workstations">Workstations</span>
                 </div>
             </div>
-
-            <!-- Card 6 -->
-            <div class="card">
-                <img src="../assets/Equipment1.png" alt="Drone">
-                <div class="card-content">
-                    <h3>NewBeeDrone Replacement</h3>
-                    <span class="badge">Drone</span>
-                    <ul>
-                        <li>Pre-installed V2 flight controller</li>
-                        <li>Compatible with V2 drones</li>
-                        <li>Designed for V2 & V2.5 series</li>
-                    </ul>
+            <div class="cat-dropdown" data-category="iot_embedded">
+                <button class="btn-category" data-label="IoT and Embedded">IoT and Embedded</button>
+                <div class="cat-menu">
+                    <span data-subcategory="FPGA Boards">FPGA Boards</span>
+                    <span data-subcategory="LoRa Devices">LoRa Devices</span>
+                    <span data-subcategory="Microcontrollers">Microcontrollers</span>
+                    <span data-subcategory="Sensor Modules">Sensor Modules</span>
+                    <span data-subcategory="Smart Home Kits">Smart Home Kits</span>
                 </div>
             </div>
         </div>
-    </section>
+
+        <div class="equipment-grid" id="equipmentGrid"></div>
+        <div class="pagination" id="pagination"></div>
+    </div>
 </div>
+
 <script>
-const loginTab = document.getElementById("loginTab");
-const registerTab = document.getElementById("registerTab");
+let allEquipments = [];
+let currentData = [];
+let currentPage = 1;
+const PAGE_SIZE = 18;
 
-const loginForm = document.getElementById("loginForm");
-const registerForm = document.getElementById("registerForm");
+async function loadEquipment(category, subcategory) {
+    try {
+        let url = 'api/equipment/catalog';
+        const params = [];
+        if (category) params.push(`category=${category}`);
+        if (subcategory) params.push(`subcategory=${encodeURIComponent(subcategory)}`);
+        if (params.length) url += '?' + params.join('&');
 
-function showLogin() {
-    loginForm.style.display = "block";
-    registerForm.style.display = "none";
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("Failed to load equipment");
+        const equipment = await response.json();
 
-    loginTab.classList.add("active");
-    registerTab.classList.remove("active");
+        if (!category && !subcategory) allEquipments = equipment;
+        currentPage = 1;
+        currentData = equipment;
+        renderEquipment();
+    } catch (err) {
+        console.error(err);
+        document.getElementById("equipmentGrid").innerHTML = "<p>Unable to load equipment.</p>";
+    }
 }
 
-function showRegister() {
-    loginForm.style.display = "none";
-    registerForm.style.display = "block";
+function renderEquipment() {
+    const grid = document.getElementById("equipmentGrid");
+    grid.innerHTML = "";
 
-    registerTab.classList.add("active");
-    loginTab.classList.remove("active");
+    if (!currentData.length) {
+        grid.innerHTML = "<p>No equipment found.</p>";
+        renderPagination(0);
+        return;
+    }
+
+    const start = (currentPage - 1) * PAGE_SIZE;
+    const pageItems = currentData.slice(start, start + PAGE_SIZE);
+
+    pageItems.forEach(item => {
+        const image = item.image_url || "../assets/Equipment1.png";
+        const description = item.description
+            ? item.description.replace(/^Details?:\s*/i, "")
+            : "No description available.";
+        grid.innerHTML += `
+        <div class="card" onclick="requireLogin()">
+        <img src="${image}" alt="${item.name}">
+        <div class="card-content">
+            <h3>${item.name}</h3>
+            <span class="text-muted d-block mb-2">${item.subcategory}</span>
+            <p style="white-space:pre-line;">${description}</p>
+        </div>
+        </div>`;
+    });
+
+    renderPagination(currentData.length);
 }
 
-loginTab.addEventListener("click", showLogin);
-registerTab.addEventListener("click", showRegister);
+function renderPagination(total) {
+    const container = document.getElementById("pagination");
+    const totalPages = Math.ceil(total / PAGE_SIZE);
 
-// Read URL parameter
-const params = new URLSearchParams(window.location.search);
-const form = params.get("form");
+    if (totalPages <= 1) { container.innerHTML = ""; return; }
 
-if (form === "register") {
-    showRegister();
-} else {
-    showLogin();
+    let html = '';
+
+    html += `<button class="page-btn" ${currentPage === 1 ? 'disabled' : ''}
+        onclick="goToPage(${currentPage - 1})">&#8592;</button>`;
+
+    for (let i = 1; i <= totalPages; i++) {
+        html += `<button class="page-btn ${i === currentPage ? 'page-active' : ''}"
+            onclick="goToPage(${i})">${i}</button>`;
+    }
+
+    html += `<button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''}
+        onclick="goToPage(${currentPage + 1})">&#8594;</button>`;
+
+    container.innerHTML = html;
 }
+
+function goToPage(page) {
+    currentPage = page;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    renderEquipment();
+}
+
+function searchEquipment(keyword) {
+    keyword = keyword.toLowerCase().trim();
+    currentPage = 1;
+    currentData = !keyword ? allEquipments : allEquipments.filter(item =>
+        item.name?.toLowerCase().includes(keyword) ||
+        item.category?.toLowerCase().includes(keyword) ||
+        item.subcategory?.toLowerCase().includes(keyword)
+    );
+    renderEquipment();
+}
+
+// ── Category dropdown ──
+// One shared popup div appended to body once
+const catPopup = document.createElement('div');
+catPopup.style.cssText = [
+    'display:none',
+    'position:fixed',
+    'z-index:9999',
+    'background:#fff',
+    'border:1px solid #ddd',
+    'border-radius:10px',
+    'box-shadow:0 4px 12px rgba(0,0,0,.12)',
+    'min-width:190px',
+    'padding:4px 0',
+    'font-family:Georgia,serif',
+    'font-size:13px'
+].join(';');
+document.body.appendChild(catPopup);
+
+let activeBtn = null;
+
+function closePopup() {
+    catPopup.style.display = 'none';
+    activeBtn = null;
+}
+document.addEventListener('click', closePopup);
+
+function requireLogin() {
+    const login = confirm(
+        "Please log in first to make a reservation.\n\nClick OK to go to the login page."
+    );
+
+    if (login) {
+        window.location.href = "loginOrRegister.html?form=login";
+    }
+}
+// Read subcategory data from HTML, then wire up each button
+document.querySelectorAll('.cat-dropdown').forEach(dropdown => {
+    const btn      = dropdown.querySelector('.btn-category');
+    const category = dropdown.dataset.category;
+    const items    = Array.from(dropdown.querySelectorAll('.cat-menu span')).map(s => ({
+        label: s.textContent.trim(),
+        sub:   s.dataset.subcategory
+    }));
+
+    btn.addEventListener('click', function (e) {
+    e.stopPropagation();
+
+    // Close current popup if another button is open
+    if (activeBtn && activeBtn !== btn) {
+        closePopup();
+    }
+
+    // Reset all category buttons
+    document.querySelectorAll('.btn-category').forEach(b => {
+        b.classList.remove('active-category');
+        b.textContent = b.dataset.label;
+    });
+
+    // Activate current button
+    btn.classList.add('active-category');
+
+    // Load all equipment in this category
+    loadEquipment(category);
+
+    // Create popup menu
+    catPopup.innerHTML = items.map(it => `
+        <div class="popup-item" data-sub="${it.sub}">
+            ${it.label}
+        </div>
+    `).join('');
+
+    // Add events to popup items
+    catPopup.querySelectorAll('.popup-item').forEach(el => {
+
+        el.addEventListener('mouseenter', () => {
+            el.style.background = '#fff8f0';
+            el.style.color = '#f39a1d';
+        });
+
+        el.addEventListener('mouseleave', () => {
+            el.style.background = '';
+            el.style.color = '#333';
+        });
+
+        el.addEventListener('click', function (ev) {
+            ev.stopPropagation();
+
+            btn.textContent = this.textContent;
+
+            loadEquipment(category, this.dataset.sub);
+
+            closePopup();
+        });
+
+    });
+
+    // Position popup below button
+    const rect = btn.getBoundingClientRect();
+
+    catPopup.style.top = (rect.bottom + 4) + 'px';
+    catPopup.style.left = Math.max(8, Math.min(rect.left, window.innerWidth - 200)) + 'px';
+    catPopup.style.display = 'block';
+
+    activeBtn = btn;
+    });
+});
+
+// Search
+document.getElementById('searchInput').addEventListener('input', e => {
+    searchEquipment(e.target.value);
+});
+
+loadEquipment();
 </script>
 </body>
 </html>

@@ -3,6 +3,7 @@ const router = express.Router()
 const { db } = require('../helpers/db')
 const { authenticate, authorizeRole } = require('../helpers/role')
 const { upload } = require('../helpers/upload')
+const { generateAndUploadQR } = require('../helpers/qr')
 // Get all types
 router.get('/types', async (req, res) => {
     try {
@@ -34,6 +35,103 @@ router.get('/types/:id/units', authenticate, authorizeRole('admin'), async (req,
         return res.status(400).json({ error: error.message })
     }
 })
+
+// Get available unit locations for a given equipment type, optionally filtered
+// by a specific date/time window so only units truly free for that window show up
+router.get('/types/:id/locations', async (req, res) => {
+    try {
+        const { id } = req.params
+        const { start_time, end_time } = req.query
+
+        // No date/time window given yet — fall back to static availability (original behavior)
+        if (!start_time || !end_time) {
+            const result = await db.query(`
+                SELECT
+                    location,
+                    COUNT(*) AS available_count
+                FROM equipment_units
+                WHERE type_id = $1
+                  AND status = 'available'
+                  AND location IS NOT NULL
+                GROUP BY location
+                ORDER BY location;
+            `, [id])
+
+            return res.status(200).json(result.rows)
+        }
+
+        // Date/time window given — exclude units already reserved during that window,
+        // same overlap logic used by the reservation-creation availability check
+        const result = await db.query(`
+            SELECT
+                location,
+                COUNT(*) AS available_count
+            FROM equipment_units eu
+            WHERE eu.type_id = $1
+              AND eu.status = 'available'
+              AND eu.location IS NOT NULL
+              AND eu.id NOT IN (
+                SELECT r.unit_id FROM reservations r
+                WHERE r.status NOT IN ('cancelled', 'completed', 'overdue')
+                  AND r.start_time < $3
+                  AND r.end_time   > $2
+              )
+            GROUP BY location
+            ORDER BY location;
+        `, [id, start_time, end_time])
+
+        return res.status(200).json(result.rows)
+    } catch (error) {
+        return res.status(400).json({ error: error.message })
+    }
+})
+
+
+/*// Get available unit locations for a given equipment type
+router.get('/types/:id/locations', async (req, res) => {
+    try {
+        const { id } = req.params
+        const result = await db.query(`
+            SELECT
+                location,
+                COUNT(*) AS available_count
+            FROM equipment_units
+            WHERE type_id = $1
+              AND status = 'available'
+              AND location IS NOT NULL
+            GROUP BY location
+            ORDER BY location;
+        `, [id])
+
+        return res.status(200).json(result.rows)
+    } catch (error) {
+        return res.status(400).json({ error: error.message })
+    }
+})*/
+
+// Generate next serial number for a type
+router.get('/types/:id/next-serial', authenticate, authorizeRole('admin'), async (req, res) => {
+    try {
+        const { id } = req.params
+        const prefix = `MERAS-T${id}-`
+
+        const result = await db.query(
+            `SELECT qr_code FROM equipment_units WHERE type_id = $1 AND qr_code LIKE $2`,
+            [id, `${prefix}%`]
+        )
+
+        let maxNum = 700
+        result.rows.forEach(row => {
+            const num = parseInt(row.qr_code.replace(prefix, ''))
+            if (!isNaN(num) && num > maxNum) maxNum = num
+        })
+
+        return res.status(200).json({ serial: `${prefix}${maxNum + 1}` })
+    } catch (error) {
+        return res.status(400).json({ error: error.message })
+    }
+})
+
 // Add type
 router.post('/types', authenticate, authorizeRole('admin'), upload.single('image'), async (req, res) => {
     try {
@@ -69,7 +167,7 @@ router.put('/types/:id', authenticate, authorizeRole('admin'), upload.single('im
 
         const result = await db.query(`
             UPDATE equipment_types
-            SET name = $1, category = $2, subcategory = $3, description = $4, image_url = $5, updated_at = NOW()
+            SET name = $1, category = $2, subcategory = $3, description = $4, image_url = $5, updated_at = (NOW() AT TIME ZONE 'Europe/Helsinki')
             WHERE id = $6
             RETURNING *;
         `, [name, category, subcategory, description, image_url, id])
@@ -82,7 +180,7 @@ router.put('/types/:id', authenticate, authorizeRole('admin'), upload.single('im
         return res.status(400).json({ error: error.message })
     }
 })
-// Add unit
+// Add unit — qr_code required; backend generates QR image and uploads to Cloudinary
 router.post('/units', authenticate, authorizeRole('admin'), async (req, res) => {
     try {
         const { type_id, qr_code, location, status, condition } = req.body
@@ -97,12 +195,15 @@ router.post('/units', authenticate, authorizeRole('admin'), async (req, res) => 
         if (badConditions.includes(finalCondition) && finalStatus === 'available') {
             finalStatus = 'maintenance'
         }
+        
+        // Generate QR image from qr_code text and upload to Cloudinary
+        const qrCodeUrl = await generateAndUploadQR(qr_code)
 
         const result = await db.query(`
-            INSERT INTO equipment_units (type_id, qr_code, location, status, condition)
-            VALUES ($1, $2, $3, $4, $5)
+            INSERT INTO equipment_units (type_id, qr_code, qr_code_url, location, status, condition)
+            VALUES ($1, $2, $3, $4, $5, $6)
             RETURNING *;
-        `, [type_id, qr_code, location, finalStatus, finalCondition])
+        `, [type_id, qr_code, qrCodeUrl, location, finalStatus, finalCondition])
 
         return res.status(201).json(result.rows[0])
     } catch (error) {
@@ -136,7 +237,7 @@ router.put('/units/:id', authenticate, authorizeRole('admin'), async (req, res) 
 
         const result = await db.query(`
             UPDATE equipment_units
-            SET qr_code = $1, location = $2, status = $3, condition = $4, updated_at = NOW()
+            SET qr_code = $1, location = $2, status = $3, condition = $4, updated_at = (NOW() AT TIME ZONE 'Europe/Helsinki')
             WHERE id = $5
             RETURNING *;
         `, [qr_code, location, finalStatus, finalCondition, id])
@@ -177,6 +278,34 @@ router.put('/units/:id', authenticate, authorizeRole('admin'), async (req, res) 
     }
 })
 
+// QR print data — returns unit info + type name + qr_code_url
+router.get('/units/:id/qr-print', authenticate, authorizeRole('admin'), async (req, res) => {
+    try {
+        const { id } = req.params
+        const result = await db.query(`
+            SELECT
+                eu.id,
+                eu.qr_code,
+                eu.qr_code_url,
+                eu.location,
+                eu.status,
+                eu.condition,
+                et.name  AS type_name,
+                et.category
+            FROM equipment_units eu
+            JOIN equipment_types et ON et.id = eu.type_id
+            WHERE eu.id = $1;
+        `, [id])
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Unit not found.' })
+        }
+        return res.status(200).json(result.rows[0])
+    } catch (error) {
+        return res.status(500).json({ error: error.message })
+    }
+})
+
 // Delete unit
 router.delete('/units/:id', authenticate, authorizeRole('admin'), async (req, res) => {
     try {
@@ -188,6 +317,85 @@ router.delete('/units/:id', authenticate, authorizeRole('admin'), async (req, re
             return res.status(404).json({ error: 'Unit not found.' })
         }
         return res.status(200).json({ message: 'Unit deleted.' })
+    } catch (error) {
+        return res.status(400).json({ error: error.message })
+    }
+})
+
+// User catalog endpoint
+router.get('/catalog', async (req, res) => {
+    try {
+
+        const { category, subcategory } = req.query;
+
+        let query = `
+            SELECT
+                et.id,
+                et.name,
+                et.category,
+                et.subcategory,
+                et.description,
+                et.image_url,
+                COUNT(eu.id) FILTER (
+                    WHERE eu.status = 'available'
+                ) AS available_count
+            FROM equipment_types et
+            LEFT JOIN equipment_units eu
+                ON eu.type_id = et.id
+        `;
+
+        const conditions = [];
+        const values = [];
+
+        if (category) {
+            conditions.push(`et.category = $${values.length + 1}`);
+            values.push(category);
+        }
+
+        if (subcategory) {
+            conditions.push(`LOWER(et.subcategory) = LOWER($${values.length + 1})`);
+            values.push(subcategory);
+        }
+
+        if (conditions.length > 0) {
+            query += ` WHERE ${conditions.join(' AND ')}`;
+        }
+
+        query += `
+            GROUP BY et.id
+            ORDER BY et.name
+        `;
+
+        const result = await db.query(query, values);
+
+        return res.status(200).json(result.rows);
+
+    } catch (error) {
+        return res.status(500).json({
+            error: error.message
+        });
+    }
+});
+
+// Get single type by ID
+router.get('/types/:id', async (req, res) => {
+    try {
+        const { id } = req.params
+        const result = await db.query(`
+            SELECT
+                et.*,
+                COUNT(eu.id) FILTER (WHERE eu.status = 'available') AS available_count,
+                COUNT(eu.id) AS total_units
+            FROM equipment_types et
+            LEFT JOIN equipment_units eu ON eu.type_id = et.id
+            WHERE et.id = $1
+            GROUP BY et.id;
+        `, [id])
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Equipment not found.' })
+        }
+        return res.status(200).json(result.rows[0])
     } catch (error) {
         return res.status(400).json({ error: error.message })
     }

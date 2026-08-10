@@ -40,7 +40,7 @@ if (registerForm) {
                 })
             })
 
-            const data = await res.json();
+            const data = await res.json()
 
             if (!res.ok) {
                 registerError.textContent = data.error
@@ -49,7 +49,7 @@ if (registerForm) {
 
             registerError.textContent = ''
 
-            verificationModal.style.display = 'flex'
+            window.openVerificationModal()
 
         } catch (error) {
             console.error(error)
@@ -155,41 +155,99 @@ if (verificationModal && verifyBtn) {
     })
 }
 
-if (resendCode) {
-    resendCode.addEventListener('click', async (e) => {
-        e.preventDefault()
+let cooldownTimerInterval = null
 
-        if (!userEmailInMemory) {
-            alert('Session email missing. Please registering again.')
-            return
+function startResendCooldown(seconds) {
+    const resendBtn = document.getElementById('resendBtn')
+    if (!resendBtn) return 
+
+    clearInterval(cooldownTimerInterval)
+
+    let timeLeft = seconds 
+    resendBtn.innerHTML = `Resend Code (<span id="countdownTimer">${timeLeft}</span>s)`
+    resendBtn.classList.add('disabled')
+
+    const currentTimerSpan = document.getElementById('countdownTimer')
+
+    cooldownTimerInterval = setInterval(() => {
+        timeLeft--
+        if (currentTimerSpan) {
+            currentTimerSpan.textContent = timeLeft
         }
 
-        resendCode.textContent = 'Sending...'
+        if (timeLeft <= 0) {
+            clearInterval(cooldownTimerInterval)
+            resendBtn.classList.remove('disabled')
+            resendBtn.innerHTML = 'Resend Code'
+        }
+    }, 1000)
+}
 
-        try {
-            const res = await fetch('/api/auth/resendCode', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: userEmailInMemory })
-            })
+window.onVerificationModalOpen = () => {
+    const resendBtn = document.getElementById('resendBtn')
+    const feedbackEl = document.getElementById('resendFeedback')
 
-            const data = await res.json();
+    if (feedbackEl) {
+        feedbackEl.className = 'feedback-msg hidden'
+    }
 
-            if (!res.ok) {
-                verifyError.textContent = data.error
-                return
+    if (resendBtn) {
+        resendBtn.innerHTML = 'Resend Code (<span id="countdownTimer">60</span>s)'
+        startResendCooldown(60)
+    } 
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const resendBtn = document.getElementById('resendBtn')
+    const feedbackEl = document.getElementById('resendFeedback')
+
+    if (resendBtn) {
+        resendBtn.addEventListener('click', async () => {
+            if (!feedbackEl) return
+
+            feedbackEl.style.display = 'none'
+            feedbackEl.className = 'feedback-msg hidden'
+            resendBtn.disabled = true
+
+            try {
+                if (!userEmailInMemory) {
+                    alert('Session email missing. Please registering again.')
+                    return
+                }
+                
+                // Call your resend API endpoint
+                const res = await fetch('/api/auth/resendCode', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: userEmailInMemory })
+                })
+
+                const data = await res.json()
+
+                if (!res.ok) {
+                    if (data.secondsLeft) {
+                        startResendCooldown(data.secondsLeft)
+                    }
+                    throw new Error(data.error || 'Failed to resend verification code.')
+                }
+
+                feedbackEl.textContent = 'A new verification code has been sent to your email.'
+                feedbackEl.className = 'feedback-msg success'
+
+                startResendCooldown(60)
+
+                feedbackEl.className = 'feedback-msg hidden'
+
+            } catch (error) {
+                console.error('Error resending code:', error)
+                
+                feedbackEl.textContent = error.message
+                feedbackEl.style.display = 'block'
+                
+                if (!resendBtn.innerHTML.includes('countdownTimer')) {
+                    resendBtn.classList.remove('disabled')
+                }
             }
-
-            verifyError.textContent = ''
-        } catch (error) {
-            console.error("Network problem resending token code:", error)
-            verifyError.textContent = 'Network error'
-        } finally {
-            resendLink.textContent = "Resend Code"
-        }
-    })
-}    
-
-
-
-
+        })
+    }
+})

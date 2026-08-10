@@ -1,15 +1,17 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem('token');
     const form = document.forms["resetPasswordForm"];
-    
-    if (!form) return;
+
     if (!token) {
         window.location.href = '/loginOrRegister.html';
         return;
-    };
+    }
+
+    loadUserProfile();   
+
+    if (!form) return;
 
     form.addEventListener("submit", async function(e){
-
         e.preventDefault();
 
         const newPassword =
@@ -25,34 +27,66 @@ document.addEventListener("DOMContentLoaded", () => {
 
         try {
             const res = await fetch('/api/auth/change-password', {
-                method: 'POST',
+                method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ newPassword: newPassword })
+                body: JSON.stringify({
+                    newPassword
+                })
             });
 
-            const data = await res.json();
+            const data = await res.json()
 
             if (!res.ok) {
-                throw new Error(data.error || "Failed to reset password");
-            };
-            
+                throw new Error(data.error);
+            }
+
             alert("Password reset successfully");
-    
+
             const modal = bootstrap.Modal.getInstance(
                 document.getElementById("resetPasswordModal")
             );
-    
-            modal.hide();    
-            form.reset();        
+
+            modal.hide();
+            form.reset();
 
         } catch (error) {
-            console.error("Reset password error: ", error)
-            alert(error.message || "Something went wrong. Please try again.");
-        };
-
+            console.error(error);
+            alert(error.message);
+        }
     });
-
 });
+async function loadUserProfile() {
+
+    const token = localStorage.getItem('token');
+
+    try {
+
+        const res = await fetch('/api/users/me', {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        const user = await res.json();
+
+        if (!res.ok) {
+            throw new Error(user.error);
+        }
+
+        document.getElementById('profileName').textContent =
+            user.full_name;
+
+        document.getElementById('profileEmail').textContent =
+            user.email;
+
+        document.getElementById('profileRole').textContent =
+            user.role.charAt(0).toUpperCase() +
+            user.role.slice(1);
+
+    } catch (error) {
+        console.error('Profile load error:', error);
+    }
+}

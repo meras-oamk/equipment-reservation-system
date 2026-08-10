@@ -47,6 +47,20 @@ router.post('/verify-email', async (req, res) => {
     }
 })
 
+router.get('/cooldown', async (req, res) => {
+    try {
+        const { email } = req.query
+        if (!email) {
+            return res.status(400).json({ error: 'Email parameter is required.' })
+        }
+
+        const secondsLeft = await authHelper.getCooldown(email)
+        return res.status(200).json({ secondsLeft })
+    } catch (error) {
+        return res.status(500).json({ error: error.message })
+    }
+})
+
 router.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body
@@ -69,7 +83,7 @@ router.post('/login', async (req, res) => {
     }
 })
 
-router.post('/change-password', authenticate, async (req, res) => {
+router.put('/change-password', authenticate, async (req, res) => {
     try {
         const { newPassword } = req.body
         const userId = req.user.userId
@@ -92,7 +106,7 @@ router.post('/resendCode', async (req, res) => {
         const { email } = req.body
 
         if (!email) {
-            res.status(400).json({ error: 'Email parameter is required!' })
+            return res.status(400).json({ error: 'Email parameter is required!' })
         }
 
         await authHelper.resendCode(email)
@@ -109,7 +123,7 @@ router.post('/admin/add-user', authenticate, authorizeRole('admin'), async (req,
         const { fullname, email, password } = req.body
 
         if (!email || !password) {
-            res.status(400).json({ error: 'Missing fields!' })
+            return res.status(400).json({ error: 'Missing fields!' })
         }
 
         if (password.length < 6) {

@@ -1,70 +1,306 @@
-    // Location dropdown
-    const locationBtn = document.getElementById('locationBtn');
+let currentEquipmentId = null;
+
+// ── LOAD EQUIPMENT DETAILS FROM URL PARAM ──
+async function loadEquipmentDetails() {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+    currentEquipmentId = id;
+
+    if (!id) {
+        document.getElementById('detail-name').textContent = 'Equipment not found.';
+        return;
+    }
+
+    try {
+        const [equipRes, settingsRes] = await Promise.all([
+            fetch(`/api/equipment/types/${id}`),
+            fetch('/api/settings')
+        ]);
+
+        if (!equipRes.ok) throw new Error('Not found');
+        const item     = await equipRes.json();
+        const settings = await settingsRes.json();
+
+        // Initial location load — no date/time selected yet, shows static availability
+        await refreshLocations();
+
+        // ── Parse booking policy ──
+        const general = settings.general_booking_settings || {};
+        window.advanceBookingDays = general.advance_booking_days ?? 30;
+
+        const categoryRules = settings.category_rules || {};
+        const categoryRule  = categoryRules[item.category] || null;
+        window.maxDuration     = categoryRule ? categoryRule.duration : null;
+        window.maxDurationUnit = categoryRule ? categoryRule.unit.toLowerCase() : 'days';
+
+        // ── Populate UI ──
+        document.getElementById('detail-image').src                 = item.image_url || '';
+        document.getElementById('detail-image').alt                 = item.name;
+        document.getElementById('detail-subcategory').textContent   = item.subcategory;
+        document.getElementById('detail-name').textContent          = item.name;
+        document.getElementById('detail-available').textContent     = item.available_count;
+        document.getElementById('detail-description').textContent =
+        item.description
+        ? item.description.replace(/^Details\s*:?\s*/i, '')
+        : 'No description available.';
+        document.getElementById('modal-equipment-name').textContent = item.name;
+
+        const maxStartDate = new Date();
+        maxStartDate.setDate(maxStartDate.getDate() + window.advanceBookingDays);
+        document.getElementById('startDate').max = maxStartDate.toISOString().split('T')[0];
+
+    } catch (err) {
+        console.error(err);
+        document.getElementById('detail-name').textContent = 'Failed to load equipment.';
+    }
+}
+
+// ── FETCH + RENDER LOCATIONS (static, or filtered by selected date/time) ──
+async function refreshLocations() {
     const locationDropdown = document.getElementById('locationDropdown');
     const pickupInput = document.getElementById('pickupInput');
-    const locationItems = document.querySelectorAll('.location-item');
 
-    function openLocationDropdown() {
-      locationDropdown.classList.add('show');
-      locationBtn.style.background  = 'var(--orange)';
-      locationBtn.style.borderColor = 'var(--orange)';
-      locationBtn.style.color       = 'white';
+    const startDate = document.getElementById('startDate').value;
+    const endDate   = document.getElementById('endDate').value;
+    const startTime = document.getElementById('startTime').value;
+    const endTime   = document.getElementById('endTime').value;
+
+    let url = `/api/equipment/types/${currentEquipmentId}/locations`;
+
+    // Only pass a date/time window once all four fields are filled
+    if (startDate && endDate && startTime && endTime) {
+        const start_time = `${startDate}T${startTime}:00`;
+        const end_time   = `${endDate}T${endTime}:00`;
+        url += `?start_time=${encodeURIComponent(start_time)}&end_time=${encodeURIComponent(end_time)}`;
     }
 
-    function closeLocationDropdown() {
-      locationDropdown.classList.remove('show');
-      locationBtn.style.background  = '';
-      locationBtn.style.borderColor = '';
-      locationBtn.style.color       = '';
+    let locations;
+    try {
+        const res = await fetch(url);
+        locations = await res.json();
+    } catch (err) {
+        console.error('Failed to load locations:', err);
+        locations = [];
     }
 
-    function toggleLocationDropdown() {
-      locationDropdown.classList.contains('show') ? closeLocationDropdown() : openLocationDropdown();
+    pickupInput.value = '';
+    locationDropdown.innerHTML = `<li class="location-header"><i class="bi bi-geo-alt-fill me-1"></i> Select Pickup Location</li>`;
+
+    if (locations.length === 0) {
+        locationDropdown.innerHTML += `<li class="location-item disabled">No locations available for this time</li>`;
+        updateQuantityOptions(1); // no locations — fall back to a single option
+    } else {
+        locations.forEach((loc, index) => {
+            locationDropdown.innerHTML += `
+                <li class="location-item${index === 0 ? ' selected' : ''}" data-value="${loc.location}" data-count="${loc.available_count}">
+                    <i class="bi bi-building me-2"></i>${loc.location}
+                    <span class="location-sub">${loc.available_count} available</span>
+                </li>
+            `;
+        });
+        pickupInput.value = locations[0].location;
+        updateQuantityOptions(locations[0].available_count);
+    }
+}
+
+// ── UPDATE QUANTITY DROPDOWN TO MATCH SELECTED LOCATION'S AVAILABLE COUNT ──
+function updateQuantityOptions(count) {
+    const qtySelect = document.getElementById('qtySelect');
+    const max = Math.max(1, parseInt(count) || 1);
+
+    const previousValue = parseInt(qtySelect.value) || 1;
+
+    qtySelect.innerHTML = '';
+    for (let i = 1; i <= max; i++) {
+        const opt = document.createElement('option');
+        opt.value = i;
+        opt.textContent = i;
+        qtySelect.appendChild(opt);
     }
 
-    // Open/close on icon click
-    locationBtn.addEventListener('click', function (e) {
-      e.stopPropagation();
-      toggleLocationDropdown();
-    });
+    // Keep the previously selected quantity if it's still valid for the new location,
+    // otherwise reset to 1
+    qtySelect.value = previousValue <= max ? previousValue : 1;
+}
 
-    // Open/close on input click
-    pickupInput.addEventListener('click', function (e) {
-      e.stopPropagation();
-      toggleLocationDropdown();
-    });
+loadEquipmentDetails();
 
-    // Select a location
-    locationItems.forEach(function (item) {
-      item.addEventListener('click', function (e) {
-        e.stopPropagation();
-        pickupInput.value = this.getAttribute('data-value');
-        locationItems.forEach(i => i.classList.remove('selected'));
-        this.classList.add('selected');
-        closeLocationDropdown();
-      });
-    });
+// ── RESTRICT DATES TO TODAY OR FUTURE ──
 
-    // Close when clicking outside
-    document.addEventListener('click', function (e) {
-      if (!locationDropdown.contains(e.target) && !locationBtn.contains(e.target) && !pickupInput.contains(e.target)) {
-        closeLocationDropdown();
-      }
-    });
-    // ── CONFIRMATION MODAL ──
-    const confirmBtn   = document.getElementById('confirmBtn');
-    const successModal = document.getElementById('successModal');
-    const modalCloseBtn = document.getElementById('modalCloseBtn');
+function getLocalDateString() {
+    const now = new Date();
 
-    confirmBtn.addEventListener('click', function () {
-  // Read form values
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+}
+
+const startDateInput = document.getElementById('startDate');
+const endDateInput   = document.getElementById('endDate');
+const startTimeInput = document.getElementById('startTime');
+const endTimeInput   = document.getElementById('endTime');
+
+const today = getLocalDateString();
+
+// Prevent selecting yesterday or any earlier date
+startDateInput.min = today;
+endDateInput.min   = today;
+
+
+// ── DISABLE PICKUP TIMES THAT HAVE ALREADY PASSED ──
+
+function updateStartTimeOptions() {
+    const now = new Date();
+    const currentDate = getLocalDateString();
+    const selectedDate = startDateInput.value;
+
+    Array.from(startTimeInput.options).forEach(option => {
+
+        const optionTime = option.value;
+
+            // Ignore placeholder option if there is one
+            if (!optionTime || !optionTime.includes(':')) {
+            option.disabled = false;
+            return;
+        }
+
+             // Only disable past times when pickup date is TODAY
+            if (selectedDate === currentDate) {
+
+            const [hours, minutes] = optionTime.split(':').map(Number);
+
+            const selectedDateTime = new Date();
+            selectedDateTime.setHours(hours, minutes, 0, 0);
+
+             // Disable times before the current time
+            option.disabled = selectedDateTime < now;
+
+            } else {
+
+            // Future dates: all times are available
+            option.disabled = false;
+            }
+        });
+
+    // If the currently selected time has become disabled,
+    // select the first available time.
+    if (startTimeInput.selectedOptions[0]?.disabled) {
+
+        const firstAvailable = Array.from(startTimeInput.options)
+            .find(option => !option.disabled);
+
+        if (firstAvailable) {
+            startTimeInput.value = firstAvailable.value;
+        }
+    }
+}
+
+updateStartTimeOptions();
+
+
+// ── DATE CHANGE ──
+
+startDateInput.addEventListener('change', function () {
+
+    // Return date cannot be before pickup date
+    endDateInput.min = this.value;
+
+    if (endDateInput.value && endDateInput.value < this.value) {
+        endDateInput.value = '';
+    }
+
+    updateStartTimeOptions();
+    refreshLocations();
+});
+
+
+// ── END DATE CHANGE ──
+
+endDateInput.addEventListener('change', function () {
+    refreshLocations();
+});
+
+
+// ── START TIME CHANGE ──
+
+startTimeInput.addEventListener('change', function () {
+
+    updateStartTimeOptions();
+
+    refreshLocations();
+});
+
+
+// ── END TIME CHANGE ──
+
+endTimeInput.addEventListener('change', function () {
+    refreshLocations();
+});
+
+
+// Location dropdown
+const locationBtn = document.getElementById('locationBtn');
+const locationDropdown = document.getElementById('locationDropdown');
+const pickupInput = document.getElementById('pickupInput');
+
+function openLocationDropdown() {
+  locationDropdown.classList.add('show');
+  locationBtn.style.background  = 'var(--orange)';
+  locationBtn.style.borderColor = 'var(--orange)';
+  locationBtn.style.color       = 'white';
+}
+
+function closeLocationDropdown() {
+  locationDropdown.classList.remove('show');
+  locationBtn.style.background  = '';
+  locationBtn.style.borderColor = '';
+  locationBtn.style.color       = '';
+}
+
+function toggleLocationDropdown() {
+  locationDropdown.classList.contains('show') ? closeLocationDropdown() : openLocationDropdown();
+}
+
+locationBtn.addEventListener('click', function (e) {
+  e.stopPropagation();
+  toggleLocationDropdown();
+});
+
+pickupInput.addEventListener('click', function (e) {
+  e.stopPropagation();
+  toggleLocationDropdown();
+});
+
+locationDropdown.addEventListener('click', function (e) {
+  const item = e.target.closest('.location-item');
+  if (!item || item.classList.contains('disabled')) return;
+
+  e.stopPropagation();
+  pickupInput.value = item.getAttribute('data-value');
+  locationDropdown.querySelectorAll('.location-item').forEach(i => i.classList.remove('selected'));
+  item.classList.add('selected');
+  closeLocationDropdown();
+
+  const count = item.getAttribute('data-count');
+  updateQuantityOptions(count);
+});
+
+document.addEventListener('click', function (e) {
+  if (!locationDropdown.contains(e.target) && !locationBtn.contains(e.target) && !pickupInput.contains(e.target)) {
+    closeLocationDropdown();
+  }
+});
+
+// ── CONFIRMATION MODAL ── (unchanged from your existing code below this point)
+const confirmBtn   = document.getElementById('confirmBtn');
+const successModal = document.getElementById('successModal');
+const modalCloseBtn = document.getElementById('modalCloseBtn');
+
+confirmBtn.addEventListener('click', async function () {
   const startDate = document.getElementById('startDate').value;
   const endDate   = document.getElementById('endDate').value;
   const startTime = document.getElementById('startTime').value;
   const endTime   = document.getElementById('endTime').value;
   const location  = document.getElementById('pickupInput').value;
 
-  // ── VALIDATION ──
   const errors = [];
 
   if (!startDate) errors.push('Start Date');
@@ -73,7 +309,6 @@
   if (!endTime)   errors.push('End Time');
   if (!location)  errors.push('Pickup Location');
 
-  // Date logic checks
   if (startDate && endDate && endDate < startDate) {
     errors.push('End Date cannot be before Start Date');
   }
@@ -81,12 +316,95 @@
     errors.push('End Time must be after Start Time on the same day');
   }
 
-  if (errors.length > 0) {
-    showValidationAlert(errors);
-    return; // Stop — don't open modal
+  // Prevent booking a pickup time that has already passed today
+  if (startDate && startTime) {
+    const now = new Date();
+
+    const selectedStart = new Date(`${startDate}T${startTime}:00`);
+
+    if (selectedStart < now) {
+        errors.push('Pickup time cannot be earlier than the current time');
+    }
   }
 
-  // ── FORMAT & SHOW MODAL ──
+  if (errors.length > 0) {
+    showValidationAlert(errors);
+    return;
+  }
+
+  const policyErrors = [];
+
+  if (startDate) {
+    const todayMs  = new Date().setHours(0, 0, 0, 0);
+    const startMs  = new Date(startDate).getTime();
+    const diffDays = Math.round((startMs - todayMs) / (1000 * 60 * 60 * 24));
+
+    if (diffDays > window.advanceBookingDays) {
+      policyErrors.push(
+        `You can only book up to ${window.advanceBookingDays} days in advance`
+      );
+    }
+  }
+
+  if (startDate && endDate && startTime && endTime && window.maxDuration) {
+    const start     = new Date(`${startDate}T${startTime}:00`);
+    const end       = new Date(`${endDate}T${endTime}:00`);
+    const diffHours = (end - start) / (1000 * 60 * 60);
+    const diffDays  = diffHours / 24;
+
+    const exceeded = window.maxDurationUnit === 'hours'
+      ? diffHours > window.maxDuration
+      : diffDays  > window.maxDuration;
+
+    if (exceeded) {
+      policyErrors.push(
+        `Maximum reservation duration for this category is ${window.maxDuration} ${window.maxDurationUnit}`
+      );
+    }
+  }
+
+    if (policyErrors.length > 0) {
+      showValidationAlert(policyErrors);
+      return;
+  }
+
+  const token   = localStorage.getItem('token');
+  const params  = new URLSearchParams(window.location.search);
+  const type_id = params.get('id');
+
+  const start_time = `${startDate}T${startTime}:00`;
+  const end_time   = `${endDate}T${endTime}:00`;
+
+  let reservationData;
+
+  try {
+    const res = await fetch('/api/reservation', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        type_id,
+        start_time,
+        end_time,
+        quantity: document.getElementById('qtySelect').value,
+        pickup_location: location
+      })
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      showValidationAlert([err.error || 'Reservation failed. Please try again.']);
+      return;
+    }
+
+    reservationData = await res.json();
+  } catch (err) {
+    showValidationAlert(['Network error. Please try again.']);
+    return;
+  }
+
   function fmt(d) {
     if (!d) return '—';
     const [y, m, day] = d.split('-');
@@ -99,26 +417,36 @@
   document.getElementById('modal-end-date').textContent   = fmt(endDate);
   document.getElementById('modal-location').textContent   = location;
 
+  // Show ALL reservation IDs created in this booking (one per unit, for quantity > 1)
+  const allReservations = Array.isArray(reservationData) ? reservationData : [reservationData];
+  const idLabel = document.getElementById('modal-reservation-id-label');
+  const idValue = document.getElementById('modal-reservation-id');
+
+  if (allReservations.length > 1) {
+    idLabel.textContent = 'Reservation IDs';
+    idValue.textContent = allReservations.map(r => `#${r.id}`).join(', ');
+  } else {
+    idLabel.textContent = 'Reservation ID';
+    idValue.textContent = allReservations[0]?.id ?? '—';
+  }
+
   successModal.classList.add('show');
 });
 
-// ── VALIDATION ALERT HELPER ──
 function showValidationAlert(errors) {
-  // Remove any existing alert first
   const existing = document.getElementById('validationAlert');
   if (existing) existing.remove();
 
-  const isLogicError = errors.some(e => e.includes('cannot') || e.includes('must be'));
-  const missingFields = errors.filter(e => !e.includes('cannot') && !e.includes('must be'));
-  const logicErrors   = errors.filter(e =>  e.includes('cannot') ||  e.includes('must be'));
+  const missingFields = errors.filter(e => ['Start Date', 'End Date', 'Start Time', 'End Time', 'Pickup Location'].includes(e));
+  const otherErrors   = errors.filter(e =>  !['Start Date', 'End Date', 'Start Time', 'End Time', 'Pickup Location'].includes(e));
 
   let messageHTML = '';
   if (missingFields.length > 0) {
     messageHTML += `Please fill in the following fields: <strong>${missingFields.join(', ')}</strong>.`;
   }
-  if (logicErrors.length > 0) {
+  if (otherErrors.length > 0) {
     if (messageHTML) messageHTML += '<br>';
-    messageHTML += logicErrors.map(e => `⚠️ ${e}.`).join('<br>');
+    messageHTML += otherErrors.map(e => `⚠️ ${e}.`).join('<br>');
   }
 
   const alert = document.createElement('div');
@@ -143,27 +471,24 @@ function showValidationAlert(errors) {
     <div>${messageHTML}</div>
   `;
 
-  // Insert alert just above the Confirm button
   const confirmBtn = document.getElementById('confirmBtn');
   confirmBtn.parentElement.insertBefore(alert, confirmBtn);
 
-  // Auto-dismiss after 4 seconds
   setTimeout(() => {
     alert.style.transition = 'opacity 0.4s';
     alert.style.opacity = '0';
     setTimeout(() => alert.remove(), 400);
   }, 4000);
 
-  // Scroll alert into view smoothly
   alert.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
-    // Close on Close button
-    modalCloseBtn.addEventListener('click', function () {
-      successModal.classList.remove('show');
-    });
+modalCloseBtn.addEventListener('click', function () {
+  successModal.classList.remove('show');
+});
 
-    // Close on overlay click
-    successModal.addEventListener('click', function (e) {
-      if (e.target === successModal) successModal.classList.remove('show');
-    });
+successModal.addEventListener('click', function (e) {
+  if (e.target === successModal) successModal.classList.remove('show');
+});
+
+

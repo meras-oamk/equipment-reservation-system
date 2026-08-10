@@ -47,8 +47,8 @@ router.put('/:key', authenticate, authorizeRole('admin'), async (req, res) => {
 
         const result = await db.query(`
             INSERT INTO system_settings (key, value, updated_at)
-            VALUES ($1, $2, NOW())
-            ON CONFLICT (key) DO UPDATE SET value = $2, updated_at = NOW()
+            VALUES ($1, $2, (NOW() AT TIME ZONE 'Europe/Helsinki'))
+            ON CONFLICT (key) DO UPDATE SET value = $2, updated_at = (NOW() AT TIME ZONE 'Europe/Helsinki')
             RETURNING *;
         `, [key, JSON.stringify(value)])
 

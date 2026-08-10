@@ -16,9 +16,36 @@ const authHelper = {
         )
     },
 
+    getCooldown: async (email) => {
+        const normalizeEmail = email.toLowerCase()
+        
+        const existing = await db.query(
+            'SELECT expires_at FROM pending_verifications WHERE email = $1;',
+            [normalizeEmail]
+        );
+
+        if (existing.rows.length > 0) {
+            const currentExpiresAt = new Date(existing.rows[0].expires_at).getTime()
+            
+            const lastSentAt = currentExpiresAt - (10 * 60 * 1000)
+            const timePassed = Date.now() - lastSentAt
+            const cooldown = 60 * 1000
+
+            if (timePassed < cooldown) {
+                return Math.ceil((cooldown - timePassed) / 1000)
+            }
+        }
+        return 0
+    },
+
     sendVerification: async (normalizedEmail, fullname, hashedPassword) => {
+        const secondsLeft = await authHelper.getCooldown(normalizedEmail)
+        if (secondsLeft > 0) {
+            throw new Error(`Please wait few seconds before requesting a new code.`)
+        }
+
         const verificationCode = Math.floor(100000 + Math.random() * 900000).toString()
-        const expiresAt = new Date(Date.now() + 10 * 60 * 1000)
+        const expiresAt = new Date(Date.now() + 5 * 60 * 1000)
 
         await db.query(`
                 INSERT INTO pending_verifications (email, fullname, password, verification_code, expires_at)
@@ -34,7 +61,7 @@ const authHelper = {
             html: `
                 <h3>Verify your email</h3>
                 <p>Verification code: <strong>${verificationCode}</strong></p>
-                <p>This code will expire 10 minutes after it was sent.</p>
+                <p>This code will expire 5 minutes after it was sent.</p>
                 `
         })
 
@@ -143,8 +170,8 @@ const authHelper = {
 
         const change = await db.query(`
             UPDATE users 
-            SET password_hash = $1 
-                updated_at = NOW()
+            SET password_hash = $1,
+                updated_at = (NOW() AT TIME ZONE 'Europe/Helsinki')
             WHERE id = $2;
         `, [newHashed, userId]
         )

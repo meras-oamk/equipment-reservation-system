@@ -20,7 +20,7 @@
   border-radius: 10px;
   padding: 12px 20px;
   display: grid;
-  grid-template-columns: 80px 130px 150px 75px minmax(140px, auto) minmax(130px, auto) 2fr;
+  grid-template-columns: 110px 200px 170px 110px 190px 160px 1fr;
   column-gap: 10px;
   font-weight: 700;
   font-size: 12px;
@@ -29,7 +29,7 @@
 
 .table-row {
   display: grid;
-  grid-template-columns: 80px 130px 150px 75px minmax(140px, auto) minmax(130px, auto) 2fr;
+  grid-template-columns: 110px 200px 170px 110px 190px 160px 1fr;
   column-gap: 10px;
   align-items: start;
   text-align: left;
@@ -68,6 +68,8 @@
 .date-time { font-size: 10px; line-height: 1.5; white-space: nowrap; text-align: left; }
 
 .notes-text { font-size: 10px; color: #212529; text-align: left; }
+
+.reservation-id { font-size: 10px; color: #888; text-align: left; white-space: nowrap; }
 
 .action-text { font-size: 10px; font-weight: 400; white-space: nowrap; text-align: left; }
 

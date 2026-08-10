@@ -1,4 +1,5 @@
 const { db } = require('./db')
+const sendEmail = require('./email')
 
 const reservationsHelper = {
     returnRequests: async () => {
@@ -10,7 +11,7 @@ const reservationsHelper = {
                 r.id AS reservation_id,
                 r.start_time,
                 r.end_time,
-                r.return_time,
+                r.return_scan_time,
 
                 et.name AS equipment_name,
                 eu.qr_code,
@@ -28,7 +29,7 @@ const reservationsHelper = {
                 ON r.type_id = et.id
 
             WHERE r.status = 'pending_return'
-            ORDER BY r.return_time ASC;
+            ORDER BY r.return_scan_time ASC;
         `)
 
         return pendingReturn.rows 
@@ -40,33 +41,147 @@ const reservationsHelper = {
         return conditions.rows.map(row => row.condition)
     },
 
-    confirmReturn: async (reservationId, condition, notes) => {
-        const reservationQuery = await db.query(`SELECT unit_id FROM reservations WHERE id = $1;`, [reservationId])
+    confirmReturn: async (reservationId, condition, notes, adminId) => {
+        const reservationQuery = await db.query(`
+            SELECT r.unit_id, eu.condition AS condition_before,
+                   u.email AS user_email, u.full_name AS user_name,
+                   et.name AS equipment_name
+            FROM reservations r
+            JOIN equipment_units eu ON eu.id = r.unit_id
+            JOIN users u ON u.id = r.user_id
+            JOIN equipment_types et ON et.id = r.type_id
+            WHERE r.id = $1;
+        `, [reservationId])
 
         if (reservationQuery.rows.length === 0) {
             throw new Error('Reservation not found')
         }
 
-        const unitId = reservationQuery.rows[0].unit_id;
+        const { unit_id: unitId, condition_before: conditionBefore,
+                user_email: userEmail, user_name: userName,
+                equipment_name: equipmentName } = reservationQuery.rows[0];
 
         const updateReservationResult = await db.query(`
-            UPDATE reservations 
-            SET status = 'completed', 
-                return_notes = $1, 
-                return_time = CURRENT_TIMESTAMP 
-            WHERE id = $2 
+            UPDATE reservations
+            SET status = 'completed',
+                return_notes = $1,
+                return_time = (NOW() AT TIME ZONE 'Europe/Helsinki')
+            WHERE id = $2
             RETURNING *;
-        `, [notes, reservationId]
-        )
+        `, [notes, reservationId])
 
         await db.query(
-            `UPDATE equipment_units 
-             SET condition = $1 
+            `UPDATE equipment_units
+             SET condition = $1, status = 'available'
              WHERE id = $2;`,
             [condition, unitId]
         )
 
+        await db.query(`
+            INSERT INTO equipment_logs (unit_id, user_id, reservation_id, action, status_before, status_after, condition_before, condition_after, notes)
+            VALUES ($1, $2, $3, 'admin_confirm_return', 'pending_return', 'available', $4, $5, $6)
+        `, [unitId, adminId, reservationId, conditionBefore, condition, notes])
+
+        // Notify user
+        const returnDate = new Date().toLocaleString('en-GB', { timeZone: 'Europe/Helsinki' })
+        await sendEmail({
+            to: userEmail,
+            subject: `Return Confirmed – ${equipmentName}`,
+            html: `
+                <p>Hi ${userName},</p>
+                <p>Your return of <strong>${equipmentName}</strong> has been confirmed by the admin.</p>
+                <table style="border-collapse:collapse;font-size:14px">
+                    <tr><td style="padding:4px 12px 4px 0;color:#888">Return time</td><td><strong>${returnDate}</strong></td></tr>
+                    <tr><td style="padding:4px 12px 4px 0;color:#888">Condition</td><td><strong>${condition}</strong></td></tr>
+                    ${notes ? `<tr><td style="padding:4px 12px 4px 0;color:#888">Notes</td><td>${notes}</td></tr>` : ''}
+                </table>
+                <p>Your reservation is now <strong>completed</strong>. Thank you!</p>
+            `
+        })
+
         return updateReservationResult.rows[0];
+    },
+
+    reservations: async (page = 1, limit = 10, search = '', status = 'all') => {
+        const offset = (page - 1) * limit
+
+        let whereClauses = []
+        let queryParams = []
+
+        if (status && status !== 'all') {
+            queryParams.push(status)
+            whereClauses.push(`LOWER(CAST(r.status AS text)) = LOWER($${queryParams.length})`)
+        }
+
+        if (search && search.trim() !== '') {
+            queryParams.push(`%${search.trim()}%`)
+            whereClauses.push(`(u.full_name ILIKE $${queryParams.length} OR et.name ILIKE $${queryParams.length} OR u.email ILIKE $${queryParams.length})`)
+        }
+
+        const whereString = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : ''
+
+        const countQuery = `
+            SELECT COUNT(*) FROM reservations r
+            JOIN users u ON r.user_id = u.id
+            LEFT JOIN equipment_types et ON r.type_id = et.id
+            ${whereString};
+        `
+
+        const countResult = await db.query(countQuery, queryParams)
+        const totalReservations = parseInt(countResult.rows[0].count, 10)
+
+        queryParams.push(limit)
+        const limitPlaceholder = `$${queryParams.length}`
+
+        queryParams.push(offset);
+        const offsetPlaceholder = `$${queryParams.length}`
+
+        const mainQuery = `
+            SELECT
+                u.full_name,
+                u.email,
+
+                r.id AS reservation_id,
+                r.created_at,
+                r.start_time,
+                r.end_time,
+                r.checkout_time,
+                r.return_scan_time,
+                r.return_time,
+                r.cancelled_at,
+                r.status,
+
+                et.name AS equipment_name,
+                eu.qr_code
+
+            FROM reservations r
+
+            JOIN users u
+                ON r.user_id = u.id
+
+            LEFT JOIN equipment_units eu
+                ON r.unit_id = eu.id
+
+            LEFT JOIN equipment_types et
+                ON r.type_id = et.id
+            
+            ${whereString}
+
+            ORDER BY r.id DESC
+            LIMIT ${limitPlaceholder} OFFSET ${offsetPlaceholder};
+        `
+
+        const reservations = await db.query(mainQuery, queryParams)
+        const totalPages = Math.ceil(totalReservations / limit)
+        return {
+            reservations: reservations.rows,
+            pagination: {
+                totalReservations, 
+                totalPages, 
+                currentPage: page,
+                limit
+            }
+        }
     }
 }
 

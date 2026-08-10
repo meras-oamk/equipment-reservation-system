@@ -1,96 +1,317 @@
-    const reservations = {
-      inactive: [
-        { id: 1, device: 'NewBeeDrone Replacement', start: '12:00\n12/06/2026', end: '18:00\n15/06/2026', duration: '4 days', location: 'Linnanmaa Kirjasto', status: 'inactive' },
-        { id: 2, device: 'NewBeeDrone Replacement', start: '12:00\n12/06/2026', end: '18:00\n15/06/2026', duration: '4 days', location: 'Linnanmaa Kirjasto', status: 'inactive' },
-        { id: 3, device: 'NewBeeDrone Replacement', start: '12:00\n12/06/2026', end: '18:00\n15/06/2026', duration: '4 days', location: 'Linnanmaa Kirjasto', status: 'inactive' },
-        { id: 4, device: 'NewBeeDrone Replacement', start: '12:00\n12/06/2026', end: '18:00\n15/06/2026', duration: '4 days', location: 'Linnanmaa Kirjasto', status: 'inactive' },
-      ],
-      active: [
-        { id: 5, device: 'NewBeeDrone Replacement', start: '09:00\n10/06/2026', end: '18:00\n12/06/2026', duration: '2 days', location: 'Oulu City Library', status: 'active' },
-      ],
-      expired: [
-        { id: 6, device: 'NewBeeDrone Replacement', start: '08:00\n01/06/2026', end: '18:00\n03/06/2026', duration: '2 days', location: 'Ritaharju Library', status: 'expired' },
-        { id: 7, device: 'NewBeeDrone Replacement', start: '10:00\n05/06/2026', end: '17:00\n07/06/2026', duration: '2 days', location: 'Linnanmaa Kirjasto', status: 'expired' },
-      ],
+let reservations = { inactive: [], active: [], overdue: [], completed: [] };
+let currentTab = 'inactive';
+
+function fmt(datetimeStr) {
+    const [datePart, timePart] = datetimeStr.split(/[T ]/); // handles both "T" and space separator
+    const [year, month, day] = datePart.split('-');
+    const time = timePart.slice(0, 5);
+    const date = `${day}/${month}/${year}`;
+    return { time, date };
+}
+
+// formatTableDate() — "DD/MM/YYYY HH:MM" on one line
+function formatDisplayDateTime(datetimeStr) {
+    if (!datetimeStr) return 'N/A';
+    const clean = datetimeStr.replace(' ', 'T').slice(0, 19);
+    const [datePart, timePart] = clean.split('T');
+    const [year, month, day] = datePart.split('-');
+    const [hours, minutes] = timePart.split(':');
+    return `${day}/${month}/${year} ${hours}:${minutes}`;
+}
+
+// "Start / End" stacked column with a "to" separator
+function formatStartEndCell(rawStart, rawEnd) {
+    return `
+        ${formatDisplayDateTime(rawStart)}
+        <span style="color:#aaa;font-size:0.8em;display:block;text-align:center;">to</span>
+        ${formatDisplayDateTime(rawEnd)}
+    `;
+}
+
+// "Actual Pickup / Return" stacked column, using already-formatted {date, time} objects
+function formatActualCell(actualPickup, actualReturn) {
+    const pickupText = actualPickup ? `${actualPickup.date} ${actualPickup.time}` : '—';
+    const returnText = actualReturn ? `${actualReturn.date} ${actualReturn.time}` : '—';
+
+    if (!actualPickup && !actualReturn) {
+        return '—';
+    }
+
+    return `
+        ${pickupText}
+        <span style="color:#aaa;font-size:0.8em;display:block;text-align:center;">to</span>
+        ${returnText}
+    `;
+}
+
+async function loadReservations() {
+    const token = localStorage.getItem('token');
+    try {
+        const res = await fetch('/api/reservation/my', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+
+        if (!res.ok || !Array.isArray(data)) {
+            console.error('Failed to load reservations:', data.error || data);
+            if (data.error === 'Invalid or expired token.') {
+                alert('Your session has expired. Please log in again.');
+                localStorage.removeItem('token');
+                window.location.href = '../../index.html';
+            }
+            return;
+        }
+
+reservations = { inactive: [], active: [], overdue: [], completed: [] };
+
+const now = new Date();
+
+data.forEach(r => {
+    const start = new Date(r.start_time);
+    const end   = new Date(r.end_time);
+
+    const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+    const duration = diffDays === 1 ? '1 day' : `${diffDays} days`;
+
+    const s = fmt(r.start_time);
+    const e = fmt(r.end_time);
+
+    const dbStatus = r.status;
+    const now = new Date();
+
+    let tabStatus, displayStatus;
+
+    if (dbStatus === 'completed') {
+        tabStatus = 'completed';
+        displayStatus = 'completed';
+    }
+    else if (dbStatus === 'cancelled') {
+        tabStatus = 'completed';
+        displayStatus = 'cancelled';
+    }
+    else if (dbStatus === 'pending_return') {
+        tabStatus = 'completed';
+        displayStatus = 'pending_approval';
+    }
+    else if (dbStatus === 'overdue') {
+        tabStatus = 'overdue';
+        displayStatus = 'overdue';
+    }
+    else if (dbStatus === 'active') {
+        tabStatus = end < now ? 'overdue' : 'active';
+        displayStatus = tabStatus;
+    }
+    else {
+        tabStatus = 'inactive';
+        displayStatus = 'inactive';
+    }
+
+    const entry = {
+        id:       r.id,
+        device:   r.device,
+        start:    `${s.time}\n${s.date}`,
+        end:      `${e.time}\n${e.date}`,
+        rawStart:         r.start_time,
+        rawEnd:           r.end_time,
+        duration,
+        location: r.pickup_location,
+        status:   tabStatus,
+        displayStatus,
+        booking_group_id: r.booking_group_id,
+        actualPickup:     r.checkout_time ? fmt(r.checkout_time) : null,
+        actualReturn:     r.return_scan_time ? fmt(r.return_scan_time) : null
     };
 
-    let currentTab = 'inactive';
+    reservations[tabStatus].push(entry);
+});
 
-    function badgeHtml(status) {
-      const map = { inactive: 'badge-inactive', active: 'badge-active', expired: 'badge-expired' };
-      const label = status.charAt(0).toUpperCase() + status.slice(1);
-      return `<span class="badge-status ${map[status]}">${label}</span>`;
+        updateTabCounts();
+        renderTable(currentTab);
+
+    } catch (err) {
+        console.error('Failed to load reservations:', err);
+    }
+}
+
+window.addEventListener('DOMContentLoaded', loadReservations);
+
+  function badgeHtml(status) {
+    const map = {
+        inactive: 'badge-inactive',
+        active: 'badge-active',
+        overdue: 'badge-overdue',
+        completed: 'badge-completed',
+        cancelled: 'badge-cancelled',
+        pending_approval: 'badge-pending-approval',
+        mixed: 'badge-mixed'
+    };
+    const label = status === 'pending_approval'
+        ? 'Pending Approval'
+        : status.charAt(0).toUpperCase() + status.slice(1);
+    return `<span class="badge-status ${map[status]}">${label}</span>`;
+}
+
+// ── GROUP ROWS SHARING THE SAME booking_group_id ──
+function groupByBooking(rows) {
+    const groups = {};
+    const order = [];
+
+    rows.forEach(r => {
+        const key = r.booking_group_id || `single-${r.id}`;
+        if (!groups[key]) {
+            groups[key] = [];
+            order.push(key);
+        }
+        groups[key].push(r);
+    });
+
+    return order.map(key => groups[key]);
+}
+
+// ── RENDER ONE DESKTOP ROW  ──
+function renderSingleRow(r, isCompleted, showDeleteBtn) {
+    
+    return `
+      <tr class="${isCompleted ? '' : 'clickable'}" ${isCompleted ? '' : `onclick="goToDetail(${r.id})"`}>
+        <td><span class="device-name">${r.device}</span></td>
+        <td><span class="device-name">#${r.id}</span></td>
+        <td class="date-time">${formatStartEndCell(r.rawStart, r.rawEnd)}</td>
+        <td class="date-time">${formatActualCell(r.actualPickup, r.actualReturn)}</td>
+        <td>${r.duration}</td>
+        <td>1</td>
+        <td>${r.location}</td>
+        <td>${badgeHtml(r.displayStatus)}</td>
+        <td>
+          <div class="action-btns">
+            ${isCompleted ? '' : `
+            <a href="reservationDetails.html?id=${r.id}&status=${r.status}" class="btn-view-icon" onclick="event.stopPropagation()" title="View">
+              <i class="bi bi-eye"></i>
+            </a>`}
+            ${showDeleteBtn ? `
+            <button class="btn-delete-icon" onclick="event.stopPropagation(); deleteRow(${r.id}, '${r.device}')" title="Cancel Reservation">
+              <i class="bi bi-x-lg"></i>
+            </button>` : ''}
+            ${isCompleted ? `
+            <button class="btn-delete-icon" onclick="event.stopPropagation(); hideRow(${r.id}, '${r.device}')" title="Remove from history">
+              <i class="bi bi-x-lg"></i>
+            </button>` : ''}
+          </div>
+        </td>
+      </tr>`;
+}
+
+// ── RENDER ONE GROUP (single row if group of 1, expandable summary + nested rows if 2+) ──
+function renderGroupRow(group, isCompleted, showDeleteBtn) {
+    const first = group[0];
+    const isMulti = group.length > 1;
+    const groupId = `group-${first.booking_group_id || first.id}`;
+
+    if (!isMulti) {
+        // Render exactly as a normal single row (reuse your existing single-row markup)
+        return renderSingleRow(first, isCompleted, showDeleteBtn);
     }
 
-    function renderTable(tab) {
-      const rows = reservations[tab];
-      const tbody = document.getElementById('tableBody');
-      const mobileList = document.getElementById('mobileList');
+    // Multi-unit summary row + hidden expandable detail rows
+    const summaryStatus = group.every(r => r.displayStatus === group[0].displayStatus)
+        ? group[0].displayStatus
+        : 'mixed'; // units in the group have diverged in status
 
-      if (!rows || rows.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><i class="bi bi-calendar-x"></i><p>No reservations found.</p></div></td></tr>`;
-        mobileList.innerHTML = `<div class="empty-state"><i class="bi bi-calendar-x"></i><p>No reservations found.</p></div>`;
-        return;
-      }
+    return `
+      <tr class="clickable group-summary" onclick="toggleGroup('${groupId}')">
+        <td><span class="device-name">${first.device} (x${group.length})</span></td>
+        <td><span class="device-name">#${first.id} +${group.length - 1}</span></td>
+        <td class="date-time">${formatStartEndCell(first.rawStart, first.rawEnd)}</td>
+        <td>—</td>
+        <td>${first.duration}</td>
+        <td>${group.length}</td>
+        <td>${first.location}</td>
+        <td>${summaryStatus === 'mixed' ? badgeHtml('mixed') : badgeHtml(summaryStatus)}</td>
+        <td><i class="bi bi-chevron-down group-toggle-icon"></i></td>
+      </tr>
+      <tr class="group-detail-row" id="${groupId}" style="display:none;">
+        <td colspan="9">
+          <table class="res-table nested-table">
+            <tbody>
+              ${group.map(r => renderSingleRow(r, isCompleted, showDeleteBtn)).join('')}
+            </tbody>
+          </table>
+        </td>
+      </tr>
+    `;
+}
 
-      // Desktop rows — every row navigates to detail on click
-      tbody.innerHTML = rows.map(r => {
-        const startLines = r.start.split('\n');
-        const endLines   = r.end.split('\n');
-        return `
-          <tr class="clickable" onclick="goToDetail(${r.id})">
-            <td><span class="device-name">${r.device}</span></td>
-            <td>${startLines[0]}<br><span style="color:var(--muted);font-size:0.8rem;">${startLines[1]||''}</span></td>
-            <td>${endLines[0]}<br><span style="color:var(--muted);font-size:0.8rem;">${endLines[1]||''}</span></td>
-            <td>${r.duration}</td>
-            <td>${r.location}</td>
-            <td>${badgeHtml(r.status)}</td>
-            <td>
-              <div class="action-btns">
-                <a href="reservationDetails.html?id=${r.id}&status=${r.status}" class="btn-view-icon" onclick="event.stopPropagation()" title="View">
-                  <i class="bi bi-eye"></i>
-                </a>
-                <button class="btn-delete-icon" onclick="event.stopPropagation(); deleteRow(${r.id}, '${r.device}')" title="Remove">
-                  <i class="bi bi-x-lg"></i>
-                </button>
-              </div>
-            </td>
-          </tr>`;
-      }).join('');
+function toggleGroup(groupId) {
+    const row = document.getElementById(groupId);
+    if (!row) return;
+    row.style.display = row.style.display === 'none' ? '' : 'none';
+}
+window.toggleGroup = toggleGroup;
 
-      // Mobile cards
-      mobileList.innerHTML = rows.map(r => {
-        const startLines = r.start.split('\n');
-        const endLines   = r.end.split('\n');
-        return `
-          <div class="mobile-res-card" onclick="goToDetail(${r.id})">
-            <div class="d-flex justify-content-between align-items-start mb-2">
-              <span class="device-name">${r.device}</span>
-              ${badgeHtml(r.status)}
-            </div>
-            <div class="mobile-meta">
-              <span>Start: <strong>${startLines[0]} ${startLines[1]||''}</strong></span>
-              <span>End: <strong>${endLines[0]} ${endLines[1]||''}</strong></span>
-              <span>Duration: <strong>${r.duration}</strong></span>
-              <span>Location: <strong>${r.location}</strong></span>
-            </div>
-          </div>`;
-      }).join('');
+function renderTable(tab) {
+  const rows = reservations[tab];
+  const tbody = document.getElementById('tableBody');
+  const mobileList = document.getElementById('mobileList');
+  const isCompleted = tab === 'completed';
+  const showDeleteBtn = tab === 'inactive'; // only allow cancelling before pickup
 
-    // Attach touch + click listeners to each mobile card
-      mobileList.querySelectorAll('.mobile-res-card').forEach(card => {
-        let touchMoved = false;
-        card.addEventListener('touchstart', () => { touchMoved = false; }, { passive: true });
-        card.addEventListener('touchmove',  () => { touchMoved = true;  }, { passive: true });
-        card.addEventListener('touchend', (e) => {
-          if (!touchMoved) {
-            e.preventDefault();
-            goToDetail(card.dataset.id);
-          }
-        });
-        card.addEventListener('click', () => goToDetail(card.dataset.id));
+  if (!rows || rows.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><i class="bi bi-calendar-x"></i><p>No reservations found.</p></div></td></tr>`;
+    mobileList.innerHTML = `<div class="empty-state"><i class="bi bi-calendar-x"></i><p>No reservations found.</p></div>`;
+    return;
+  }
+
+  // Desktop rows — grouped by booking_group_id
+  const groups = groupByBooking(rows);
+  tbody.innerHTML = groups.map(g => renderGroupRow(g, isCompleted, showDeleteBtn)).join('');
+
+  // Mobile cards
+  mobileList.innerHTML = rows.map(r => {
+    const startLines = r.start.split('\n');
+    const endLines   = r.end.split('\n');
+    return `
+       <div class="mobile-res-card${isCompleted ? ' not-clickable' : ''}" data-id="${r.id}">
+        <div class="mobile-card-header">
+          <span class="device-name">${r.device}</span>
+          ${badgeHtml(r.displayStatus)}
+        </div>
+        <div class="mobile-meta">
+          <span>ID: <strong>#${r.id}</strong></span>
+          <span>Duration: <strong>${r.duration}</strong></span>
+          <span>Start: <strong>${startLines[0]} ${startLines[1]||''}</strong></span>
+          <span>End: <strong>${endLines[0]} ${endLines[1]||''}</strong></span>
+          <span class="mobile-meta-full">Location: <strong>${r.location}</strong></span>
+        </div>
+        ${showDeleteBtn ? `
+        <div class="mobile-card-actions">
+          <button class="btn-delete-icon" onclick="event.stopPropagation(); deleteRow(${r.id}, '${r.device}')" title="Cancel Reservation">
+            <i class="bi bi-x-lg"></i> Cancel
+          </button>
+        </div>` : ''}
+        ${isCompleted ? `
+        <div class="mobile-card-actions">
+          <button class="btn-delete-icon" onclick="event.stopPropagation(); hideRow(${r.id}, '${r.device}')" title="Remove from history">
+            <i class="bi bi-x-lg"></i> Remove
+          </button>
+        </div>` : ''}
+      </div>`;
+  }).join('');
+
+  // Attach touch + click listeners to each mobile card (skip for completed tab)
+  if (!isCompleted) {
+    mobileList.querySelectorAll('.mobile-res-card').forEach(card => {
+      let touchMoved = false;
+      card.addEventListener('touchstart', () => { touchMoved = false; }, { passive: true });
+      card.addEventListener('touchmove',  () => { touchMoved = true;  }, { passive: true });
+      card.addEventListener('touchend', (e) => {
+        if (!touchMoved) {
+          e.preventDefault();
+          goToDetail(card.dataset.id);
+        }
       });
-    }
+      card.addEventListener('click', () => goToDetail(card.dataset.id));
+    });
+  }
+}
 
     function goToDetail(id) {
       // Find the reservation across all tabs to get its status
@@ -102,15 +323,55 @@
       window.location.href = `reservationDetails.html?id=${id}&status=${status}`;
     }
 
-    function deleteRow(id, deviceName) {
-      if (!confirm(`Remove the reservation for "${deviceName}"?\nThis cannot be undone.`)) return;
-      for (const tab in reservations) {
-        reservations[tab] = reservations[tab].filter(r => r.id !== id);
-      }
-      // Update tab counts
-      updateTabCounts();
-      renderTable(currentTab);
+    async function deleteRow(id, deviceName) {
+    if (!confirm(`Remove the reservation for "${deviceName}"?\nThis cannot be undone.`)) return;
+
+    const token = localStorage.getItem('token');
+    try {
+        const res = await fetch(`/api/reservation/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) {
+            alert('Failed to cancel reservation.');
+            return;
+        }
+    } catch (err) {
+        alert('Network error.');
+        return;
     }
+
+    for (const tab in reservations) {
+        reservations[tab] = reservations[tab].filter(r => r.id !== id);
+    }
+    updateTabCounts();
+    renderTable(currentTab);
+}
+
+async function hideRow(id, deviceName) {
+    if (!confirm(`Remove "${deviceName}" from your history?\nThis only removes it from your view.`)) return;
+
+    const token = localStorage.getItem('token');
+    try {
+        const res = await fetch(`/api/reservation/${id}/hide`, {
+            method: 'PATCH',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) {
+            alert('Failed to remove from history.');
+            return;
+        }
+    } catch (err) {
+        alert('Network error.');
+        return;
+    }
+
+    for (const tab in reservations) {
+        reservations[tab] = reservations[tab].filter(r => r.id !== id);
+    }
+    updateTabCounts();
+    renderTable(currentTab);
+}
 
     function updateTabCounts() {
       document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -132,5 +393,6 @@
       });
     });
 
-    // Initial render
-    renderTable(currentTab);
+    window.deleteRow = deleteRow;
+    window.goToDetail = goToDetail;
+    window.hideRow = hideRow;

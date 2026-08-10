@@ -7,7 +7,12 @@ const equipmentRoute = require('./routes/equipment')
 const reservationsRoute = require('./routes/reservations')
 const settingsRoute = require('./routes/settings')
 const logsRoute = require('./routes/logs')
+const manageUsersRoute = require('./routes/manageUsers')
+const userRoutes = require('./routes/users')
+const adminStatisticsRoute = require('./routes/adminStatistics')
+
 require('dotenv').config()
+require('./routes/overdue_job')
 const app = express()
 
 connectDB()
@@ -15,12 +20,21 @@ connectDB()
 app.use(express.json())
 app.use(cors())
 
+// Admin route prefixes
 app.use('/api/auth', authRoute)
 app.use('/api/equipment', equipmentRoute)
 app.use('/api/reservation', reservationsRoute)
 app.use('/api/settings', settingsRoute)
 app.use('/api/logs', logsRoute)
+app.use('/api/manageUsers', manageUsersRoute)
+app.use('/api/stats', adminStatisticsRoute)
 
+// User route prefixes
+app.use('/api/users', userRoutes)
+app.use(
+  '/documents',
+  express.static(path.join(__dirname, '../documents'))
+);
 app.use(express.static(path.join(__dirname,'../frontend')))
 app.use(express.static(path.join(__dirname, '../frontend/html')))
 

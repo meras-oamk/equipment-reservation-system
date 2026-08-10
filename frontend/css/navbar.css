@@ -14,7 +14,8 @@
 
 body { 
     font-family: Georgia, serif; 
-    background: #f2f2f2; 
+    /* background: #f2f2f2;  */
+    background: white;
 }
 
 /* PAGE WRAPPER */
@@ -57,13 +58,12 @@ body {
 }
 
 .top-navbar .logout {
-    border: 2px solid #f39a1d;
-    color: #f39a1d;
+    color: red;
     border-radius: 20px;
 }
 
 .top-navbar .logout:hover {
-    background: #f39a1d;
+    background: #f3481d;
     color: white;
 }
 

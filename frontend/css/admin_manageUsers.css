@@ -20,6 +20,11 @@
   cursor: pointer;
 }
 
+.error-text {
+  color: red;
+  font-size: medium;
+}
+
 .panel {
   background: #fff;
   border-radius: 12px;

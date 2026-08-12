@@ -32,6 +32,47 @@ reservation-faevbvdgeybqg4fv.swedencentral-01.azurewebsites.net
 | **QR Scanning** | qrcode, html5-qrcode |
 | **Email** | Nodemailer |
 
+## Environment Variables
+
+Create a `.env` file inside `/backend`:
+
+- `DATABASE_URL=postgresql://neondb_owner:npg_1B3KaTGhQOcD@ep-wandering-poetry-a2atp62q-pooler.eu-central-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require`
+- `JWT_SECRET=our-project`
+- `PORT=3001`
+- `CLOUDINARY_CLOUD_NAME=dadujbhoi`
+- `CLOUDINARY_API_KEY=491786312723585`
+- `CLOUDINARY_API_SECRET=SuhcKwQnJ-HCiilUVajleT_noNc`
+- `EMAIL_USER=general.unrepliable@gmail.com`
+- `EMAIL_PASS=lvzoklzqzgvikvgf`
+
+**Do NOT commit `.env` to GitHub.**
+
+## Running Locally
+
+**1. Clone the repo**
+```bash
+git clone https://github.com/meras-oamk/equipment-reservation-system.git
+```
+
+**2. Install dependencies**
+```bash
+npm install
+```
+
+**3. Set up the database**
+
+This project uses [Neon](https://neon.tech)
+
+**4. Start the server**
+```bash
+npm run dev
+```
+(Uses `nodemon`. For production, use `node index.js` or your configured start script.)
+
+**5. Open in browser**
+
+[http://localhost:3001](http://localhost:3000)
+
 ## Features
 
 | Feature | Description |
@@ -127,6 +168,6 @@ TVT Kesäprojektit-Summer projects 2026
 
 Oulu Universit of Applied Sciences (OAMK)
 
-Sprint period: 13.5 - 2.7.2026
+Sprint period: 13.5 - 15.8.2026
 
 

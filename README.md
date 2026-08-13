@@ -36,8 +36,6 @@ https://reservation-faevbvdgeybqg4fv.swedencentral-01.azurewebsites.net/
 
 Create a `.env` file inside `/backend`:
 
-
-
 **Do NOT commit `.env` to GitHub.**
 
 ## Running Locally
@@ -60,7 +58,6 @@ This project uses [Neon](https://neon.tech)
 ```bash
 npm run dev
 ```
-(Uses `nodemon`. For production, use `node index.js` or your configured start script.)
 
 **5. Open in browser**
 

@@ -36,14 +36,7 @@ https://reservation-faevbvdgeybqg4fv.swedencentral-01.azurewebsites.net/
 
 Create a `.env` file inside `/backend`:
 
-- `DATABASE_URL=postgresql://neondb_owner:npg_1B3KaTGhQOcD@ep-wandering-poetry-a2atp62q-pooler.eu-central-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require`
-- `JWT_SECRET=our-project`
-- `PORT=3001`
-- `CLOUDINARY_CLOUD_NAME=dadujbhoi`
-- `CLOUDINARY_API_KEY=491786312723585`
-- `CLOUDINARY_API_SECRET=SuhcKwQnJ-HCiilUVajleT_noNc`
-- `EMAIL_USER=general.unrepliable@gmail.com`
-- `EMAIL_PASS=lvzoklzqzgvikvgf`
+
 
 **Do NOT commit `.env` to GitHub.**
 

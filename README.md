@@ -60,17 +60,17 @@ https://reservation-faevbvdgeybqg4fv.swedencentral-01.azurewebsites.net/
 
 | Equipment List | Equipment Details |
 |---|---|
-| _screenshot here_ | _screenshot here_ |
+| <img src="./frontend/Assets/browsePage.jpeg" alt="Browse Page" width="300"> <img src="./frontend/Assets/navBar.jpeg" alt="Nav Bar" width="300"> | _screenshot here_ |
 | Browse available equipment by category, subcategory, and real-time availability. | Pick date, time, and pickup location; quantity updates automatically based on that location's stock. |
 
-| Reserved Confirmation | Reservation Details |
+| Reserved Confirmation | |
 |---|---|
-| _screenshot here_ | _screenshot here_ |
-| Confirms a successful booking and shows the reservation ID(s), pickup window, and location. | Full detail view of a single reservation, including its current status and available actions. |
+| <img src="./frontend/Assets/successfulModel.jpeg" alt="Successful Model" width="300"> | |
+| Confirms a successful booking and shows the reservation ID(s), pickup window, and location. | |
 
 | My Reservation | Scanning QR Code |
 |---|---|
-| _screenshot here_ | _screenshot here_ |
+| <img src="./frontend/Assets/myReservationPage.jpeg" alt="Reservation Page" width="300"> | _screenshot here_ |
 | Track all reservations across Inactive, Active, Overdue, and Completed tabs, with actual pickup/return timestamps. | Scan the physical unit's QR code to trigger checkout or return. |
 
 | Reservation Actions (Pickup) | Reservation Actions (Return) |

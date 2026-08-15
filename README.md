@@ -32,6 +32,57 @@ https://reservation-faevbvdgeybqg4fv.swedencentral-01.azurewebsites.net/
 | **QR Scanning** | qrcode, html5-qrcode |
 | **Email** | Nodemailer |
 
+## Features
+
+| Feature | Description |
+|---|---|
+| **Role-based access** | Three roles: `student`, `staff`, `admin` — each with different booking permissions |
+| **Equipment catalog** | Browse equipment by category, status, and availability |
+| **Time-based reservations** | Book specific equipment types for defined time slots |
+| **Unit assignment** | A specific physical unit is assigned to a reservation at checkout |
+| **QR code check-in/out** | Scan QR code on physical unit to trigger checkout or return |
+| **Admin dashboard** | Full overview of reservations, equipment status, and users |
+| **Email notifications** | Confirmation, reminder, and overdue alerts via email |
+| **Condition tracking** | Record equipment condition at check-out and return |
+| **Audit logging** | Every action on every unit is recorded with before/after state |
+| **Booking policies** | Status transitions enforced by reservation lifecycle rules |
+
+## Pages
+
+### Shared
+
+| Landing Page | Login / Register |
+|---|---|
+| ![Landing Page](./Assets/landingPage.jpeg) | _screenshot here_ |
+| Public entry point with an overview of the platform. | Sign in or create an account; role (`student`, `staff`, `admin`) determines which views are accessible afterward. |
+
+### Student / Staff View
+
+| Equipment List | Equipment Details |
+|---|---|
+| _screenshot here_ | _screenshot here_ |
+| Browse available equipment by category, subcategory, and real-time availability. | Pick date, time, and pickup location; quantity updates automatically based on that location's stock. |
+
+| Reserved Confirmation | Reservation Details |
+|---|---|
+| _screenshot here_ | _screenshot here_ |
+| Confirms a successful booking and shows the reservation ID(s), pickup window, and location. | Full detail view of a single reservation, including its current status and available actions. |
+
+| My Reservation | Scanning QR Code |
+|---|---|
+| _screenshot here_ | _screenshot here_ |
+| Track all reservations across Inactive, Active, Overdue, and Completed tabs, with actual pickup/return timestamps. | Scan the physical unit's QR code to trigger checkout or return. |
+
+| Reservation Actions (Pickup) | Reservation Actions (Return) |
+|---|---|
+| _screenshot here_ | _screenshot here_ |
+| Confirms equipment pickup after a successful QR scan within the booked time window. | Confirms equipment return and submits it for admin approval. |
+
+| My Account | Change Password |
+|---|---|
+| _screenshot here_ | _screenshot here_ |
+| View and manage account details. | Update account password securely. |
+
 ## Environment Variables
 
 Create a `.env` file inside `/backend`:
@@ -62,21 +113,6 @@ npm run dev
 **5. Open in browser**
 
 [http://localhost:3001](http://localhost:3000)
-
-## Features
-
-| Feature | Description |
-|---|---|
-| **Role-based access** | Three roles: `student`, `staff`, `admin` — each with different booking permissions |
-| **Equipment catalog** | Browse equipment by category, status, and availability |
-| **Time-based reservations** | Book specific equipment types for defined time slots |
-| **Unit assignment** | A specific physical unit is assigned to a reservation at checkout |
-| **QR code check-in/out** | Scan QR code on physical unit to trigger checkout or return |
-| **Admin dashboard** | Full overview of reservations, equipment status, and users |
-| **Email notifications** | Confirmation, reminder, and overdue alerts via email |
-| **Condition tracking** | Record equipment condition at check-out and return |
-| **Audit logging** | Every action on every unit is recorded with before/after state |
-| **Booking policies** | Status transitions enforced by reservation lifecycle rules |
 
 ## Database Schema
 The database consists of five core tables and supporting enums.

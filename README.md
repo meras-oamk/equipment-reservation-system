@@ -53,7 +53,7 @@ https://reservation-faevbvdgeybqg4fv.swedencentral-01.azurewebsites.net/
 
 | Landing Page | Login / Register |
 |---|---|
-| <img src="./frontend/Assets/landingPage.jpeg" alt="Landing Page" width="280"> | <img src="./frontend/Assets/loginPage.jpeg" alt="Login Page" width="230"> <img src="./frontend/Assets/registerPage.jpeg" alt="Register Page" width="230"> |
+| <img src="./frontend/Assets/landingPage.jpeg" alt="Landing Page" width="280"> | <img src="./frontend/Assets/loginPage.jpeg" alt="Login Page" width="300"> <img src="./frontend/Assets/registerPage.jpeg" alt="Register Page" width="300"> |
 | Public entry point with an overview of the platform. | Sign in or create an account; role (`student`, `staff`, `admin`) determines which views are accessible afterward. |
 
 ### Student / Staff View

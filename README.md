@@ -67,7 +67,7 @@ It allows students, staff, and admins to:
 
 | QR code check-in/out |
 |---|
-| <img src="./frontend/Assets/scanningQr.jpeg" alt="Scanning Qr" width="200"> | 
+| <img src="./frontend/Assets/scanningQr.jpeg" alt="Scanning Qr" width="500"> | 
 | Scanning the physical unit's QR code triggers pickup or return within the booked time window. | 
 
 ### Admin View

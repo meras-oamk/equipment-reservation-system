@@ -65,7 +65,7 @@ https://reservation-faevbvdgeybqg4fv.swedencentral-01.azurewebsites.net/
 
 | Reserved Confirmation | |
 |---|---|
-| <img src="./frontend/Assets/successfulModel.jpeg" alt="Successful Model" width="280"> | |
+| <img src="./frontend/Assets/successfulModel.jpeg" alt="Successful Model" width="180"> | |
 | Confirms a successful booking and shows the reservation ID(s), pickup window, and location. | |
 
 | My Reservation | Scanning QR Code |

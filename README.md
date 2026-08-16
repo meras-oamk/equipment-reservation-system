@@ -70,12 +70,12 @@ https://reservation-faevbvdgeybqg4fv.swedencentral-01.azurewebsites.net/
 
 | My Reservation | Scanning QR Code |
 |---|---|
-| <img src="./frontend/Assets/myReservationPage.jpeg" alt="Reservation Page" width="300"> <img src="./frontend/Assets/myReservation_Desktop.jpg" alt="Reservation Desktop" width="250">  | <img src="./frontend/Assets/scanningQr.jpeg" alt="Scanning Qr" width="300"> |
+| <img src="./frontend/Assets/myReservationPage.jpeg" alt="Reservation Page" width="300"> | <img src="./frontend/Assets/scanningQr.jpeg" alt="Scanning Qr" width="300"> |
 | Track all reservations across Inactive, Active, Overdue, and Completed tabs, with actual pickup/return timestamps.(actual timestamps available for desktop view only) | Scan the physical unit's QR code to trigger checkout or return. |
 
 | Reservation Actions (Pickup) | Reservation Actions (Return) |
 |---|---|
-| _screenshot here_ | _screenshot here_ |
+| <img src="./frontend/Assets/pickupPage.jpeg" alt="Pickup Page" width="300"> <img src="./frontend/Assets/pickup_active.jpeg" alt="Active Page" width="300"> | <img src="./frontend/Assets/returnPage.jpeg" alt="Return Page" width="300"> <img src="./frontend/Assets/return_completed.jpeg" alt="Completed Page" width="300"> |
 | Confirms equipment pickup after a successful QR scan within the booked time window. | Confirms equipment return and submits it for admin approval. |
 
 | My Account | Change Password |

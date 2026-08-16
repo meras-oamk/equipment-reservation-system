@@ -25,7 +25,7 @@ It allows students, staff, and admins to:
 -   [Setup](#setup)
 -   [Database Schema](#database-schema)
 -   [Project Structure](#project-structure)
--   [Interface](#system-interface)
+-   [Interface](#system-interfaces)
 
 ## Features
 

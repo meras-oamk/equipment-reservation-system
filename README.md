@@ -56,34 +56,37 @@ It allows students, staff, and admins to:
 ### [View the website](https://reservation-faevbvdgeybqg4fv.swedencentral-01.azurewebsites.net/index.html)
 
 ### Landing Page
-<img src="./frontend/Assets/landingPage.jpeg" alt="Landing Page" width="280">
+<img src="./frontend/Assets/landingPage.jpeg" alt="Landing Page" width="260">
 
 ### Student / Staff View
 
-| Equipment List | Equipment Details |
-|---|---|
-| <img src="./frontend/Assets/browsePage.jpeg" alt="Browse Page" width="300"> | <img src="./frontend/Assets/equipmentDetails.jpeg" alt="equipment Page" width="300"> |
-| Browse available equipment by category, subcategory, and real-time availability. | Pick date, time, and pickup location; quantity updates automatically based on that location's stock. |
-
-| Reserved Confirmation |
+| Equipment List | 
 |---|
-| <img src="./frontend/Assets/successfulModel.jpeg" alt="Successful Model" width="300"> |
-| Confirms a successful booking and shows the reservation ID(s), pickup window, and location. |
+| <img src="./frontend/Assets/browsePage.jpeg" alt="Browse Page" width="260"> | 
+| Browse available equipment by category, subcategory, and real-time availability. |
 
-| My Reservation | Scanning QR Code |
-|---|---|
-| <img src="./frontend/Assets/myReservationPage.jpeg" alt="Reservation Page" width="300"> | <img src="./frontend/Assets/scanningQr.jpeg" alt="Scanning Qr" width="300"> |
-| Track all reservations across Inactive, Active, Overdue, and Completed tabs, with actual pickup/return timestamps.(actual timestamps available for desktop view only) | Scan the physical unit's QR code to trigger checkout or return. |
+| Make a Reservation |
+|---|
+| <img src="./frontend/Assets/equipmentDetails.jpeg" alt="Equipment Details" width="260"> |
+| Book a specific equipment type by date, time, and pickup location; quantity updates automatically based on that location's stock. |
 
-| Reservation Actions (Pickup) | Reservation Actions (Return) |
-|---|---|
-| <img src="./frontend/Assets/pickupPage.jpeg" alt="Pickup Page" width="300"> <img src="./frontend/Assets/pickup_active.jpeg" alt="Active Page" width="300"> | <img src="./frontend/Assets/returnPage.jpeg" alt="Return Page" width="300"> <img src="./frontend/Assets/return_completed.jpeg" alt="Completed Page" width="300"> |
-| Confirms equipment pickup after a successful QR scan within the booked time window. | Confirms equipment return and submits it for admin approval. |
+| My Reservation | 
+|---|
+| <img src="./frontend/Assets/myReservationPage.jpeg" alt="Reservation Page" width="260"> | 
+| Track all reservations across Inactive, Active, Overdue, and Completed tabs, with actual pickup/return timestamps.(actual timestamps available for desktop view only) | 
 
-| My Account | Change Password |
-|---|---|
-| _screenshot here_ | _screenshot here_ |
-| View and manage account details. | Update account password securely. |
+| QR code check-in/out |
+|---|
+| <img src="./frontend/Assets/scanningQr.jpeg" alt="Scanning Qr" width="260"> | 
+| Scanning the physical unit's QR code triggers pickup or return within the booked time window. | 
+
+### Admin View
+
+| Dashboard | 
+|---|
+| <img src="./frontend/Assets/dashboard_admin.jpeg" alt="Admin Dashboard" width="260"> | 
+| Overview of equipment utilization, demand trends, category popularity, and pending return requests. |
+
 
 ## Setup
 Follow the instructions below to run the web application locally.

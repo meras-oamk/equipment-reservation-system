@@ -60,10 +60,10 @@ It allows students, staff, and admins to:
 
 ### Student / Staff View
 
-| Equipment List | 
-|---|
-| <img src="./frontend/Assets/browsePage.jpeg" alt="Browse Page" width="260"> | 
-| Browse available equipment by category, subcategory, and real-time availability. |
+| Equipment List | Make a Reservation |
+|---|---|
+| <img src="./frontend/Assets/browsePage.jpeg" alt="Browse Page" width="260"> | <img src="./frontend/Assets/equipmentDetails.jpeg" alt="Equipment Details" width="260"> |
+| Browse available equipment by category, subcategory, and real-time availability. | Book a specific equipment type by date, time, and pickup location; quantity updates automatically based on that location's stock. |
 
 | Make a Reservation |
 |---|

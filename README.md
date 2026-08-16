@@ -72,10 +72,10 @@ It allows students, staff, and admins to:
 
 ### Admin View
 
-| Dashboard | 
-|---|
-| <img src="./frontend/Assets/dashboard_admin.jpeg" alt="Admin Dashboard" width="260"> | 
-| Overview of equipment utilization, demand trends, category popularity, and pending return requests. |
+| Dashboard | Reservation Management | Equipment Management |
+|---|---|---|
+| <img src="./frontend/Assets/dashboard_admin.jpg" alt="Admin Dashboard" width="260"> | <img src="./frontend/Assets/reservationManagement.jpg" alt="Reservation Management" width="260"> | <img src="./frontend/Assets/equipmentManagement" alt="Equipment Management" width="260"> | 
+| Overview of equipment utilization, demand trends, category popularity, and pending return requests. | Allows administrators to view, monitor, and manage equipment reservations. | Allows administrators to view, monitor, and manage equipment reservations. | Enables administrators to add, update, and manage available equipment and units.
 
 
 ## Setup

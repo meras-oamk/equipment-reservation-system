@@ -62,18 +62,8 @@ It allows students, staff, and admins to:
 
 | Equipment List | Make a Reservation | My Reservation |
 |---|---|---|
-| <img src="./frontend/Assets/browsePage.jpeg" alt="Browse Page" width="260"> | <img src="./frontend/Assets/equipmentDetails.jpeg" alt="Equipment Details" width="260"> | <img src="./frontend/Assets/myReservationPage.jpeg" alt="Reservation Page" width="260"> |
+| <img src="./frontend/Assets/browsePage.jpeg" alt="Browse Page" width="260"> | <img src="./frontend/Assets/equipmentDetails.jpeg" alt="Equipment Details" width="260"> | <img src="./frontend/Assets/myReservationPage.jpeg" alt="Reservation Page" width="300"> |
 | Browse available equipment by category, subcategory, and real-time availability. | Book a specific equipment type by date, time, and pickup location; quantity updates automatically based on that location's stock. | Track all reservations across Inactive, Active, Overdue, and Completed tabs, with actual pickup/return timestamps.(actual timestamps available for desktop view only) | 
-
-| Make a Reservation |
-|---|
-| <img src="./frontend/Assets/equipmentDetails.jpeg" alt="Equipment Details" width="260"> |
-| Book a specific equipment type by date, time, and pickup location; quantity updates automatically based on that location's stock. |
-
-| My Reservation | 
-|---|
-| <img src="./frontend/Assets/myReservationPage.jpeg" alt="Reservation Page" width="260"> | 
-| Track all reservations across Inactive, Active, Overdue, and Completed tabs, with actual pickup/return timestamps.(actual timestamps available for desktop view only) | 
 
 | QR code check-in/out |
 |---|

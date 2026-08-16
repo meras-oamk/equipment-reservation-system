@@ -11,15 +11,20 @@ It allows students, staff, and admins to:
 - Receive email notifications for reservation confirmations, reminders, and overdue alerts
 - Manage equipment condition, status, and audit logs through an admin dashboard
 
-## Live Demo
-https://reservation-faevbvdgeybqg4fv.swedencentral-01.azurewebsites.net/
-
 ## Team
 - Janne Kumpuoja (Supervisor)
 - Diem Tran (Student)
 - Thi Dinh (Student)
 - Upeksha Eshani (Student)
 - Ruvindra Nimshani (Student)
+
+## Table of Contents
+-   [Features](#features)
+-   [Technologies](#technology-stack)
+-   [Demonstration](#demonstration)
+-   [Setup](#setup)
+-   [Database Schema](#database-schema)
+-   [Project Structure](#project-structure)
 
 ## Technology Stack
 
@@ -47,14 +52,11 @@ https://reservation-faevbvdgeybqg4fv.swedencentral-01.azurewebsites.net/
 | **Audit logging** | Every action on every unit is recorded with before/after state |
 | **Booking policies** | Status transitions enforced by reservation lifecycle rules |
 
-## Pages
+## Demonstration
+### [View the website](https://reservation-faevbvdgeybqg4fv.swedencentral-01.azurewebsites.net/index.html)
 
-### Shared
-
-| Landing Page | Login / Register |
-|---|---|
-| <img src="./frontend/Assets/landingPage.jpeg" alt="Landing Page" width="280"> | <img src="./frontend/Assets/loginPage.jpeg" alt="Login Page" width="300"> <img src="./frontend/Assets/registerPage.jpeg" alt="Register Page" width="300"> |
-| Public entry point with an overview of the platform. | Sign in or create an account; role (`student`, `staff`, `admin`) determines which views are accessible afterward. |
+### Landing Page
+<img src="./frontend/Assets/landingPage.jpeg" alt="Landing Page" width="280">
 
 ### Student / Staff View
 
@@ -83,36 +85,57 @@ https://reservation-faevbvdgeybqg4fv.swedencentral-01.azurewebsites.net/
 | _screenshot here_ | _screenshot here_ |
 | View and manage account details. | Update account password securely. |
 
-## Environment Variables
+## Setup
+Follow the instructions below to run the web application locally.
 
-Create a `.env` file inside `/backend`:
-
-**Do NOT commit `.env` to GitHub.**
-
-## Running Locally
-
+### Installation
 **1. Clone the repo**
 ```bash
-git clone https://github.com/meras-oamk/equipment-reservation-system.git
+$ git clone https://github.com/meras-oamk/equipment-reservation-system.git
 ```
 
 **2. Install dependencies**
 ```bash
-npm install
+# Install the dependencies for the backend
+$ cd backend
+$ npm install
 ```
 
 **3. Set up the database**
 
 This project uses [Neon](https://neon.tech)
 
-**4. Start the server**
+Copy `/database/meras.sql` to create tables.
+
+**4. Cloudinary Setup**
+
+Sign up on [Cloudinary](https://cloudinary.com/) to create an account. Once registered, you can find your API key, API secret, and cloud name in your account settings.
+
+**6. Environment variables**
+
+Create `/backend/.env`
+
+Add the following environment variables:
 ```bash
-npm run dev
+# PORT to run backend on
+PORT=3001
+# Connection URL to PostgreSQL database
+DATABASE_URL=YOUR_POSTGRES_URL
+# Secret key to sign tokens (random string)
+JWT_SECRET=YOUR_SECRET_STRING
+# Email service configuration
+EMAIL_USER=YOUR_EMAIL
+EMAIL_PASS=YOUR_PASS
+# Cloudinary configuration
+CLOUDINARY_API_KEY=API_KEY
+CLOUDINARY_API_SECRET=API_SECRET
+CLOUDINARY_CLOUD_NAME=CLOUD_NAME
 ```
 
-**5. Open in browser**
-
-[http://localhost:3001](http://localhost:3000)
+**5. Start the server**
+```bash
+$ npm run dev
+```
 
 ## Database Schema
 The database consists of five core tables and supporting enums.
@@ -170,23 +193,6 @@ equipment-reservation-system/
 ├── .gitignore                       # Git ignored files (node_modules, .env, etc.)
 └── README.md                        # Project documentation (this file)
 ```
-
-## Pages
-
-| Admin | User |
-|---|---|
-| Landing Page | Landing Page |
-| Login | Login / Signup |
-| Dashboard | Equipment List |
-| Reservations | Equipment Details |
-| Equipment Management | Reserved Confirmation |
-| Add Equipment | Reservation Details |
-| Configuration | My Reservation |
-| Add Categories | Scanning QR Code |
-| Manage Users | Reservation Actions (Pickup) |
-| Logs | Reservation Actions (Return) |
-| Booking Policies | My Account |
-| Change Password | Change Password |
 
 ## Course
 

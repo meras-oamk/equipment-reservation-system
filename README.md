@@ -25,17 +25,7 @@ It allows students, staff, and admins to:
 -   [Setup](#setup)
 -   [Database Schema](#database-schema)
 -   [Project Structure](#project-structure)
-
-## Technology Stack
-
-| Layer | Technology |
-|---|---|
-| **Frontend** | HTML, CSS, JavaScript |
-| **Backend** | Node.js + Express.js |
-| **Database** | PostgreSQL |
-| **Authentication** | JSON Web Token (jsonwebtoken), bcrypt |
-| **QR Scanning** | qrcode, html5-qrcode |
-| **Email** | Nodemailer |
+-   [Interface](#system-interface)
 
 ## Features
 
@@ -52,40 +42,20 @@ It allows students, staff, and admins to:
 | **Audit logging** | Every action on every unit is recorded with before/after state |
 | **Booking policies** | Status transitions enforced by reservation lifecycle rules |
 
+
+## Technology Stack
+
+| Layer | Technology |
+|---|---|
+| **Frontend** | HTML, CSS, JavaScript |
+| **Backend** | Node.js + Express.js |
+| **Database** | PostgreSQL |
+| **Authentication** | JSON Web Token (jsonwebtoken), bcrypt |
+| **QR Scanning** | qrcode, html5-qrcode |
+| **Email** | Nodemailer |
+
 ## Demonstration
 ### [View the website](https://reservation-faevbvdgeybqg4fv.swedencentral-01.azurewebsites.net/index.html)
-
-### Landing Page
-<img src="./frontend/Assets/landingPage.jpeg" alt="Landing Page" width="260">
-
-### Student / Staff View
-
-| Equipment List | Make a Reservation | My Reservation |
-|---|---|---|
-| <img src="./frontend/Assets/browsePage.jpeg" alt="Browse Page" width="260"> | <img src="./frontend/Assets/equipmentDetails.jpeg" alt="Equipment Details" width="260"> | <img src="./frontend/Assets/myReservationPage.jpeg" alt="Reservation Page" width="300"> |
-| Browse available equipment by category, subcategory, and real-time availability. | Book a specific equipment type by date, time, and pickup location; quantity updates automatically based on that location's stock. | Track all reservations across Inactive, Active, Overdue, and Completed tabs, with actual pickup/return timestamps.(actual timestamps available for desktop view only) | 
-
-| QR code check-in/out |
-|---|
-| <img src="./frontend/Assets/scanningQr.jpeg" alt="Scanning Qr" width="500"> | 
-| Scanning the physical unit's QR code triggers pickup or return within the booked time window. | 
-
-### Admin View
-
-| Dashboard | Reservation Management | 
-|---|---|
-| <img src="./frontend/Assets/dashboard_admin.jpg" alt="Admin Dashboard" width="400"> | <img src="./frontend/Assets/reservationManagement.jpg" alt="Reservation Management" width="400"> |  
-| Overview of equipment utilization, demand trends, category popularity, and pending return requests. | Allows administrators to view, monitor, and manage equipment reservations. | 
-
-| Equipment Management | Configuration |
-|---|---|
-| <img src="./frontend/Assets/equipmentManagement.jpg" alt="Equipment Management" width="400"> | <img src="./frontend/Assets/configuration.jpg" alt="Configuration" width="400"> |
-| Enables administrators to add, update, and manage available equipment and units. | Provides controls for system settings and reservation-related configurations. |
-
-| User Management | Logs & Booking Policies |
-|---|---|
-| <img src="./frontend/Assets/userManagement.jpg" alt="User Management" width="400"> | <img src="./frontend/Assets/equipmentLogs.jpg" alt="Logs" width="400"> <img src="./frontend/Assets/policy.jpg" alt="policy" width="400"> |
-| Enables administrators to add, update, and manage available equipment and units. | Provides equipment activity logs and allows administrators to manage booking rules and policies. |
 
 ## Setup
 Follow the instructions below to run the web application locally.
@@ -113,7 +83,7 @@ Copy `/database/meras.sql` to create tables.
 
 Sign up on [Cloudinary](https://cloudinary.com/) to create an account. Once registered, you can find your API key, API secret, and cloud name in your account settings.
 
-**6. Environment variables**
+**5. Environment variables**
 
 Create `/backend/.env`
 
@@ -134,7 +104,7 @@ CLOUDINARY_API_SECRET=API_SECRET
 CLOUDINARY_CLOUD_NAME=CLOUD_NAME
 ```
 
-**5. Start the server**
+**6. Start the server**
 ```bash
 $ npm run dev
 ```
@@ -196,12 +166,46 @@ equipment-reservation-system/
 └── README.md                        # Project documentation (this file)
 ```
 
+## System Interfaces
+
+### Landing Page
+<img src="./frontend/Assets/landingPage.jpeg" alt="Landing Page" width="260">
+
+### Student / Staff View
+
+| Equipment List | Make a Reservation | My Reservation |
+|---|---|---|
+| <img src="./frontend/Assets/browsePage.jpeg" alt="Browse Page" width="260"> | <img src="./frontend/Assets/equipmentDetails.jpeg" alt="Equipment Details" width="260"> | <img src="./frontend/Assets/myReservationPage.jpeg" alt="Reservation Page" width="300"> |
+| Browse available equipment by category, subcategory, and real-time availability. | Book a specific equipment type by date, time, and pickup location; quantity updates automatically based on that location's stock. | Track all reservations across Inactive, Active, Overdue, and Completed tabs, with actual pickup/return timestamps.(actual timestamps available for desktop view only) | 
+
+| QR code check-in/out |
+|---|
+| <img src="./frontend/Assets/scanningQr.jpeg" alt="Scanning Qr" width="500"> | 
+| Scanning the physical unit's QR code triggers pickup or return within the booked time window. | 
+
+### Admin View
+
+| Dashboard | Reservation Management | 
+|---|---|
+| <img src="./frontend/Assets/dashboard_admin.jpg" alt="Admin Dashboard" width="400"> | <img src="./frontend/Assets/reservationManagement.jpg" alt="Reservation Management" width="400"> |  
+| Overview of equipment utilization, demand trends, category popularity, and pending return requests. | Allows administrators to view, monitor, and manage equipment reservations. | 
+
+| Equipment Management | Configuration |
+|---|---|
+| <img src="./frontend/Assets/equipmentManagement.jpg" alt="Equipment Management" width="400"> | <img src="./frontend/Assets/configuration.jpg" alt="Configuration" width="400"> |
+| Enables administrators to add, update, and manage available equipment and units. | Provides controls for system settings and reservation-related configurations. |
+
+| User Management | Logs & Booking Policies |
+|---|---|
+| <img src="./frontend/Assets/manageUsers.jpg" alt="User Management" width="400"> | <img src="./frontend/Assets/equipmentLogs.jpg" alt="Logs" width="400"> <img src="./frontend/Assets/policy.jpg" alt="policy" width="400"> |
+| Enables administrators to add, update, and manage available equipment and units. | Provides equipment activity logs and allows administrators to manage booking rules and policies. |
+
 ## Course
 
 TVT Kesäprojektit-Summer projects 2026
 
 Oulu Universit of Applied Sciences (OAMK)
 
-Sprint period: 13.5 - 15.8.2026
+Sprint period: 13.5 - 17.8.2026
 
 

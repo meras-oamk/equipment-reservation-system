@@ -48,6 +48,9 @@ body {
     padding: 16px 30px;
     border-bottom: 2px solid #ddd;
     background: white;
+}
+
+#static-container {
     position: sticky;
     top: 0;
     z-index: 100;
@@ -116,4 +119,53 @@ button.logout:hover {
     font-size: 22px;
     cursor: pointer;
     color: #444;
+}
+
+/* MOBILE */
+@media (max-width: 600px) {
+    body {
+        padding: 0;
+    }
+
+    .page-wrapper {
+        border-radius: 0;
+    }
+
+    .top-navbar {
+        padding: 12px 16px;
+        position: relative;
+        border-radius: 0;
+    }
+
+    .top-navbar .logo {
+        width: 44px;
+    }
+
+    .nav-toggle {
+        display: block;
+    }
+
+    .nav-links {
+        display: none;
+        flex-direction: column;
+        align-items: flex-start;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border-bottom: 2px solid #ddd;
+        padding: 12px 16px;
+        gap: 4px;
+        z-index: 100;
+    }
+
+    .nav-links.open {
+        display: flex;
+    }
+
+    .nav-links a {
+        width: 100%;
+        padding: 8px 12px;
+    }
 }

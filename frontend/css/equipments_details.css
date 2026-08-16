@@ -397,9 +397,6 @@
     .detail-icon {
       width: 34px;
       height: 34px;
-      background: #fff7ee;
-      border: 1px solid #fde5c3;
-      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -452,13 +449,13 @@
       font-family: 'DM Sans', sans-serif;
       font-size: 0.9rem;
       font-weight: 600;
-      color: #fff;
       cursor: pointer;
       transition: background 0.2s;
+      background: var(--orange);
     }
 
     .btn-modal-view a {
-      color: #032e6ef8;
+      color: #fff;
       text-decoration: none;
     }
 

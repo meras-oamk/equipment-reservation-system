@@ -43,7 +43,7 @@
 
 .profile-row i {
     font-size: 17px;
-    color: #475569;
+    color: var(--orange);
     flex-shrink: 0;
 }
 

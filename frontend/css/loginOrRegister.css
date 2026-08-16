@@ -22,7 +22,7 @@ body{
     display:flex;
     justify-content:space-between;
     align-items:center;
-    padding:14px 30px;
+    padding:16px 30px;
     background:white;
     border-bottom:2px solid #ddd;
 }

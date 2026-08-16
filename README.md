@@ -77,10 +77,15 @@ It allows students, staff, and admins to:
 | <img src="./frontend/Assets/dashboard_admin.jpg" alt="Admin Dashboard" width="400"> | <img src="./frontend/Assets/reservationManagement.jpg" alt="Reservation Management" width="400"> |  
 | Overview of equipment utilization, demand trends, category popularity, and pending return requests. | Allows administrators to view, monitor, and manage equipment reservations. | 
 
-| Equipment Management |
-|---|
-| <img src="./frontend/Assets/equipmentManagement.jpg" alt="Equipment Management" width="400"> |
-| Enables administrators to add, update, and manage available equipment and units. |
+| Equipment Management | Configuration |
+|---|---|
+| <img src="./frontend/Assets/equipmentManagement.jpg" alt="Equipment Management" width="400"> | <img src="./frontend/Assets/configuration.jpg" alt="Configuration" width="400"> |
+| Enables administrators to add, update, and manage available equipment and units. | Provides controls for system settings and reservation-related configurations. |
+
+| User Management | Logs & Booking Policies |
+|---|---|
+| <img src="./frontend/Assets/userManagement.jpg" alt="User Management" width="400"> | <img src="./frontend/Assets/equipmentLogs.jpg" alt="Logs" width="400"> <img src="./frontend/Assets/policy.jpg" alt="policy" width="400"> |
+| Enables administrators to add, update, and manage available equipment and units. | Provides equipment activity logs and allows administrators to manage booking rules and policies. |
 
 ## Setup
 Follow the instructions below to run the web application locally.

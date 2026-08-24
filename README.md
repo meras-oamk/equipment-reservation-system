@@ -2,17 +2,16 @@
 
 
 ## Project Description
-EquipReserve is a modular reservation and asset tracking system designed for institutions that manage shared technical equipment — VR headsets, AR glasses, motion trackers, robotics, lab devices, and more.
+EquipReserve is a modular reservation and asset tracking system designed for institutions that manage shared technical equipment.
 
 It allows students, staff, and admins to:
 - Browse available equipment and make time-based reservations
 - Check equipment in and out via QR code scanning
 - Track the full lifecycle of every physical unit — from booking to return
-- Receive email notifications for reservation confirmations, reminders, and overdue alerts
-- Manage equipment condition, status, and audit logs through an admin dashboard
+- Receive email notifications for return reminders, and overdue alerts
+- Manage equipment condition, status, and audit logs through admin dashboard
 
 ## Team
-- Janne Kumpuoja (Supervisor)
 - Diem Tran (Student)
 - Thi Dinh (Student)
 - Upeksha Eshani (Student)
@@ -21,27 +20,29 @@ It allows students, staff, and admins to:
 ## Table of Contents
 -   [Features](#features)
 -   [Technologies](#technology-stack)
--   [Demonstration](#demonstration)
--   [Setup](#setup)
--   [Database Schema](#database-schema)
--   [Project Structure](#project-structure)
+-   [Architecture](#architecture)
 -   [Interface](#system-interfaces)
+-   [Setup and Installation](#setup)
+-   [Database Design](#database-design)
+-   [Project Structure](#project-structure)
 
-## Features
+ ## Key Features
 
-| Feature | Description |
-|---|---|
-| **Role-based access** | Three roles: `student`, `staff`, `admin` — each with different booking permissions |
-| **Equipment catalog** | Browse equipment by category, status, and availability |
-| **Time-based reservations** | Book specific equipment types for defined time slots |
-| **Unit assignment** | A specific physical unit is assigned to a reservation at checkout |
-| **QR code check-in/out** | Scan QR code on physical unit to trigger checkout or return |
-| **Admin dashboard** | Full overview of reservations, equipment status, and users |
-| **Email notifications** | Confirmation, reminder, and overdue alerts via email |
-| **Condition tracking** | Record equipment condition at check-out and return |
-| **Audit logging** | Every action on every unit is recorded with before/after state |
-| **Booking policies** | Status transitions enforced by reservation lifecycle rules |
+### Booking & Equipment Management
+* **Time-Based Reservations:** Book specific equipment categories for defined, conflict-free time slots.
+* **Unit Assignment:** Automatically assign a unit to a reservation at checkout.
+* **Equipment Catalog:** Browse and filter inventory by category.
+* **QR Code Check-In/Out:** Scan physical QR codes on equipment units to trigger checkout or return workflows.
 
+### Admin & Operations
+* **Role-Based Access Control (RBAC):** Distinct workflows and permissions for `student`, `staff`, and `admin` roles.
+* **Admin Dashboard:** Providing a complete overview of reservations, equipment health, and user accounts.
+* **Condition Tracking:** Log and monitor equipment condition during both check-out and return to identify damages early.
+
+### Automation & Reliability
+* **Audit Logging:** Every system action on every physical unit is recorded with a before-and-after state snapshot for accountability.
+* **Lifecycle Rules:** Automated booking policies that strictly enforce valid status transitions.
+* **Automated Notifications:** Sends emails for booking confirmations, return reminders, and overdue alerts.
 
 ## Technology Stack
 
@@ -54,8 +55,23 @@ It allows students, staff, and admins to:
 | **QR Scanning** | qrcode, html5-qrcode |
 | **Email** | Nodemailer |
 
-## Demonstration
+
+## Architecture
+
+![System Architecture](frontend/Assets/architecture_diagram.png)
+
+## System Interfaces
+
 ### [View the website](https://reservation-faevbvdgeybqg4fv.swedencentral-01.azurewebsites.net/index.html)
+
+### Student / Staff View
+<video controls src="frontend/Assets/meras_user.mp4" title="Title"></video>
+
+### Admin View
+
+![Dashboard](frontend/Assets/admin_dashboard.png)
+![Equipments](frontend/Assets/admin_equipments.png)
+
 
 ## Setup
 Follow the instructions below to run the web application locally.
@@ -109,7 +125,7 @@ CLOUDINARY_CLOUD_NAME=CLOUD_NAME
 $ npm run dev
 ```
 
-## Database Schema
+## Database Design
 The database consists of five core tables and supporting enums.
 
 <img width="1200" height="984" alt="ER-diagram" src="https://github.com/user-attachments/assets/5b60803f-610a-4e65-b333-fde12f62c93d" />
@@ -165,40 +181,6 @@ equipment-reservation-system/
 ├── .gitignore                       # Git ignored files (node_modules, .env, etc.)
 └── README.md                        # Project documentation (this file)
 ```
-
-## System Interfaces
-
-### Landing Page
-<img src="./frontend/Assets/landingPage.jpeg" alt="Landing Page" width="260">
-
-### Student / Staff View
-
-| Equipment List | Make a Reservation | My Reservation |
-|---|---|---|
-| <img src="./frontend/Assets/browsePage.jpeg" alt="Browse Page" width="260"> | <img src="./frontend/Assets/equipmentDetails.jpeg" alt="Equipment Details" width="260"> | <img src="./frontend/Assets/myReservationPage.jpeg" alt="Reservation Page" width="300"> |
-| Browse available equipment by category, subcategory, and real-time availability. | Book a specific equipment type by date, time, and pickup location; quantity updates automatically based on that location's stock. | Track all reservations across Inactive, Active, Overdue, and Completed tabs, with actual pickup/return timestamps.(actual timestamps available for desktop view only) | 
-
-| QR code check-in/out |
-|---|
-| <img src="./frontend/Assets/scanningQr.jpeg" alt="Scanning Qr" width="500"> | 
-| Scanning the physical unit's QR code triggers pickup or return within the booked time window. | 
-
-### Admin View
-
-| Dashboard | Reservation Management | 
-|---|---|
-| <img src="./frontend/Assets/dashboard_admin.jpg" alt="Admin Dashboard" width="400"> | <img src="./frontend/Assets/reservationManagement.jpg" alt="Reservation Management" width="400"> |  
-| Overview of equipment utilization, demand trends, category popularity, and pending return requests. | Allows administrators to view, monitor, and manage equipment reservations. | 
-
-| Equipment Management | Configuration |
-|---|---|
-| <img src="./frontend/Assets/equipmentManagement.jpg" alt="Equipment Management" width="400"> | <img src="./frontend/Assets/configuration.jpg" alt="Configuration" width="400"> |
-| Enables administrators to add, update, and manage available equipment and units. | Provides controls for system settings and reservation-related configurations. |
-
-| User Management | Logs & Booking Policies |
-|---|---|
-| <img src="./frontend/Assets/manageUsers.jpg" alt="User Management" width="400"> | <img src="./frontend/Assets/equipmentLogs.jpg" alt="Logs" width="400"> <img src="./frontend/Assets/policy.jpg" alt="policy" width="400"> |
-| Enables administrators to add, update, and manage available equipment and units. | Provides equipment activity logs and allows administrators to manage booking rules and policies. |
 
 ## Course
 
